@@ -8,3 +8,4 @@ build/
 pgdata/
 coverage/
 .turbo/
+*.tsbuildinfo

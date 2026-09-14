@@ -9,3 +9,5 @@ pgdata/
 coverage/
 .turbo/
 *.tsbuildinfo
+
+.vercel

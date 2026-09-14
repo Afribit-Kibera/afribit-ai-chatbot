@@ -49,6 +49,37 @@ export const candidateBatchSchema = {
   additionalProperties: false,
 } as const;
 
+export interface CritiqueResult {
+  verdict: "natural" | "awkward" | "unnatural" | "unsafe";
+  naturalness_score: number;
+  factual_drift: boolean;
+  notes: string;
+}
+
+/** Doc §3.2 critic tasks: unnatural translation, formality, factual drift, unsafe guidance. */
+export const critiqueSchema = {
+  type: "object",
+  properties: {
+    verdict: { type: "string", enum: ["natural", "awkward", "unnatural", "unsafe"] },
+    naturalness_score: { type: "integer", description: "1 (unnatural) to 5 (very natural)." },
+    factual_drift: { type: "boolean", description: "True if the candidate changed or lost the canonical fact's meaning." },
+    notes: { type: "string" },
+  },
+  required: ["verdict", "naturalness_score", "factual_drift", "notes"],
+  additionalProperties: false,
+} as const;
+
+export function isValidCritiqueResult(value: unknown): value is CritiqueResult {
+  if (typeof value !== "object" || value === null) return false;
+  const v = value as Record<string, unknown>;
+  return (
+    ["natural", "awkward", "unnatural", "unsafe"].includes(v.verdict as string) &&
+    typeof v.naturalness_score === "number" &&
+    typeof v.factual_drift === "boolean" &&
+    typeof v.notes === "string"
+  );
+}
+
 /** Runtime validation beyond JSON-schema shape (doc §17 "Schema" check). */
 export function isValidCandidateBatch(value: unknown): value is CandidateBatch {
   if (typeof value !== "object" || value === null) return false;

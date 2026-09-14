@@ -121,10 +121,10 @@ export async function persistAcceptedCandidates(params: {
   style: "sheng" | "swahili" | "simple_en" | "mixed_ke";
   intent: string | null;
   concept: string;
-}): Promise<number> {
-  let inserted = 0;
+}): Promise<{ count: number; ids: string[] }> {
+  const ids: string[] = [];
   for (const text of params.texts) {
-    const result = await pool.query(
+    const result = await pool.query<{ id: string }>(
       `INSERT INTO language_entries (
          utterance, intent, meaning, style, source_context,
          status, freshness, corpus_layer, source, source_type, license,
@@ -132,10 +132,11 @@ export async function persistAcceptedCandidates(params: {
          allowed_for_rag, allowed_for_training, allowed_for_evaluation, generation_id
        ) VALUES ($1,$2,$3,$4,$5,'draft','current','L1_synthetic_bootstrap','afribit_dataset_lab','synthetic_generated',NULL,
          FALSE, TRUE, FALSE, 'unrated', FALSE, FALSE, TRUE, $6)
-       ON CONFLICT DO NOTHING`,
+       ON CONFLICT DO NOTHING
+       RETURNING id`,
       [text, params.intent, params.concept, params.style, `dataset_lab:${params.generationId}`, params.generationId],
     );
-    inserted += result.rowCount ?? 0;
+    if (result.rows[0]) ids.push(result.rows[0].id);
   }
-  return inserted;
+  return { count: ids.length, ids };
 }

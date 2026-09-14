@@ -14,6 +14,129 @@ const TOPICS = [
   { id: "safety", title: "Safety" },
 ];
 
+/** PRD §39 continuation — expanding beyond the original 12-entry starter set. */
+const ADDITIONAL_ENTRIES: {
+  id: string;
+  topicId: string;
+  title: string;
+  canonicalAnswer: string;
+  beginnerAnswer: string;
+  safetyNotes?: string[];
+}[] = [
+  {
+    id: "btc.basics.who_controls_bitcoin",
+    topicId: "bitcoin_basics",
+    title: "Who controls Bitcoin?",
+    canonicalAnswer:
+      "No single company, government, or person controls Bitcoin. It runs on software followed by thousands of independent computers (nodes) around the world, and changes to the rules require broad agreement across that network.",
+    beginnerAnswer:
+      "Hakuna kampuni ama serikali moja inayo-control Bitcoin. Inaendeshwa na kompyuta elfu nyingi ulimwenguni zinazofuata sheria zilezile. Kubadilisha sheria hizo kunahitaji makubaliano makubwa, sio mtu mmoja kuamua.",
+  },
+  {
+    id: "btc.basics.why_value",
+    topicId: "bitcoin_basics",
+    title: "Why does Bitcoin have value?",
+    canonicalAnswer:
+      "Bitcoin has value because people are willing to accept it in exchange for goods, services, or other currencies, similar to how any money holds value through shared trust and usefulness. Its fixed, predictable supply (a maximum of 21 million bitcoin) also shapes how people value it over time.",
+    beginnerAnswer:
+      "Bitcoin ina thamani kwa sababu watu wako tayari kuipokea badala ya bidhaa, huduma, ama pesa nyingine — kama pesa yoyote inavyofanya kazi kwa imani na matumizi. Pia, Bitcoin haiwezi kuzidi milioni 21 duniani, na hilo linaathiri thamani yake.",
+  },
+  {
+    id: "btc.basics.vs_crypto",
+    topicId: "bitcoin_basics",
+    title: "Is Bitcoin the same as crypto?",
+    canonicalAnswer:
+      "Bitcoin is one specific cryptocurrency — the first and largest — but 'crypto' is a broad category that includes thousands of other coins and tokens with very different designs, purposes, and risk levels. Afribit AI focuses specifically on Bitcoin, not the wider crypto market.",
+    beginnerAnswer:
+      "Bitcoin ni aina moja tu ya crypto — ndio ya kwanza na kubwa zaidi. 'Crypto' ni jina la jumla la coins na tokens elfu nyingi tofauti, zenye designs na hatari tofauti. Afribit AI inazungumzia Bitcoin peke yake, sio crypto zote.",
+  },
+  {
+    id: "btc.basics.can_be_shut_down",
+    topicId: "bitcoin_basics",
+    title: "Can Bitcoin be shut down?",
+    canonicalAnswer:
+      "Because Bitcoin runs on thousands of independent computers spread across many countries rather than one central server, there is no single point to shut down. A government could restrict its use within its own borders, but that is different from being able to switch the network off entirely.",
+    beginnerAnswer:
+      "Bitcoin haina server moja ya kuizima, kwa sababu inaendeshwa na kompyuta elfu nyingi kote ulimwenguni. Serikali inaweza kuzuia matumizi yake nchini mwao, lakini hilo ni tofauti na kuizima Bitcoin yenyewe kabisa.",
+  },
+  {
+    id: "btc.lightning.why_faster",
+    topicId: "lightning",
+    title: "Why is Lightning faster?",
+    canonicalAnswer:
+      "Lightning payments are typically confirmed in seconds because they move through pre-funded payment channels between participants instead of waiting for a new block to be added to the main Bitcoin blockchain each time, which normally takes minutes.",
+    beginnerAnswer:
+      "Lightning ni haraka kwa sababu malipo yanapita kwa 'channels' zilizowekwa pesa mapema, badala ya kusubiri block mpya kwa blockchain kuu ya Bitcoin — jambo linalochukua dakika kadhaa kila wakati.",
+  },
+  {
+    id: "btc.lightning.address",
+    topicId: "lightning",
+    title: "What is a Lightning address?",
+    canonicalAnswer:
+      "A Lightning address looks like an email address (e.g. name@wallet.com) and lets someone receive Lightning payments repeatedly without generating a new invoice for every transaction — the sender's wallet fetches a fresh invoice automatically behind the scenes.",
+    beginnerAnswer:
+      "Lightning address inaonekana kama email (mfano: jina@wallet.com). Inakuruhusu kupokea malipo mara nyingi bila kutengeneza invoice mpya kila wakati — wallet ya mtu anayekutumia inatengeneza invoice yenyewe nyuma ya pazia.",
+  },
+  {
+    id: "btc.lightning.payment_failure",
+    topicId: "lightning",
+    title: "Why can a Lightning payment fail?",
+    canonicalAnswer:
+      "A Lightning payment can fail if there isn't enough liquidity along the route between sender and receiver, if the invoice has expired, or if the receiving wallet is temporarily offline. Most wallets will show a clear failure message, and the sender's funds are not lost — they simply aren't sent.",
+    beginnerAnswer:
+      "Lightning payment inaweza kufail ikiwa hakuna liquidity ya kutosha njiani, invoice imeisha muda wake, ama wallet ya anayepokea iko offline kwa muda. Wallet yako itakuonyesha imefail, na pesa zako haziishi — hazikutumwa tu.",
+  },
+  {
+    id: "btc.paying.pay_merchant",
+    topicId: "receiving_paying",
+    title: "How do I pay a merchant?",
+    canonicalAnswer:
+      "To pay a Bitcoin-accepting merchant, open your wallet's send/scan function, scan the merchant's QR code (an address or Lightning invoice), confirm the amount, and send. Always verify the amount shown in your wallet matches what the merchant expects before confirming.",
+    beginnerAnswer:
+      "Kulipa merchant, fungua wallet yako, chagua 'send' ama 'scan', scan QR code ya merchant, hakikisha amount ni sahihi, kisha uthibitishe. Hakikisha amount inayoonekana kwa wallet yako inalingana na ile merchant anataka kabla ya kutuma.",
+  },
+  {
+    id: "btc.paying.reversible",
+    topicId: "receiving_paying",
+    title: "Can a Bitcoin payment be reversed?",
+    canonicalAnswer:
+      "Once a Bitcoin transaction is confirmed on the network, it cannot be reversed by the sender, the receiver, or any company — there is no central authority who can undo it. This makes it important to double-check addresses and amounts before sending.",
+    beginnerAnswer:
+      "Ukishatuma na malipo yakathibitishwa (confirmed), huwezi kuyarudisha — hakuna mtu ama kampuni yenye uwezo wa kufuta transaction hiyo. Ndio maana ni muhimu kuangalia address na amount vizuri kabla ya kutuma.",
+    safetyNotes: ["Always double-check the address/invoice before sending — Bitcoin payments cannot be reversed."],
+  },
+  {
+    id: "btc.safety.fake_support",
+    topicId: "safety",
+    title: "Fake support agents",
+    canonicalAnswer:
+      "Scammers often impersonate wallet or exchange support staff on social media, WhatsApp, or phone calls, asking users to share seed phrases, private keys, or remote-access to their device to 'fix' a problem. Legitimate support never needs any of these to help you.",
+    beginnerAnswer:
+      "Wezi wengine hujifanya ni support ya wallet ama exchange kwa social media, WhatsApp, ama simu, na kuomba seed phrase, private key, ama remote access ya simu yako ili 'wakusaidie'. Support ya kweli haihitaji vitu hivyo kamwe.",
+    safetyNotes: ["No legitimate support agent will ever ask for a seed phrase, private key, or remote device access."],
+  },
+  {
+    id: "btc.safety.wrong_address",
+    topicId: "safety",
+    title: "Sending to the wrong address or invoice",
+    canonicalAnswer:
+      "Sending Bitcoin to the wrong address, or paying an invoice for the wrong amount, cannot be undone once confirmed. Always copy addresses by scanning a QR code rather than typing them, and double-check the amount before confirming any payment.",
+    beginnerAnswer:
+      "Ukituma Bitcoin kwa address isiyo sahihi, ama kulipa invoice ya amount isiyo sahihi, huwezi kurekebisha baada ya kuthibitishwa. Tumia QR code kuchukua address badala ya kuiandika mwenyewe, na hakikisha amount kabla ya kutuma.",
+    safetyNotes: ["Scan QR codes instead of typing addresses by hand to avoid costly mistakes."],
+  },
+  {
+    id: "btc.safety.backup_basics",
+    topicId: "safety",
+    title: "Backup basics",
+    canonicalAnswer:
+      "For a non-custodial wallet, backing up means safely recording the seed phrase somewhere private and durable — such as writing it on paper and storing it securely — and never as a photo, cloud note, or message. This backup is the only way to recover funds if the device is lost, stolen, or damaged.",
+    beginnerAnswer:
+      "Kwa wallet ya non-custodial, backup inamaanisha kuandika seed phrase yako mahali salama na binafsi — kama kwa karatasi na kuihifadhi vizuri — sio picha, cloud note, ama ujumbe. Hii ndio njia pekee ya kurudisha pesa zako ukipoteza simu.",
+    safetyNotes: ["Never store a seed phrase as a photo, screenshot, cloud note, or message."],
+  },
+];
+
 const ENTRIES: {
   id: string;
   topicId: string;
@@ -135,6 +258,8 @@ const ENTRIES: {
   },
 ];
 
+const ALL_ENTRIES = [...ENTRIES, ...ADDITIONAL_ENTRIES];
+
 async function seed(): Promise<void> {
   for (const topic of TOPICS) {
     await pool.query(
@@ -144,7 +269,7 @@ async function seed(): Promise<void> {
     );
   }
 
-  for (const entry of ENTRIES) {
+  for (const entry of ALL_ENTRIES) {
     await pool.query(
       `INSERT INTO knowledge_entries (id, topic_id, title, canonical_answer, beginner_answer, safety_notes, status, reviewed_by, reviewed_at, valid_from)
        VALUES ($1, $2, $3, $4, $5, $6, 'published', 'seed_script', now(), now())
@@ -156,7 +281,7 @@ async function seed(): Promise<void> {
     );
   }
 
-  console.log(`Seeded ${TOPICS.length} topics and ${ENTRIES.length} knowledge entries.`);
+  console.log(`Seeded ${TOPICS.length} topics and ${ALL_ENTRIES.length} knowledge entries.`);
   await pool.end();
 }
 

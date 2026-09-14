@@ -11,6 +11,17 @@ export interface AfribitChatMessage {
   content: string;
 }
 
+/**
+ * Requests a strict structured JSON response from the model instead of
+ * free-form text (Dataset Architecture doc §14 — "do not ask the API for
+ * free-form blobs that then need fragile parsing"). Optional: the chatbot's
+ * normal chat/chatStream calls never set this.
+ */
+export interface AfribitResponseFormat {
+  name: string;
+  schema: Record<string, unknown>;
+}
+
 export interface AfribitChatRequest {
   requestId: string;
   messages: AfribitChatMessage[];
@@ -21,6 +32,7 @@ export interface AfribitChatRequest {
   temperature: number;
   /** PRD §17.2 — enforced by the gateway, not left to the caller. */
   privacyProfile: "strict" | "standard";
+  responseFormat?: AfribitResponseFormat;
 }
 
 export interface AfribitChatUsage {

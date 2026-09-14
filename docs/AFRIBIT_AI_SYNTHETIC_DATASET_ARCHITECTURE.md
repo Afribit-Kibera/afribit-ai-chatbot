@@ -4,7 +4,9 @@
 **Project:** Afribit AI / Afribit Dataset Lab  
 **Version:** 0.1  
 **Date:** 14 September 2026  
-**Status:** Bootstrap design for implementation  
+**Status:** Bootstrap design for implementation
+
+**Implementation status (added 2026-09-14):** Phase A foundation + first Batch 001 pilot are live in this repo. Reused the existing `AfribitAIGateway`/`InferenceProvider` from the main chatbot (§2's "provider-neutral AI gateway" already existed — no separate gateway was built) rather than a new `afribit-dataset-lab/` repo (§31) — see `apps/api/src/dataset-lab/`. Model IDs and pricing in §3 were verified live against `openrouter.ai/api/v1/models` and are accurate. Implemented: `dataset_generator`/`dataset_critic`/`dataset_judge` model profiles, structured JSON output (`response_format`/`json_schema`, strict mode), `dataset_campaigns`/`dataset_generations` tables (`db/migrations/003_dataset_lab.sql`), automated quality checks (§17: schema validation, duplicates, forbidden content via the existing secret detector, canonical-number preservation), and real cost tracking via OpenRouter's `usage.include`. L00 canonical facts reuse the existing `knowledge_entries` table rather than a separate schema. Ran Batch 001 (3 concepts × L04 Sheng rewrite + L05 user utterances) using the existing `OPENROUTER_API_KEY` per the user's instruction, not a dedicated budgeted key (§33 step 1-2 not followed) — 30 accepted candidates for ~$0.008, landed in `language_entries` as `corpus_layer='L1_synthetic_bootstrap'`. Found real issues worth knowing before running a larger batch: the L04 prompt intermittently returns a schema-valid-but-empty `examples: []` (partially fixed in prompt v1.1, not fully solved) and the free/shared OpenRouter tier for `gpt-5.6-luna` rate-limits under repeated rapid testing. Critic (Terra) and judge (Sol) roles are configured but not yet invoked — no campaign has run them.
 
 ---
 

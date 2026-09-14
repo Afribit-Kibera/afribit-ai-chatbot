@@ -20,6 +20,8 @@ interface OpenRouterResponse {
     prompt_tokens: number;
     completion_tokens: number;
     total_tokens: number;
+    /** Present when the request sets `usage: { include: true }`. */
+    cost?: number;
   };
 }
 
@@ -36,6 +38,10 @@ function buildRequestBody(request: AfribitChatRequest, model: string, stream: bo
     max_tokens: request.maxOutputTokens,
     temperature: request.temperature,
     stream,
+    // Ask OpenRouter to report actual billed cost so callers (esp. Dataset
+    // Lab campaigns) can track real cost-per-example rather than estimating
+    // from list pricing, which provider routing can deviate from.
+    usage: { include: true },
     ...(stream ? { stream_options: { include_usage: true } } : {}),
     // PRD §17.2 — enforce zero-data-retention / no third-party training
     // wherever the caller's privacy profile requires it.
@@ -43,6 +49,19 @@ function buildRequestBody(request: AfribitChatRequest, model: string, stream: bo
       request.privacyProfile === "strict" && env.openRouterZdrOnly
         ? { zdr: true, data_collection: "deny" }
         : undefined,
+    // Dataset Architecture doc §14 — structured JSON output instead of a
+    // free-form blob needing fragile parsing. Only set by Dataset Lab
+    // callers; the chatbot's chat()/chatStream() calls never pass this.
+    response_format: request.responseFormat
+      ? {
+          type: "json_schema",
+          json_schema: {
+            name: request.responseFormat.name,
+            strict: true,
+            schema: request.responseFormat.schema,
+          },
+        }
+      : undefined,
   };
 }
 
@@ -84,10 +103,13 @@ export class OpenRouterProvider implements InferenceProvider {
       );
     }
 
-    const data = (await response.json()) as OpenRouterResponse;
-    const choice = data.choices[0];
+    const data = (await response.json()) as OpenRouterResponse & { error?: { message?: string } };
+    const choice = data.choices?.[0];
     if (!choice) {
-      throw new Error("OpenRouter returned no choices");
+      // A 200 response with no choices usually means an error/moderation
+      // shape came back instead of a completion (e.g. `{ error: {...} }`) —
+      // surface whatever we got rather than crashing on `.choices[0]`.
+      throw new Error(`OpenRouter returned no choices: ${data.error?.message ?? JSON.stringify(data).slice(0, 300)}`);
     }
 
     return {
@@ -102,7 +124,7 @@ export class OpenRouterProvider implements InferenceProvider {
       },
       latencyMs,
       finishReason: choice.finish_reason === "length" ? "length" : "stop",
-      estimatedCostUsd: null,
+      estimatedCostUsd: data.usage?.cost ?? null,
     };
   }
 

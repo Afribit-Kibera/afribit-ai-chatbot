@@ -1,0 +1,21 @@
+{
+  "name": "afribit-ai",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Afribit AI — community-first Bitcoin education chatbot",
+  "packageManager": "pnpm@11.25.0",
+  "scripts": {
+    "dev:api": "pnpm --filter @afribit/api dev",
+    "dev:web": "pnpm --filter @afribit/web dev",
+    "build": "pnpm -r build",
+    "typecheck": "pnpm -r typecheck",
+    "lint": "pnpm -r lint",
+    "db:up": "docker compose -f infra/docker-compose.yml up -d",
+    "db:down": "docker compose -f infra/docker-compose.yml down",
+    "db:migrate": "pnpm --filter @afribit/api db:migrate",
+    "db:seed": "pnpm --filter @afribit/api db:seed"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3"
+  }
+}

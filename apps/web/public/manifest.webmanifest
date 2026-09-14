@@ -1,0 +1,10 @@
+{
+  "name": "Afribit AI",
+  "short_name": "Afribit AI",
+  "description": "Community-first Bitcoin education chatbot",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0b1f14",
+  "theme_color": "#0b1f14",
+  "icons": []
+}

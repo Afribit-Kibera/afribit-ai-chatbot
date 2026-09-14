@@ -1,0 +1,132 @@
+@import "tailwindcss";
+
+/*
+ * Afribit AI brand tokens — see docs/BRAND.md. Deliberately the same
+ * palette/type system as the parent Afribit brand (D:\dev\afribit), not a
+ * forked identity. Google Fonts CDN for now (index.html); self-host the
+ * subset later per PRD §27's low-bandwidth requirement once the type
+ * choices are stable.
+ */
+:root {
+  --bitcoin: #f7931a;
+  --bitcoin-dark: #d97908;
+  --bitcoin-light: #ffb45c;
+  --panafrican-red: #c1121f;
+  --panafrican-green: #008751;
+  --panafrican-gold: #f2a900;
+
+  --bg-base: #070807;
+  --bg-soft: #0d0f0d;
+  --bg-surface: #121512;
+  --bg-elevated: #191d19;
+  --bg-muted: #202620;
+
+  --text-base: #f4f5f0;
+  --text-soft: #c5c8bd;
+  --text-muted: #8d9386;
+  --text-faint: #5f665b;
+
+  --border-soft: rgba(244, 245, 240, 0.08);
+  --border-strong: rgba(244, 245, 240, 0.16);
+  --border-accent: rgba(247, 147, 26, 0.32);
+
+  --radius: 0.75rem;
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-bitcoin: var(--bitcoin);
+  --color-bitcoin-dark: var(--bitcoin-dark);
+  --color-bitcoin-light: var(--bitcoin-light);
+  --color-panafrican-red: var(--panafrican-red);
+  --color-panafrican-green: var(--panafrican-green);
+  --color-panafrican-gold: var(--panafrican-gold);
+
+  --color-bg-base: var(--bg-base);
+  --color-bg-soft: var(--bg-soft);
+  --color-bg-surface: var(--bg-surface);
+  --color-bg-elevated: var(--bg-elevated);
+  --color-bg-muted: var(--bg-muted);
+
+  --color-text-base: var(--text-base);
+  --color-text-soft: var(--text-soft);
+  --color-text-muted: var(--text-muted);
+  --color-text-faint: var(--text-faint);
+
+  --color-border-soft: var(--border-soft);
+  --color-border-strong: var(--border-strong);
+  --color-border-accent: var(--border-accent);
+
+  --font-sans: "DM Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: "Space Grotesk", var(--font-sans);
+  --font-mono: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
+  /* Wordmark only (BrandMark) — matches the selected identity direction deck, a heavier geometric sans distinct from Space Grotesk's use in headings. */
+  --font-wordmark: "Poppins", var(--font-sans);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) + 4px);
+  --radius-xl: calc(var(--radius) + 10px);
+
+  --animate-pulse-node: pulse-node 1.6s ease-in-out infinite;
+  @keyframes pulse-node {
+    0%, 100% {
+      opacity: 0.35;
+      transform: scale(0.85);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg-base);
+  color: var(--text-base);
+  font-family: var(--font-sans);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+::selection {
+  background: var(--bitcoin);
+  color: var(--bg-base);
+}
+
+:focus-visible {
+  outline: 2px solid var(--bitcoin);
+  outline-offset: 2px;
+}
+
+button {
+  font-family: inherit;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

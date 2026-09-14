@@ -1,0 +1,32 @@
+{
+  "_comment": "PRD §16.4 — model names are configuration, not code. Edit this file (or override via ADMIN, later) to change models without redeploying. Model slugs below are placeholders — verify current, correct IDs against https://openrouter.ai/models before going live.",
+  "profiles": [
+    {
+      "profile": "default_chat",
+      "provider": "openrouter",
+      "model": "meta-llama/llama-3.3-70b-instruct",
+      "fallbackProfile": "fallback_chat",
+      "maxOutputTokens": 500,
+      "temperature": 0.3,
+      "privacyProfile": "strict"
+    },
+    {
+      "profile": "fallback_chat",
+      "provider": "openrouter",
+      "model": "meta-llama/llama-3.1-8b-instruct",
+      "fallbackProfile": null,
+      "maxOutputTokens": 400,
+      "temperature": 0.3,
+      "privacyProfile": "strict"
+    },
+    {
+      "profile": "deep_dive",
+      "provider": "openrouter",
+      "model": "anthropic/claude-sonnet-5",
+      "fallbackProfile": "default_chat",
+      "maxOutputTokens": 800,
+      "temperature": 0.3,
+      "privacyProfile": "strict"
+    }
+  ]
+}

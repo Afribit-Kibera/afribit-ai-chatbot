@@ -11,7 +11,8 @@
     "db:migrate": "tsx src/db/migrate.ts",
     "db:seed": "tsx src/db/seed.ts",
     "dataset:campaign": "tsx src/dataset-lab/runCampaign.ts",
-    "dataset:eval": "tsx src/dataset-lab/runEval.ts"
+    "dataset:eval": "tsx src/dataset-lab/runEval.ts",
+    "knowledge:embed": "tsx src/knowledge/embedBackfill.ts"
   },
   "dependencies": {
     "@afribit/shared": "workspace:*",

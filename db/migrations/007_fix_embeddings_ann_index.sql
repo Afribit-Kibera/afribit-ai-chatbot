@@ -1,0 +1,19 @@
+-- The ivfflat index from 001_init.sql was created with lists = 100 for a
+-- knowledge_embeddings table that has 24 rows today (v0.1 corpus target is
+-- 500-2000 external + growing synthetic, see docs/LANGUAGE_CORPUS.md) --
+-- wildly oversized. Confirmed live: at the default ivfflat.probes = 1,
+-- approximate nearest-neighbor search against this index genuinely
+-- returned ZERO rows for real query vectors that have a clear best match
+-- (verified via EXPLAIN and by setting ivfflat.probes = 100 as a control,
+-- which returned the correct ranked results). This isn't a tuning nuance
+-- at this scale -- it silently broke retrieval for every query that used
+-- the ORDER BY ... <=> ... LIMIT pattern the index gets chosen for.
+--
+-- Fix: drop the index. A sequential scan is EXACT (no approximation) and
+-- trivially fast at hundreds to low thousands of rows -- correctness over
+-- a premature optimization the corpus doesn't need yet. Re-add an ANN
+-- index (ivfflat or hnsw) once the corpus is large enough that a sequential
+-- scan actually shows up in latency, sized per pgvector's own guidance
+-- (roughly lists = rows / 1000) rather than a number picked in advance of
+-- having real data.
+DROP INDEX IF EXISTS idx_knowledge_embeddings_ivfflat;

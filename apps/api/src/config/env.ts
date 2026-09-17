@@ -24,6 +24,8 @@ export const env = {
   redisUrl: process.env.REDIS_URL ?? "redis://localhost:6379",
   openRouterApiKey: process.env.OPENROUTER_API_KEY ?? "",
   openRouterBaseUrl: process.env.OPENROUTER_BASE_URL ?? "https://openrouter.ai/api/v1",
+  /** PRD §18.4 — embedding provider, abstracted the same way chat inference is. 1536 dims matches knowledge_embeddings.embedding (001_init.sql). */
+  embeddingModel: process.env.EMBEDDING_MODEL ?? "openai/text-embedding-3-small",
   /** PRD §17.2 — required for OpenRouter's zero-data-retention routing. */
   openRouterZdrOnly: (process.env.OPENROUTER_ZDR_ONLY ?? "true") === "true",
   /** PRD §35 — disabled by default in production. */

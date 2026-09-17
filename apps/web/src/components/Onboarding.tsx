@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { animate } from "animejs";
-import { ArrowLeft, ArrowRight, Bitcoin, Languages, ShieldCheck, Sparkles } from "lucide-react";
+import { ArrowLeft, ArrowRight, Bitcoin, Check, Languages, ShieldCheck, Sparkles } from "lucide-react";
 import type { ExplanationLevel, LanguageMode } from "@afribit/shared";
 import { BrandMark } from "./BrandMark.js";
 import { Button } from "./ui/button.js";
@@ -66,7 +66,7 @@ function getStepCopy(step: StepId) {
     return {
       eyebrow: "Set up Afribit",
       question: "Sasa, unataka kusaidiwa na nini first?",
-      helper: "Pick one. You can always change direction later kwa chat.",
+      helper: "Tap one. You can always change direction later kwa chat.",
     };
   }
   if (step === "experience") {
@@ -80,7 +80,7 @@ function getStepCopy(step: StepId) {
     return {
       eyebrow: "Voice",
       question: "Unataka niongee aje?",
-      helper: "Later, you can just tell me: speak Kiswahili, use Sheng, or keep it simple.",
+      helper: "Later, just tell me: ongea Kiswahili, use Sheng, or keep it simple.",
     };
   }
   return {
@@ -146,7 +146,7 @@ export function Onboarding({ onComplete, onSkip }: OnboardingProps) {
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(247,147,26,0.2),transparent_34%),radial-gradient(circle_at_10%_80%,rgba(0,135,81,0.08),transparent_28%)]" />
       <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(244,245,240,0.035)_1px,transparent_1px),linear-gradient(90deg,rgba(244,245,240,0.03)_1px,transparent_1px)] bg-[size:32px_32px] opacity-35" />
 
-      <main className="relative mx-auto flex min-h-full w-full max-w-md flex-col px-5 py-6">
+      <main className="relative mx-auto flex min-h-full w-full max-w-md flex-col px-5 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-6">
         <header className="flex items-center justify-between">
           <BrandMark size="sm" className="items-start" />
           <div className="text-right">
@@ -181,7 +181,7 @@ export function Onboarding({ onComplete, onSkip }: OnboardingProps) {
                         setTimeout(goNext, 120);
                       }}
                       className={cn(
-                        "flex items-center gap-3 rounded-lg border p-4 text-left transition-colors",
+                        "min-h-[76px] flex items-center gap-3 rounded-lg border p-4 text-left transition-colors",
                         goal === option.value ? "border-bitcoin bg-bitcoin/10" : "border-border-strong bg-bg-base/50 hover:border-bitcoin/60",
                       )}
                     >
@@ -192,7 +192,7 @@ export function Onboarding({ onComplete, onSkip }: OnboardingProps) {
                         <span className="block text-base font-semibold text-text-base">{option.label}</span>
                         <span className="mt-0.5 block text-sm text-text-muted">{option.helper}</span>
                       </span>
-                      <ArrowRight className="h-4 w-4 text-text-faint" />
+                      {goal === option.value ? <Check className="h-4 w-4 text-bitcoin-light" /> : <ArrowRight className="h-4 w-4 text-text-faint" />}
                     </button>
                   );
                 })}
@@ -210,11 +210,14 @@ export function Onboarding({ onComplete, onSkip }: OnboardingProps) {
                       setTimeout(goNext, 120);
                     }}
                     className={cn(
-                      "rounded-lg border p-4 text-left transition-colors",
+                      "min-h-[76px] rounded-lg border p-4 text-left transition-colors",
                       experience === option.value ? "border-bitcoin bg-bitcoin/10" : "border-border-strong bg-bg-base/50 hover:border-bitcoin/60",
                     )}
                   >
-                    <span className="block text-base font-semibold text-text-base">{option.label}</span>
+                    <span className="flex items-center justify-between gap-3">
+                      <span className="block text-base font-semibold text-text-base">{option.label}</span>
+                      {experience === option.value && <Check className="h-4 w-4 shrink-0 text-bitcoin-light" />}
+                    </span>
                     <span className="mt-1 block text-sm text-text-muted">{option.helper}</span>
                   </button>
                 ))}
@@ -232,17 +235,18 @@ export function Onboarding({ onComplete, onSkip }: OnboardingProps) {
                       setTimeout(goNext, 120);
                     }}
                     className={cn(
-                      "flex items-center gap-3 rounded-lg border p-4 text-left transition-colors",
+                      "min-h-[76px] flex items-center gap-3 rounded-lg border p-4 text-left transition-colors",
                       languageMode === option.value ? "border-bitcoin bg-bitcoin/10" : "border-border-strong bg-bg-base/50 hover:border-bitcoin/60",
                     )}
                   >
                     <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-border-accent text-bitcoin-light">
                       <Languages className="h-5 w-5" />
                     </span>
-                    <span>
+                    <span className="min-w-0 flex-1">
                       <span className="block text-base font-semibold text-text-base">{option.label}</span>
                       <span className="mt-0.5 block text-sm text-text-muted">{option.helper}</span>
                     </span>
+                    {languageMode === option.value && <Check className="h-4 w-4 text-bitcoin-light" />}
                   </button>
                 ))}
               </div>
@@ -277,7 +281,7 @@ export function Onboarding({ onComplete, onSkip }: OnboardingProps) {
               Back
             </button>
             <button type="button" onClick={onSkip} className="h-10 px-2 text-sm text-text-muted transition-colors hover:text-text-base">
-              Skip setup
+              Use defaults
             </button>
           </div>
         </footer>

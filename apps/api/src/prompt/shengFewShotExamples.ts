@@ -8,14 +8,16 @@ import type { AfribitChatMessage } from "@afribit/shared";
  * complete answer in the target register, turn by turn, is a stronger
  * steering signal for this than more rules would be.
  *
- * Two of these four are taken near-verbatim from real chat_evaluations rows
+ * Two of these five are taken near-verbatim from real chat_evaluations rows
  * the critic model itself scored "natural" at 4-5/5 during Batch 003's live
  * eval (see docs/AFRIBIT_AI_SYNTHETIC_DATASET_ARCHITECTURE.md) -- genuine
- * successful output, not invented from scratch. The other two are
- * hand-written to demonstrate patterns the product owner specifically
+ * successful output, not invented from scratch. The other three are
+ * hand-written: two demonstrate patterns the product owner specifically
  * corrected (the "explain like a beginner" construction, the bread/Mpesa
- * analogy for "is this a scam") that hadn't appeared naturally in generated
- * output yet.
+ * analogy for "is this a scam"), and the fifth (wallet/keys) directly
+ * counters the single most common real failure pattern the live eval
+ * surfaced -- formal connectives and nominalized abstractions creeping
+ * into the explanatory body even when the greeting was fine.
  *
  * Only injected for sheng/mixed_ke (see promptBuilder.ts) -- simple_en and
  * swahili want a different register entirely.
@@ -56,5 +58,22 @@ export const SHENG_FEW_SHOT_EXAMPLES: AfribitChatMessage[] = [
     role: "assistant",
     content:
       "Sawa, Bro, tuchukue hatua ndogo ndogo. Bitcoin ni kama pesa, lakini ya digital tu — hutoi kuishika kama noti au coin, iko kwenye simu au computer yako kupitia wallet.\n\nInafanya kazi bila bank katikati. Ukitaka kutuma pesa kwa msee, unatuma moja kwa moja kutoka wallet yako kwenda wallet yake, bila kupitia benki.\n\nKitu kimoja cha muhimu: kuna Bitcoin milioni 21 tu zitakazokuwepo duniani, haiwezi kutengenezwa zaidi ya hapo. Hii ndio inayoifanya iwe na thamani kwa watu wengi.\n\nUkiwa na swali lingine, sielewi sehemu gani — niambie tu, tutapitia pole pole.",
+  },
+  {
+    // Hand-written to counter the single most common real failure pattern
+    // (see docs/AFRIBIT_AI_SYNTHETIC_DATASET_ARCHITECTURE.md, Batch 003
+    // update): wallet/keys questions kept pulling the model into formal
+    // connectives ("kwa hiyo," "ikiwa") and nominalized abstractions
+    // ("umiliki," "ufikiaji") even when the greeting was fine. This answer
+    // deliberately keeps "control," "custodial," "non-custodial,"
+    // "responsibility" as plain loan-nouns instead of Swahili-nominalizing
+    // them, and avoids verb-grafting technical words (no "inaverify" style).
+    role: "user",
+    content: "Wallet ya Bitcoin inashikilia coins physically ama ni nini hasa?",
+  },
+  {
+    role: "assistant",
+    content:
+      "Sio kama mfuko wa cash, Bro. Wallet haishikilii coins physically — inashikilia keys zako. Hizo keys ndizo zinakuwezesha kupokea, kushikilia, na kutuma bitcoin. Bitcoin yenyewe iko kwenye network, si ndani ya wallet yako.\n\nKeys ni kama password inayoshow bitcoin ni yako. Mtu akipata keys zako, anapata control ya bitcoin yako yote — ndio maana hupaswi kushare na mtu yeyote, wala msee anayejifanya support.\n\nKuna aina mbili: custodial (kampuni inashikilia keys kwa niaba yako, kama benki) na non-custodial (wewe mwenyewe unashikilia keys, kupitia seed phrase — maneno 12 au 24). Non-custodial ina uhuru zaidi, lakini wewe pekee unabeba responsibility ya kuzitunza.",
   },
 ];

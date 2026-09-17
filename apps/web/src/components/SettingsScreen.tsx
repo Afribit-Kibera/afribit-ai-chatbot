@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ArrowLeft, Bell, BellOff, Check, Languages, RotateCcw, SlidersHorizontal } from "lucide-react";
+import { ArrowLeft, Bell, BellOff, Check, Download, Languages, RotateCcw, SlidersHorizontal } from "lucide-react";
 import type { ExplanationLevel, LanguageMode } from "@afribit/shared";
 import { BrandMark } from "./BrandMark.js";
 import { Button } from "./ui/button.js";
@@ -12,6 +12,8 @@ interface SettingsScreenProps {
   onBack: () => void;
   onUpdatePreferences: (next: Partial<{ languageMode: LanguageMode; explanationLevel: ExplanationLevel }>) => void;
   onResetSetup: () => void;
+  canInstall: boolean;
+  onInstall: () => void;
 }
 
 const LANGUAGE_OPTIONS: { value: LanguageMode; label: string; helper: string }[] = [
@@ -42,6 +44,8 @@ export function SettingsScreen({
   onBack,
   onUpdatePreferences,
   onResetSetup,
+  canInstall,
+  onInstall,
 }: SettingsScreenProps) {
   const [notificationState, setNotificationState] = useState<NotificationState>(() => getNotificationState());
   const [notificationBusy, setNotificationBusy] = useState(false);
@@ -113,15 +117,30 @@ export function SettingsScreen({
           <span className="h-10 w-10" />
         </header>
 
-        <section className="py-8">
+        <section className="py-7">
           <p className="font-mono text-xs uppercase text-bitcoin-light">Settings</p>
-          <h1 className="mt-3 text-4xl font-semibold leading-tight">Make Afribit feel right.</h1>
+          <h1 className="mt-3 text-3xl font-semibold leading-tight sm:text-4xl">Make Afribit feel right.</h1>
           <p className="mt-3 max-w-md text-sm leading-6 text-text-muted">
             These settings are light. You can also change voice later by telling Afribit in chat.
           </p>
         </section>
 
         <div className="grid gap-4 pb-8">
+          <section className="rounded-xl border border-border-soft bg-bg-surface/90 p-4">
+            <div className="flex items-start gap-3">
+              <Download className="mt-1 h-4 w-4 text-bitcoin-light" />
+              <div className="min-w-0 flex-1">
+                <h2 className="text-base font-semibold">Install app</h2>
+                <p className="mt-1 text-sm leading-6 text-text-muted">
+                  Add Afribit AI to your phone for a cleaner full-screen chat and offline shell access.
+                </p>
+              </div>
+            </div>
+            <Button className="mt-4" size="sm" onClick={onInstall} disabled={!canInstall}>
+              {canInstall ? "Install Afribit AI" : "Install unavailable"}
+            </Button>
+          </section>
+
           <section className="rounded-xl border border-border-soft bg-bg-surface/90 p-4">
             <div className="flex items-center gap-2">
               <Languages className="h-4 w-4 text-bitcoin-light" />
@@ -177,6 +196,9 @@ export function SettingsScreen({
               <div className="min-w-0 flex-1">
                 <h2 className="text-base font-semibold">Notifications</h2>
                 <p className="mt-1 text-sm leading-6 text-text-muted">{NOTIFICATION_COPY[notificationState]}</p>
+                <p className="mt-2 text-xs leading-5 text-text-faint">
+                  Afribit will only use this for chat replies and learning reminders. Never share seed phrases or private keys.
+                </p>
               </div>
             </div>
             <div className="mt-4 flex flex-wrap gap-2">

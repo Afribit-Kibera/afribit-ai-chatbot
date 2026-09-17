@@ -30,6 +30,12 @@ const GOAL_PROMPTS: Record<OnboardingProfile["goal"], string> = {
   send_save: "How can I send or save Bitcoin safely?",
 };
 
+const GOAL_LABELS: Record<OnboardingProfile["goal"], string> = {
+  understand: "Basics",
+  avoid_scams: "Scam safety",
+  send_save: "Send/save safely",
+};
+
 const LANGUAGE_ACKS: Record<LanguageMode, string> = {
   mixed_ke: "Sawa, nitarudi kwa Sheng + English mix. Ukiwant nibadilishe tena, niambie tu.",
   sheng: "Sawa, tunaenda strict Sheng. Nitaweka explanation simple na local.",
@@ -191,11 +197,15 @@ export function ChatScreen({ languageMode, explanationLevel, profile, onUpdatePr
                 <p className="text-[15px] leading-7 text-text-base">
                   Karibu. Nitaongea kwa <span className="text-bitcoin-light">{LANGUAGE_HINTS[languageMode]}</span>. Ukiwant nibadilishe style later, niambie tu.
                 </p>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  <span className="rounded-full border border-border-soft px-2.5 py-1 text-xs text-text-muted">{GOAL_LABELS[profile.goal]}</span>
+                  <span className="rounded-full border border-border-soft px-2.5 py-1 text-xs text-text-muted">{LANGUAGE_HINTS[languageMode]}</span>
+                </div>
               </div>
               <button
                 type="button"
                 onClick={() => void sendText(suggestedPrompt)}
-                className="mt-4 w-fit rounded-full border border-border-accent bg-bg-surface/80 px-4 py-2 text-left text-sm text-bitcoin-light transition-colors hover:border-bitcoin"
+                className="mt-4 w-fit max-w-full rounded-full border border-border-accent bg-bg-surface/80 px-4 py-2 text-left text-sm text-bitcoin-light transition-colors hover:border-bitcoin"
               >
                 {suggestedPrompt}
               </button>
@@ -207,7 +217,7 @@ export function ChatScreen({ languageMode, explanationLevel, profile, onUpdatePr
           {awaitingFirstToken && <ThinkingIndicator />}
         </div>
 
-        <div className="px-4 pb-4">
+        <div className="px-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
           <div className="flex items-end gap-2 rounded-2xl border border-border-strong bg-bg-surface/95 p-2 shadow-2xl shadow-black/30">
             <textarea
               value={draft}

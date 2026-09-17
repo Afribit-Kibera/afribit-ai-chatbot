@@ -96,6 +96,9 @@ export function registerNotificationRoutes(app: FastifyInstance): void {
   });
 
   app.post<{ Body: { installationId?: string } }>("/api/v1/notifications/test", async (request, reply) => {
+    if (env.nodeEnv === "production") {
+      return reply.status(404).send({ error: "not found" });
+    }
     if (!isPushConfigured()) {
       return reply.status(503).send({ error: "push notifications are not configured" });
     }

@@ -50,6 +50,48 @@ Without `OPENROUTER_API_KEY` set, chat requests will fail over to the
 deterministic knowledge-card fallback (PRD §17.3) rather than calling a
 model — useful for testing the RAG/UI path without burning API credits.
 
+## PWA notifications / VAPID setup
+
+Afribit AI uses Web Push for installed-PWA notifications. Browsers require
+notification permission to come from a user action, so the frontend only
+asks from the Settings screen.
+
+Generate VAPID keys locally:
+
+```bash
+pnpm --filter @afribit/api exec web-push generate-vapid-keys
+```
+
+Add the values to `.env`:
+
+```env
+VAPID_PUBLIC_KEY=...
+VAPID_PRIVATE_KEY=...
+VAPID_SUBJECT=mailto:hello@afribit.ai
+```
+
+Then restart the API. The public key is served from
+`GET /api/v1/notifications/vapid-public-key`; the private key never leaves
+the backend. Subscriptions are stored in `notification_subscriptions`.
+
+For local testing:
+
+1. Run `pnpm db:migrate` so migration `006_notification_subscriptions.sql`
+   is applied.
+2. Start API and web.
+3. Open Settings in the PWA, enable notifications, then use `Send test`.
+
+Production notes:
+
+- Serve the web app over HTTPS; Push API subscription does not work on
+  insecure origins outside localhost.
+- Keep `VAPID_PRIVATE_KEY` out of frontend builds, logs, and client-visible
+  config.
+- The test notification endpoint is intended for development only.
+- Before real accounts launch, push subscriptions are tied to an anonymous
+  installation id. Bind them to authenticated users before using
+  notifications for sensitive account events.
+
 ## Key architectural rule
 
 **Nothing outside `apps/api/src/gateway` and `apps/api/src/providers` may

@@ -22,6 +22,58 @@ interface KnowledgeRow {
  */
 
 /**
+ * Stopgap for the lexical-only limitation above: a small set of common
+ * Sheng/Swahili terms that don't share a root with their English
+ * equivalent in the knowledge base, so the OR-query would otherwise
+ * silently miss the right entry no matter how directly on-topic the
+ * question is. Confirmed causing real production misses (see
+ * docs/AFRIBIT_AI_SYNTHETIC_DATASET_ARCHITECTURE.md, Batch 003 update):
+ * "Nikipoteza simu yangu, Bitcoin zangu zitapotea pia?" never found
+ * btc.safety.backup_basics (leading the model to a false blanket "your
+ * funds won't be lost" reassurance instead of the seed-phrase-backup
+ * caveat), and "Mbona Lightning payment yangu imefail?" never found
+ * btc.lightning.payment_failure. Not a substitute for real semantic
+ * search (PRD §18.3/§18.4, still deferred) -- just closes the specific,
+ * observed gaps until that lands. Expand this list as new misses like
+ * these two are found; don't try to guess exhaustive coverage up front.
+ */
+const SHENG_SYNONYMS: Record<string, string[]> = {
+  potea: ["lost"],
+  imepotea: ["lost"],
+  zitapotea: ["lost"],
+  kupoteza: ["lost"],
+  nikipoteza: ["lost"],
+  poteza: ["lost"],
+  simu: ["device", "phone"],
+  imefail: ["fail", "failed"],
+  itafail: ["fail"],
+  kufail: ["fail"],
+  mbona: ["why"],
+  kwanini: ["why"],
+  rudisha: ["reverse", "refund"],
+  kurudisha: ["reverse", "refund"],
+  rudishwa: ["reverse", "refund"],
+  thibitisha: ["confirm"],
+  kuthibitisha: ["confirm"],
+  imethibitishwa: ["confirmed"],
+  ibiwa: ["stolen"],
+  ikiibiwa: ["stolen"],
+  kuibiwa: ["stolen"],
+  haribika: ["damaged"],
+  imeharibika: ["damaged"],
+};
+
+function expandSynonyms(terms: string[]): string[] {
+  const expanded = new Set(terms);
+  for (const term of terms) {
+    for (const synonym of SHENG_SYNONYMS[term.toLowerCase()] ?? []) {
+      expanded.add(synonym);
+    }
+  }
+  return [...expanded];
+}
+
+/**
  * plainto_tsquery ANDs every word together, which fails on exactly the
  * queries this product exists to handle: "Bitcoin ni nini?" has no match
  * because "ni"/"nini" aren't in the (English) knowledge text, even though
@@ -35,7 +87,9 @@ function buildOrQuery(query: string): string | null {
     .map((word) => word.replace(/[^\p{L}\p{N}]/gu, ""))
     .filter((word) => word.length > 0);
   if (terms.length === 0) return null;
-  return terms.map((term) => `${term}:*`).join(" | ");
+  return expandSynonyms(terms)
+    .map((term) => `${term}:*`)
+    .join(" | ");
 }
 
 export async function retrieveKnowledge(query: string, limit = 3): Promise<RetrievalResult[]> {

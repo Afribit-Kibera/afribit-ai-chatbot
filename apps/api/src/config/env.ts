@@ -29,6 +29,9 @@ export const env = {
   /** PRD §35 — disabled by default in production. */
   promptLoggingEnabled: (process.env.PROMPT_LOGGING_ENABLED ?? "false") === "true",
   corsOrigin: process.env.CORS_ORIGIN ?? "http://localhost:5173",
+  vapidPublicKey: process.env.VAPID_PUBLIC_KEY ?? "",
+  vapidPrivateKey: process.env.VAPID_PRIVATE_KEY ?? "",
+  vapidSubject: process.env.VAPID_SUBJECT ?? "mailto:hello@afribit.ai",
 };
 
 export function assertProductionEnv(): void {

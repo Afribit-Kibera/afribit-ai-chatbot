@@ -111,6 +111,18 @@ export class OpenRouterProvider implements InferenceProvider {
       // surface whatever we got rather than crashing on `.choices[0]`.
       throw new Error(`OpenRouter returned no choices: ${data.error?.message ?? JSON.stringify(data).slice(0, 300)}`);
     }
+    if (!choice.message.content) {
+      // The OpenRouterChoice type claims `message.content` is always a
+      // string, but some models (seen live with Claude Sonnet 5 via the
+      // sheng_chat profile) return null content — e.g. when the whole
+      // output budget went to internal reasoning and none was left for the
+      // visible message. AfribitChatResponse.content is typed as `string`,
+      // so silently passing null through would violate that contract for
+      // every downstream caller (chat_messages insert, chat_evaluations
+      // insert, etc.) instead of triggering the gateway's normal
+      // fallback-on-failure path the way this should.
+      throw new Error(`OpenRouter returned empty content (finish_reason: ${choice.finish_reason})`);
+    }
 
     return {
       requestId: request.requestId,

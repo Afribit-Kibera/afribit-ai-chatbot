@@ -9,20 +9,24 @@
     "start": "node dist/server.js",
     "typecheck": "tsc --noEmit",
     "db:migrate": "tsx src/db/migrate.ts",
-    "db:seed": "tsx src/db/seed.ts"
+    "db:seed": "tsx src/db/seed.ts",
+    "dataset:campaign": "tsx src/dataset-lab/runCampaign.ts",
+    "dataset:eval": "tsx src/dataset-lab/runEval.ts"
   },
   "dependencies": {
     "@afribit/shared": "workspace:*",
-    "fastify": "^5.1.0",
     "@fastify/cors": "^10.0.1",
-    "pg": "^8.13.1",
     "dotenv": "^16.4.5",
-    "pino": "^9.5.0"
+    "fastify": "^5.1.0",
+    "pg": "^8.13.1",
+    "pino": "^9.5.0",
+    "web-push": "^3.6.7"
   },
   "devDependencies": {
     "@types/node": "^22.10.1",
     "@types/pg": "^8.11.10",
-    "typescript": "^5.6.3",
-    "tsx": "^4.19.2"
+    "@types/web-push": "^3.6.4",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3"
   }
 }

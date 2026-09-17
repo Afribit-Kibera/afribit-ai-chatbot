@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { animate } from "animejs";
+import { Check, ShieldCheck, X } from "lucide-react";
 import { sendFeedback } from "../lib/api.js";
 import { cn } from "../lib/utils.js";
 
@@ -14,18 +15,8 @@ export interface ChatMessageView {
   streaming?: boolean;
 }
 
-const NEGATIVE_REASONS: { value: string; label: string }[] = [
-  { value: "too_complicated", label: "Too complicated" },
-  { value: "wrong_information", label: "Wrong information" },
-  { value: "sheng_unnatural", label: "Sheng sounds unnatural" },
-  { value: "too_formal", label: "Too formal" },
-  { value: "too_long", label: "Too long" },
-  { value: "did_not_answer", label: "Did not answer my question" },
-];
-
 export function MessageBubble({ message }: { message: ChatMessageView }) {
   const [feedbackGiven, setFeedbackGiven] = useState<"helpful" | "not_helpful" | null>(null);
-  const [showReasons, setShowReasons] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const isUser = message.role === "user";
 
@@ -43,7 +34,6 @@ export function MessageBubble({ message }: { message: ChatMessageView }) {
 
   async function handleFeedback(rating: "helpful" | "not_helpful", reason?: string) {
     setFeedbackGiven(rating);
-    setShowReasons(false);
     try {
       await sendFeedback(message.id, rating, reason);
     } catch {
@@ -54,13 +44,15 @@ export function MessageBubble({ message }: { message: ChatMessageView }) {
   return (
     <div ref={rootRef} className={cn("flex gap-2.5", isUser ? "flex-row-reverse" : "flex-row")}>
       {!isUser && (
-        <img src="/brand/afribit-mark-icon.png" alt="" className="mt-1 h-6 w-6 shrink-0 rounded-full bg-bg-elevated p-0.5" />
+        <img src="/brand/afribit-mark-icon.png" alt="" className="mt-1 h-7 w-7 shrink-0 rounded-full bg-bg-elevated p-0.5" />
       )}
-      <div className={cn("flex max-w-[85%] flex-col gap-2", isUser && "items-end")}>
+      <div className={cn("flex max-w-[86%] flex-col gap-2", isUser && "items-end")}>
         <div
           className={cn(
-            "rounded-2xl px-4 py-2.5 text-[15px] leading-relaxed",
-            isUser ? "rounded-br-md bg-bitcoin/15 text-text-base" : "rounded-bl-md bg-bg-elevated text-text-base",
+            "rounded-2xl px-4 py-3 text-[15px] leading-relaxed shadow-lg shadow-black/10",
+            isUser
+              ? "rounded-br-md bg-bitcoin text-bg-base"
+              : "rounded-bl-md border border-border-soft bg-bg-elevated/95 text-text-base",
           )}
         >
           <p className="whitespace-pre-wrap">
@@ -73,37 +65,30 @@ export function MessageBubble({ message }: { message: ChatMessageView }) {
         </div>
 
         {message.role === "assistant" && !message.streaming && (
-          <div className="flex flex-wrap items-center gap-1.5 px-1">
+          <div className="flex flex-wrap items-center gap-2 px-1">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-panafrican-green/30 px-2.5 py-1 text-xs text-panafrican-green">
+              <ShieldCheck className="h-3.5 w-3.5" />
+              No hype
+            </span>
             {feedbackGiven ? (
               <span className="text-xs text-text-faint">Thanks for the feedback</span>
             ) : (
               <>
                 <button
-                  className="rounded-full border border-border-strong px-3 py-1 text-xs text-text-muted transition-colors hover:border-panafrican-green hover:text-panafrican-green"
+                  className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-border-soft text-text-muted transition-colors hover:border-panafrican-green hover:text-panafrican-green"
                   onClick={() => handleFeedback("helpful")}
+                  aria-label="Mark response as helpful"
                 >
-                  Helpful
+                  <Check className="h-3.5 w-3.5" />
                 </button>
                 <button
-                  className="rounded-full border border-border-strong px-3 py-1 text-xs text-text-muted transition-colors hover:border-panafrican-red hover:text-panafrican-red"
-                  onClick={() => setShowReasons((s) => !s)}
+                  className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-border-soft text-text-muted transition-colors hover:border-panafrican-red hover:text-panafrican-red"
+                  onClick={() => handleFeedback("not_helpful", "quick_negative")}
+                  aria-label="Mark response as not helpful"
                 >
-                  Not helpful
+                  <X className="h-3.5 w-3.5" />
                 </button>
               </>
-            )}
-            {showReasons && (
-              <div className="flex w-full flex-wrap gap-1.5">
-                {NEGATIVE_REASONS.map((r) => (
-                  <button
-                    key={r.value}
-                    className="rounded-full border border-border-soft bg-bg-surface px-2.5 py-1 text-xs text-text-soft hover:border-border-strong"
-                    onClick={() => handleFeedback("not_helpful", r.value)}
-                  >
-                    {r.label}
-                  </button>
-                ))}
-              </div>
             )}
           </div>
         )}

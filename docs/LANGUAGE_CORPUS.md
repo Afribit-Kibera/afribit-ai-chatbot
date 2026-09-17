@@ -122,9 +122,10 @@ that need is concrete — not speculatively built now.
 Rough target composition for a first defensible corpus, prioritizing L2/L3
 (Afribit-collected, human-authored) over L1 (external bootstrap):
 
-| Category | Target | Status as of 2026-09-14 (round 2) |
+| Category | Target | Status as of 2026-09-17 |
 |---|---|---|
-| External verified seeds (L0/L1) | 500–2,000 | 68 (40 LughaKonnect, L1; 28 KenCorpus, L0) |
+| External verified seeds (L0/L1) | 500–2,000 | 68 (40 LughaKonnect, L1; 28 KenCorpus, L0) — unchanged since 2026-09-14; Batch 003 only added synthetic (L1_synthetic_bootstrap), not external, seeds |
+| Synthetic bootstrap (L1_synthetic_bootstrap, AI-generated, unreviewed) | not targeted in the original table, tracked here since it's now the largest slice | 308 (30 pilot + 37 Batch 002 + 241 Batch 003) — see docs/AFRIBIT_AI_SYNTHETIC_DATASET_ARCHITECTURE.md's implementation-status log. All still `status='draft'`, `afribit_reviewed=false`; none are `allowed_for_rag`/`allowed_for_training`. |
 | Afribit Microtasks — natural questions | ~1,500 | Pilot live in insats-engine (`AAI-PILOT-001`), submission count unknown from this repo |
 | Afribit Microtasks — human-written responses | ~1,500 | Same pilot |
 | Translation/rewriting pairs | ~2,000 | Same pilot (`natural_rewrite` task type) |

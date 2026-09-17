@@ -11,6 +11,7 @@ interface SendMessageBody {
   message: string;
   languageMode?: LanguageMode;
   explanationLevel?: ExplanationLevel;
+  notifyInstallationId?: string;
 }
 
 export function registerChatRoutes(app: FastifyInstance, gateway: AfribitAIGateway): void {
@@ -25,6 +26,7 @@ export function registerChatRoutes(app: FastifyInstance, gateway: AfribitAIGatew
       message: body.message,
       languageMode: body.languageMode,
       explanationLevel: body.explanationLevel,
+      notifyInstallationId: body.notifyInstallationId,
     });
     return reply.send(result);
   });
@@ -42,6 +44,7 @@ export function registerChatRoutes(app: FastifyInstance, gateway: AfribitAIGatew
         message: body.message,
         languageMode: body.languageMode,
         explanationLevel: body.explanationLevel,
+        notifyInstallationId: body.notifyInstallationId,
       });
       return reply.send(result);
     },
@@ -79,6 +82,7 @@ export function registerChatRoutes(app: FastifyInstance, gateway: AfribitAIGatew
           message: body.message,
           languageMode: body.languageMode,
           explanationLevel: body.explanationLevel,
+          notifyInstallationId: body.notifyInstallationId,
         },
         (event) => {
           reply.raw.write(`${JSON.stringify(event)}\n`);

@@ -5,6 +5,7 @@ import { createGateway } from "./gateway/registry.js";
 import { registerChatRoutes } from "./routes/chat.js";
 import { registerPreferenceRoutes } from "./routes/preferences.js";
 import { registerKnowledgeRoutes } from "./routes/knowledge.js";
+import { registerNotificationRoutes } from "./routes/notifications.js";
 
 assertProductionEnv();
 
@@ -19,6 +20,7 @@ app.get("/health/providers", async () => gateway.healthCheckAll());
 registerChatRoutes(app, gateway);
 registerPreferenceRoutes(app);
 registerKnowledgeRoutes(app);
+registerNotificationRoutes(app);
 
 app.listen({ port: env.port, host: "0.0.0.0" }, (err, address) => {
   if (err) {

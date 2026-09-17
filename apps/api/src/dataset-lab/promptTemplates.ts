@@ -1,4 +1,5 @@
 import type { AfribitChatMessage } from "@afribit/shared";
+import { SHENG_STYLE_GUIDE } from "../prompt/shengStyleGuide.js";
 
 /**
  * Prompt versions are part of dataset provenance (Architecture doc §15) —
@@ -7,8 +8,8 @@ import type { AfribitChatMessage } from "@afribit/shared";
  * them.
  */
 export const PROMPT_VERSIONS = {
-  L04_SHENG_REWRITE: "L04-sheng-rewrite-v1.1",
-  L05_USER_UTTERANCES: "L05-user-utterances-v1.1",
+  L04_SHENG_REWRITE: "L04-sheng-rewrite-v1.3",
+  L05_USER_UTTERANCES: "L05-user-utterances-v1.3",
 } as const;
 
 // v1.1: v1.0 was reliably returning schema-valid-but-empty `examples: []`
@@ -18,6 +19,15 @@ export const PROMPT_VERSIONS = {
 // it to the top of the rule list, since burying it after other rules
 // wasn't enough to override whatever made the model hedge to empty output
 // on rewrite tasks specifically.
+//
+// v1.2 (2026-09-17): Batch 003's critic/judge pass and the live chat eval
+// both surfaced the same failure mode -- "code-switch naturally" alone
+// wasn't enough instruction, and the model was defaulting to literal
+// English-into-Kiswahili substitution ("Ukiwant...") instead of real Sheng
+// vocabulary/particles. Added SHENG_STYLE_GUIDE (shared with the live chat
+// prompt in promptBuilder.ts, and with critique.ts/judge.ts's scoring
+// prompts) with concrete corrected vocabulary and example sentences from
+// direct product-owner review, replacing vague "sound natural" guidance.
 const COMMON_RULES = `IMPORTANT
 - The "examples" array is the actual required output. It must contain exactly the requested number of items. Never return an empty examples array — if you are uncertain, generate your best attempt rather than leaving it empty.
 - Do not translate word-by-word.
@@ -27,7 +37,9 @@ const COMMON_RULES = `IMPORTANT
 - Generate multiple genuinely different phrasings, not near-duplicates.
 - Keep meaning consistent with the source material.
 - These are synthetic candidates and will be human reviewed before any production use — you are not giving financial advice, you are drafting review material.
-- Return only the required structured JSON.`;
+- Return only the required structured JSON.
+
+${SHENG_STYLE_GUIDE}`;
 
 /** Doc §16 example, adapted: a canonical fact rewritten as natural Sheng. */
 export function buildL04Prompt(params: { canonicalFact: string; concept: string; count: number }): AfribitChatMessage[] {

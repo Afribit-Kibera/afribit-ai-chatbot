@@ -18,6 +18,7 @@ export async function sendChatMessage(params: {
   message: string;
   languageMode: LanguageMode;
   explanationLevel: ExplanationLevel;
+  notifyInstallationId?: string;
 }): Promise<SendMessageResponse> {
   const response = await fetch(`${API_BASE}/api/v1/chat`, {
     method: "POST",
@@ -43,7 +44,13 @@ export type ChatStreamEvent =
  * line; the promise resolves once the server closes the stream.
  */
 export async function streamChatMessage(
-  params: { sessionId: string | null; message: string; languageMode: LanguageMode; explanationLevel: ExplanationLevel },
+  params: {
+    sessionId: string | null;
+    message: string;
+    languageMode: LanguageMode;
+    explanationLevel: ExplanationLevel;
+    notifyInstallationId?: string;
+  },
   onEvent: (event: ChatStreamEvent) => void,
 ): Promise<void> {
   const response = await fetch(`${API_BASE}/api/v1/chat/stream`, {
@@ -81,4 +88,51 @@ export async function sendFeedback(messageId: string, rating: "helpful" | "not_h
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ rating, reason }),
   });
+}
+
+export async function getVapidPublicKey(): Promise<{ enabled: boolean; publicKey: string | null }> {
+  const response = await fetch(`${API_BASE}/api/v1/notifications/vapid-public-key`);
+  if (!response.ok) {
+    throw new Error(`VAPID key request failed: ${response.status}`);
+  }
+  return response.json();
+}
+
+export async function savePushSubscription(params: {
+  installationId: string;
+  subscription: PushSubscriptionJSON;
+}): Promise<void> {
+  const response = await fetch(`${API_BASE}/api/v1/notifications/subscription`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      "x-afribit-user-id": params.installationId,
+    },
+    body: JSON.stringify(params),
+  });
+  if (!response.ok) {
+    throw new Error(`Push subscription save failed: ${response.status}`);
+  }
+}
+
+export async function deletePushSubscription(endpoint: string): Promise<void> {
+  const response = await fetch(`${API_BASE}/api/v1/notifications/subscription`, {
+    method: "DELETE",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ endpoint }),
+  });
+  if (!response.ok) {
+    throw new Error(`Push subscription delete failed: ${response.status}`);
+  }
+}
+
+export async function sendTestNotification(installationId: string): Promise<void> {
+  const response = await fetch(`${API_BASE}/api/v1/notifications/test`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ installationId }),
+  });
+  if (!response.ok) {
+    throw new Error(`Test notification failed: ${response.status}`);
+  }
 }

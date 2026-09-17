@@ -1,24 +1,30 @@
 import { pool } from "../db/pool.js";
 import { createGateway } from "../gateway/registry.js";
 import type { AfribitAIGateway } from "../gateway/gateway.js";
+import { getCampaignSpend } from "./budget.js";
 import { buildL04Prompt, buildL05Prompt, PROMPT_VERSIONS } from "./promptTemplates.js";
 import { generateCandidates, persistAcceptedCandidates, type GenerateCandidatesParams } from "./generate.js";
-import { critiqueCandidate } from "./critique.js";
+import { critiqueCandidate, critiqueQuestion } from "./critique.js";
+import { judgeCandidate } from "./judge.js";
 
 /**
- * Batch 002 (Architecture doc §22): expanded from the Batch 001 pilot
- * (3 concepts) to all available canonical concepts, with a real enforced
- * budget cap (doc §28 — "never allow an autonomous generation loop with an
- * unrestricted API key") and a sampled critic pass (doc §9/§10 — Terra
- * reviews a sample, not every row).
+ * Batch 003 (Architecture doc §22): same generator->critic->judge->human
+ * pipeline as Batch 002, expanded per the product owner's explicit request
+ * to push volume and get full use out of the live API budget --
+ * CANDIDATES_PER_CALL raised 5->8, critic coverage raised 25%->100% and
+ * extended to L05 (previously L04-only), and the judge (Sol) role -- wired
+ * up but never invoked in Batch 001/002 -- now adjudicates anything the
+ * critic doesn't call "natural". Also adds retry-with-backoff, since
+ * Batch 002's notes recorded heavy rate-limiting on the shared Luna tier
+ * that a real generation run has to tolerate, not just log around.
  *
  * Run with: pnpm --filter @afribit/api exec tsx src/dataset-lab/runCampaign.ts
  */
 
-const CAMPAIGN_ID = "batch_2026_09_002";
-const CANDIDATES_PER_CALL = 5;
-const MAX_BUDGET_USD = 2.0;
-const CRITIC_SAMPLE_RATE = 0.25; // doc §10 example: critique a sample, not everything
+const CAMPAIGN_ID = "batch_2026_09_003";
+const CANDIDATES_PER_CALL = 8;
+const MAX_BUDGET_USD = 10.0;
+const RETRY_DELAYS_MS = [1000, 3000, 8000]; // 3 retries, exponential-ish backoff
 
 interface LayerCallResult {
   generated: number;
@@ -27,37 +33,68 @@ interface LayerCallResult {
   insertedIds: string[];
 }
 
-let runningCost = 0;
-
-function budgetExceeded(): boolean {
-  return runningCost >= MAX_BUDGET_USD;
+async function budgetExceeded(): Promise<boolean> {
+  return (await getCampaignSpend(CAMPAIGN_ID)) >= MAX_BUDGET_USD;
 }
 
+function isRetryable(err: unknown): boolean {
+  // GatewayError wraps the real provider failure in `.cause` (see
+  // gateway/gateway.ts) -- the rate-limit/HTTP-status detail this needs to
+  // match on lives there, not in GatewayError's own generic top-level
+  // message ("Primary model failed and no fallback is configured").
+  const cause = err instanceof Error ? (err as { cause?: unknown }).cause : undefined;
+  const msg = [err, cause]
+    .filter((e): e is Error => e instanceof Error)
+    .map((e) => e.message)
+    .join(" | ");
+  return /\((429|500|502|503|504|529)\)/.test(msg) || /rate.?limit/i.test(msg) || /timed out/i.test(msg);
+}
+
+/**
+ * Retries the whole generate-and-persist step on transient failures
+ * (rate limits, gateway timeouts) AND on the known "schema-valid-but-empty
+ * examples" failure mode the architecture doc flagged for L04 -- neither
+ * is worth failing a whole concept over when a retry is cheap.
+ */
 async function runLayerCall(
   gateway: AfribitAIGateway,
   label: string,
   params: GenerateCandidatesParams,
   persistArgs: { style: "sheng" | "swahili" | "simple_en" | "mixed_ke"; intent: string | null; concept: string },
 ): Promise<LayerCallResult> {
-  if (budgetExceeded()) {
+  if (await budgetExceeded()) {
     console.log(`${label}: SKIPPED — campaign budget ($${MAX_BUDGET_USD}) reached`);
     return { generated: 0, inserted: 0, cost: 0, insertedIds: [] };
   }
-  try {
-    const result = await generateCandidates(gateway, params);
-    const persisted = await persistAcceptedCandidates({ generationId: result.generationId, texts: result.acceptedTexts, ...persistArgs });
-    const cost = result.costUsd ?? 0;
-    runningCost += cost;
-    console.log(
-      `${label}: ${result.parsedCount} generated, ${result.acceptedCount} passed checks, ${persisted.count} inserted, cost $${cost.toFixed(5)} (running total $${runningCost.toFixed(4)})`,
-    );
-    return { generated: result.parsedCount, inserted: persisted.count, cost, insertedIds: persisted.ids };
-  } catch (err) {
-    console.log(`${label}: FAILED — ${err instanceof Error ? err.message : String(err)}`);
-    const cause = err instanceof Error ? (err as { cause?: unknown }).cause : undefined;
-    if (cause instanceof Error) console.log(`  cause: ${cause.message}`);
-    return { generated: 0, inserted: 0, cost: 0, insertedIds: [] };
+
+  for (let attempt = 1; attempt <= RETRY_DELAYS_MS.length + 1; attempt++) {
+    try {
+      const result = await generateCandidates(gateway, params);
+      if (result.parsedCount === 0 && attempt <= RETRY_DELAYS_MS.length) {
+        console.log(`${label}: attempt ${attempt} parsed 0 examples — retrying`);
+        await new Promise((r) => setTimeout(r, RETRY_DELAYS_MS[attempt - 1]));
+        continue;
+      }
+      const persisted = await persistAcceptedCandidates({ generationId: result.generationId, texts: result.acceptedTexts, ...persistArgs });
+      const cost = result.costUsd ?? 0;
+      console.log(
+        `${label}: ${result.parsedCount} generated, ${result.acceptedCount} passed checks, ${persisted.count} inserted, cost $${cost.toFixed(5)}`,
+      );
+      return { generated: result.parsedCount, inserted: persisted.count, cost, insertedIds: persisted.ids };
+    } catch (err) {
+      const cause = err instanceof Error ? (err as { cause?: unknown }).cause : undefined;
+      const msg = err instanceof Error ? err.message : String(err);
+      if (isRetryable(err) && attempt <= RETRY_DELAYS_MS.length) {
+        console.log(`${label}: attempt ${attempt} failed (${msg.slice(0, 120)}) — retrying in ${RETRY_DELAYS_MS[attempt - 1]}ms`);
+        await new Promise((r) => setTimeout(r, RETRY_DELAYS_MS[attempt - 1]));
+        continue;
+      }
+      console.log(`${label}: FAILED — ${msg}`);
+      if (cause instanceof Error) console.log(`  cause: ${cause.message}`);
+      return { generated: 0, inserted: 0, cost: 0, insertedIds: [] };
+    }
   }
+  return { generated: 0, inserted: 0, cost: 0, insertedIds: [] };
 }
 
 async function main() {
@@ -72,15 +109,59 @@ async function main() {
     `INSERT INTO dataset_campaigns (id, name, layer, language, model_role, model_profile, prompt_version, examples_per_concept, max_budget_usd, status)
      VALUES ($1, $2, 'L04_L05_BATCH', 'sheng', 'generator', 'dataset_generator', $3, $4, $5, 'running')
      ON CONFLICT (id) DO UPDATE SET status = 'running'`,
-    [CAMPAIGN_ID, `Batch 002 — L04 + L05, ${concepts.length} concepts`, PROMPT_VERSIONS.L04_SHENG_REWRITE, CANDIDATES_PER_CALL, MAX_BUDGET_USD],
+    [CAMPAIGN_ID, `Batch 003 — L04 + L05, ${concepts.length} concepts, full critic + judge escalation`, PROMPT_VERSIONS.L04_SHENG_REWRITE, CANDIDATES_PER_CALL, MAX_BUDGET_USD],
   );
 
-  const allInsertedIds: { id: string; text: string; canonicalFact: string }[] = [];
   let totalGenerated = 0;
   let totalAccepted = 0;
+  let totalGenCost = 0;
+  let totalCriticCost = 0;
+  let totalJudgeCost = 0;
+  const criticVerdicts: Record<string, number> = {};
+  const judgeVerdicts: Record<string, number> = {};
+  let judgeCalls = 0;
+
+  /**
+   * Critic every accepted candidate (100% coverage), then escalate to the
+   * judge if the critic didn't call it "natural". A single rate-limit/
+   * timeout here must never crash the whole campaign -- generation for
+   * every other concept already succeeded and paid real API cost; losing
+   * that to an uncaught exception over one missed review would be worse
+   * than just skipping this one review and moving on.
+   */
+  async function reviewCandidate(id: string, text: string, concept: string, canonicalFact: string | null): Promise<void> {
+    if (await budgetExceeded()) return;
+    try {
+      const critic = canonicalFact
+        ? await critiqueCandidate(gateway, { campaignId: CAMPAIGN_ID, languageEntryId: id, candidateText: text, canonicalFact })
+        : await critiqueQuestion(gateway, { campaignId: CAMPAIGN_ID, languageEntryId: id, candidateText: text, concept });
+      totalCriticCost += critic.costUsd ?? 0;
+      criticVerdicts[critic.verdict] = (criticVerdicts[critic.verdict] ?? 0) + 1;
+      console.log(`    critic: "${text.slice(0, 55)}..." -> ${critic.verdict} (naturalness ${critic.naturalnessScore}/5, factual_drift=${critic.factualDrift})`);
+
+      if (critic.verdict !== "natural" || critic.factualDrift) {
+        if (await budgetExceeded()) return;
+        judgeCalls++;
+        const judge = await judgeCandidate(gateway, {
+          campaignId: CAMPAIGN_ID,
+          languageEntryId: id,
+          candidateText: text,
+          concept,
+          canonicalFact,
+          criticVerdict: critic.verdict,
+          criticFactualDrift: critic.factualDrift,
+        });
+        totalJudgeCost += judge.costUsd ?? 0;
+        judgeVerdicts[judge.verdict] = (judgeVerdicts[judge.verdict] ?? 0) + 1;
+        console.log(`    judge (escalated): -> ${judge.verdict} (naturalness ${judge.naturalnessScore}/5, factual_drift=${judge.factualDrift})`);
+      }
+    } catch (err) {
+      console.log(`    review SKIPPED for "${text.slice(0, 40)}..." — ${err instanceof Error ? err.message : String(err)}`);
+    }
+  }
 
   for (const concept of concepts) {
-    if (budgetExceeded()) {
+    if (await budgetExceeded()) {
       console.log(`\nBudget cap ($${MAX_BUDGET_USD}) reached — stopping before ${concept.id}`);
       break;
     }
@@ -101,7 +182,12 @@ async function main() {
       },
       { style: "sheng", intent: null, concept: concept.title },
     );
-    l04.insertedIds.forEach((id) => allInsertedIds.push({ id, text: "", canonicalFact: concept.canonical_answer }));
+    totalGenCost += l04.cost;
+    for (const insertedId of l04.insertedIds) {
+      // texts aren't returned from persistAcceptedCandidates — re-fetch for the critic pass.
+      const { rows } = await pool.query<{ utterance: string }>(`SELECT utterance FROM language_entries WHERE id = $1`, [insertedId]);
+      if (rows[0]) await reviewCandidate(insertedId, rows[0].utterance, concept.title, concept.canonical_answer);
+    }
 
     const l05 = await runLayerCall(
       gateway,
@@ -116,49 +202,27 @@ async function main() {
       },
       { style: "sheng", intent, concept: concept.title },
     );
+    totalGenCost += l05.cost;
+    for (const insertedId of l05.insertedIds) {
+      const { rows } = await pool.query<{ utterance: string }>(`SELECT utterance FROM language_entries WHERE id = $1`, [insertedId]);
+      if (rows[0]) await reviewCandidate(insertedId, rows[0].utterance, concept.title, null);
+    }
 
     totalGenerated += l04.generated + l05.generated;
     totalAccepted += l04.inserted + l05.inserted;
   }
 
-  // Sampled critic pass — only on L04 (fact-grounded) candidates, since
-  // factual_drift only makes sense against a canonical fact; L05 questions
-  // have no fact to drift from.
-  console.log(`\n=== Critic sampling (${(CRITIC_SAMPLE_RATE * 100).toFixed(0)}% of L04 candidates) ===`);
-  const sampleSize = Math.ceil(allInsertedIds.length * CRITIC_SAMPLE_RATE);
-  const sample = allInsertedIds.sort(() => Math.random() - 0.5).slice(0, sampleSize);
-
-  let criticCost = 0;
-  const verdicts: Record<string, number> = {};
-  for (const item of sample) {
-    if (budgetExceeded()) {
-      console.log("Budget cap reached — stopping critic pass early");
-      break;
-    }
-    const { rows } = await pool.query<{ utterance: string }>(`SELECT utterance FROM language_entries WHERE id = $1`, [item.id]);
-    const text = rows[0]?.utterance;
-    if (!text) continue;
-    const result = await critiqueCandidate(gateway, {
-      campaignId: CAMPAIGN_ID,
-      languageEntryId: item.id,
-      candidateText: text,
-      canonicalFact: item.canonicalFact,
-    });
-    criticCost += result.costUsd ?? 0;
-    runningCost += result.costUsd ?? 0;
-    verdicts[result.verdict] = (verdicts[result.verdict] ?? 0) + 1;
-    console.log(`  "${text.slice(0, 60)}..." -> ${result.verdict} (naturalness ${result.naturalnessScore}/5, factual_drift=${result.factualDrift})`);
-  }
-
   await pool.query(`UPDATE dataset_campaigns SET status = 'completed', completed_at = now() WHERE id = $1`, [CAMPAIGN_ID]);
 
-  console.log(`\n=== Batch 002 complete ===`);
+  const runningCost = await getCampaignSpend(CAMPAIGN_ID);
+  console.log(`\n=== Batch 003 complete ===`);
   console.log(`Concepts processed: ${concepts.length}`);
   console.log(`Total candidates generated: ${totalGenerated}`);
   console.log(`Total accepted into language_entries: ${totalAccepted}`);
-  console.log(`Critic sample size: ${sample.length}, cost: $${criticCost.toFixed(5)}`);
-  console.log(`Critic verdicts:`, verdicts);
-  console.log(`Total campaign cost: $${runningCost.toFixed(4)} (budget cap was $${MAX_BUDGET_USD})`);
+  console.log(`Critic verdicts (100% coverage):`, criticVerdicts);
+  console.log(`Judge calls (escalated, non-natural critic verdicts): ${judgeCalls}`, judgeVerdicts);
+  console.log(`Generation cost: $${totalGenCost.toFixed(4)} | Critic cost: $${totalCriticCost.toFixed(4)} | Judge cost: $${totalJudgeCost.toFixed(4)}`);
+  console.log(`Total campaign cost so far: $${runningCost.toFixed(4)} (budget cap $${MAX_BUDGET_USD})`);
   console.log(`Cost per accepted example: $${totalAccepted > 0 ? (runningCost / totalAccepted).toFixed(5) : "n/a"}`);
 
   await pool.end();

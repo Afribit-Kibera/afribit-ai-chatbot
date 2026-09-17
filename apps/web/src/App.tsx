@@ -1,16 +1,24 @@
 import { useState } from "react";
 import type { ExplanationLevel, LanguageMode } from "@afribit/shared";
-import { Onboarding } from "./components/Onboarding.js";
+import { Onboarding, type OnboardingProfile } from "./components/Onboarding.js";
 import { ChatScreen } from "./components/ChatScreen.js";
+import { SettingsScreen } from "./components/SettingsScreen.js";
 
-type Preferences = { languageMode: LanguageMode; explanationLevel: ExplanationLevel };
+type Preferences = OnboardingProfile & { languageMode: LanguageMode; explanationLevel: ExplanationLevel };
 
 const STORAGE_KEY = "afribit.preferences";
+const DEFAULT_PREFERENCES: Preferences = {
+  goal: "understand",
+  experience: "new",
+  languageMode: "mixed_ke",
+  explanationLevel: "normal",
+};
 
 function loadStoredPreferences(): Preferences | null {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? (JSON.parse(raw) as Preferences) : null;
+    if (!raw) return null;
+    return { ...DEFAULT_PREFERENCES, ...(JSON.parse(raw) as Partial<Preferences>) };
   } catch {
     return null;
   }
@@ -26,26 +34,56 @@ function storePreferences(prefs: Preferences): void {
 
 export function App() {
   const [preferences, setPreferences] = useState<Preferences | null>(() => loadStoredPreferences());
+  const [screen, setScreen] = useState<"chat" | "settings">("chat");
 
-  function completeOnboarding(languageMode: LanguageMode, explanationLevel: ExplanationLevel) {
-    const prefs = { languageMode, explanationLevel };
+  function savePreferences(profile: Preferences) {
+    const prefs = profile;
     storePreferences(prefs);
     setPreferences(prefs);
   }
 
+  function completeOnboarding(profile: Preferences) {
+    savePreferences(profile);
+    setScreen("chat");
+  }
+
   function skipOnboarding() {
-    completeOnboarding("mixed_ke", "normal");
+    completeOnboarding(DEFAULT_PREFERENCES);
+  }
+
+  function resetSetup() {
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+    } catch {
+      // Storage can be unavailable; resetting in-memory state is enough.
+    }
+    setPreferences(null);
+    setScreen("chat");
   }
 
   if (!preferences) {
     return <Onboarding onComplete={completeOnboarding} onSkip={skipOnboarding} />;
   }
 
+  if (screen === "settings") {
+    return (
+      <SettingsScreen
+        languageMode={preferences.languageMode}
+        explanationLevel={preferences.explanationLevel}
+        onBack={() => setScreen("chat")}
+        onResetSetup={resetSetup}
+        onUpdatePreferences={(next) => savePreferences({ ...preferences, ...next })}
+      />
+    );
+  }
+
   return (
     <ChatScreen
       languageMode={preferences.languageMode}
       explanationLevel={preferences.explanationLevel}
-      onChangeLanguageMode={(mode) => completeOnboarding(mode, preferences.explanationLevel)}
+      profile={preferences}
+      onUpdatePreferences={(next) => savePreferences({ ...preferences, ...next })}
+      onOpenSettings={() => setScreen("settings")}
     />
   );
 }

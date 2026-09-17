@@ -29,6 +29,16 @@
       "privacyProfile": "strict"
     },
     {
+      "_comment": "2026-09-17: default_chat (Llama 3.3 70B) was found via chat_evaluations to bookend Sheng/mixed_ke responses with corrected vocabulary (Niaje, Bro, we niambie tu) while leaving the explanatory body in formal Kiswahili sanifu -- a register ceiling a prompt fix alone didn't clear. Routes sheng/mixed_ke to a stronger model instead; see chatService.ts's selectModelProfile(). maxOutputTokens raised to 800 (vs default_chat's 500) after live eval showed Claude's answers truncating mid-word at 500 -- callers now request a generous 800 and each profile's own ceiling (not the caller) is what actually constrains Llama vs Claude.",
+      "profile": "sheng_chat",
+      "provider": "openrouter",
+      "model": "anthropic/claude-sonnet-5",
+      "fallbackProfile": "default_chat",
+      "maxOutputTokens": 800,
+      "temperature": 0.3,
+      "privacyProfile": "strict"
+    },
+    {
       "_comment": "Dataset Lab (docs/AFRIBIT_AI_SYNTHETIC_DATASET_ARCHITECTURE.md §3.2). Bulk generation — cheap, high volume. Verified against openrouter.ai/api/v1/models on 2026-09-14: $0.20/$1.20 per 1M tokens.",
       "profile": "dataset_generator",
       "provider": "openrouter",

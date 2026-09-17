@@ -6,6 +6,7 @@ import { buildPrompt } from "../prompt/promptBuilder.js";
 import { detectSecret, SECRET_WARNING_MESSAGE } from "../safety/secretDetector.js";
 import { GatewayError } from "../gateway/gateway.js";
 import type { AfribitAIGateway } from "../gateway/gateway.js";
+import { sendPushToInstallation } from "../notifications/pushService.js";
 
 export interface SendMessageInput {
   sessionId: string | null;
@@ -13,6 +14,7 @@ export interface SendMessageInput {
   message: string;
   languageMode?: LanguageMode;
   explanationLevel?: ExplanationLevel;
+  notifyInstallationId?: string;
 }
 
 export interface SendMessageOutput {
@@ -28,6 +30,36 @@ export interface SendMessageOutput {
 
 const DEFAULT_LANGUAGE: LanguageMode = "mixed_ke";
 const DEFAULT_LEVEL: ExplanationLevel = "normal";
+
+/**
+ * Model profile routing (PRD §16.4 -- profiles are config, resolved by
+ * name). Exported so dataset-lab/runEval.ts, which exists specifically to
+ * test the real production chat path, mirrors this exactly rather than
+ * hardcoding a profile that could silently drift out of sync with it.
+ *
+ * 2026-09-17: tried routing sheng/mixed_ke to a "sheng_chat" profile
+ * (Claude Sonnet 5) after chat_evaluations showed default_chat's Llama
+ * 3.3 70B bookending responses with corrected Sheng vocabulary while
+ * leaving the explanatory body formal -- a rules-only prompt fix didn't
+ * clear that. What actually fixed it was adding real demonstrated
+ * conversation turns (see SHENG_FEW_SHOT_EXAMPLES in promptBuilder.ts),
+ * which worked on Llama too -- a head-to-head comparison after adding
+ * them showed both models sustaining natural register throughout, not
+ * just at the edges. Reverted to default_chat for sheng/mixed_ke: same
+ * comparison caught Llama inventing plausible-but-wrong Lightning-failure
+ * troubleshooting steps when retrieval missed the right canonical fact
+ * (a Sheng-phrasing gap in the English-only lexical search, not a model
+ * problem), while Claude correctly declined to guess -- but Llama was
+ * 100% reliable across this whole session against Claude's ~85% (null
+ * content / timeouts via OpenRouter's zdr-strict routing), and far
+ * cheaper, so it's the better default now that the register problem
+ * doesn't require the swap. The sheng_chat profile is left in
+ * model-profiles.json in case deep_dive-adjacent Sheng use resurfaces.
+ */
+export function selectModelProfile(languageMode: LanguageMode, explanationLevel: ExplanationLevel): string {
+  if (explanationLevel === "deep") return "deep_dive";
+  return "default_chat";
+}
 
 async function ensureSession(
   sessionId: string | null,
@@ -108,6 +140,7 @@ interface ProceedContext {
   requestId: string;
   topConfidence: number | null;
   fallbackContent: string;
+  notifyInstallationId: string | null;
 }
 
 /**
@@ -163,13 +196,28 @@ async function prepareChat(input: SendMessageInput): Promise<BlockedContext | Pr
     languageMode,
     explanationLevel,
     promptMessages,
-    modelProfile: explanationLevel === "deep" ? "deep_dive" : "default_chat",
+    modelProfile: selectModelProfile(languageMode, explanationLevel),
     requestId: randomUUID(),
     topConfidence: retrieval[0]?.confidence ?? null,
     fallbackContent:
       retrieval[0]?.authoritativeContent ??
       "I'm having trouble reaching the AI service right now, and I don't have a saved answer for this question. Please try again shortly.",
+    notifyInstallationId: input.notifyInstallationId ?? null,
   };
+}
+
+async function notifyIfRequested(installationId: string | null): Promise<void> {
+  if (!installationId) return;
+  try {
+    await sendPushToInstallation(installationId, {
+      title: "Afribit AI",
+      body: "Nimejibu swali yako. Tap urudi kwa chat.",
+      url: "/",
+      tag: "afribit-chat-reply",
+    });
+  } catch {
+    // Notifications are best-effort; never fail the chat response path.
+  }
 }
 
 /**
@@ -180,7 +228,7 @@ export async function sendMessage(gateway: AfribitAIGateway, input: SendMessageI
   const ctx = await prepareChat(input);
   if (ctx.kind === "blocked") return ctx.response;
 
-  const { sessionId, languageMode, explanationLevel, promptMessages, modelProfile, requestId, topConfidence, fallbackContent } = ctx;
+  const { sessionId, languageMode, explanationLevel, promptMessages, modelProfile, requestId, topConfidence, fallbackContent, notifyInstallationId } = ctx;
 
   try {
     const response = await gateway.chat({
@@ -189,7 +237,12 @@ export async function sendMessage(gateway: AfribitAIGateway, input: SendMessageI
       languageMode,
       explanationLevel,
       modelProfile,
-      maxOutputTokens: 500,
+      // Each profile's own maxOutputTokens (model-profiles.json) is the
+      // real per-model ceiling via gateway.resolve()'s Math.min() -- this
+      // just needs to not clamp below it. Raised from 500: that literal
+      // was silently truncating deep_dive (configured for 800) down to
+      // 500 too, not just the newer sheng_chat profile.
+      maxOutputTokens: 800,
       temperature: 0.3,
       privacyProfile: "strict",
     });
@@ -211,6 +264,8 @@ export async function sendMessage(gateway: AfribitAIGateway, input: SendMessageI
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'ok')`,
       [requestId, messageId, modelProfile, response.provider, response.model, response.latencyMs, response.usage.promptTokens, response.usage.completionTokens],
     );
+
+    await notifyIfRequested(notifyInstallationId);
 
     return {
       sessionId,
@@ -237,6 +292,8 @@ export async function sendMessage(gateway: AfribitAIGateway, input: SendMessageI
       retrievalConfidence: topConfidence,
       safetyFlag: err instanceof GatewayError ? "provider_failure" : "unknown_error",
     });
+
+    await notifyIfRequested(notifyInstallationId);
 
     return {
       sessionId,
@@ -277,7 +334,7 @@ export async function streamMessage(
     return;
   }
 
-  const { sessionId, languageMode, explanationLevel, promptMessages, modelProfile, requestId, topConfidence, fallbackContent } = ctx;
+  const { sessionId, languageMode, explanationLevel, promptMessages, modelProfile, requestId, topConfidence, fallbackContent, notifyInstallationId } = ctx;
   onEvent({ type: "meta", sessionId, safetyFlag: null });
 
   let content = "";
@@ -288,7 +345,7 @@ export async function streamMessage(
       languageMode,
       explanationLevel,
       modelProfile,
-      maxOutputTokens: 500,
+      maxOutputTokens: 800, // see sendMessage()'s comment above -- the profile's own ceiling is what actually governs each model
       temperature: 0.3,
       privacyProfile: "strict",
     });
@@ -319,6 +376,7 @@ export async function streamMessage(
       [requestId, messageId, modelProfile, finalResponse.provider, finalResponse.model, finalResponse.latencyMs, finalResponse.usage.promptTokens, finalResponse.usage.completionTokens],
     );
 
+    await notifyIfRequested(notifyInstallationId);
     onEvent({ type: "done", messageId, usedFallback: false });
   } catch (err) {
     await pool.query(
@@ -337,6 +395,7 @@ export async function streamMessage(
         safetyFlag: "stream_interrupted",
       });
       onEvent({ type: "error", message: "The response was interrupted. Please try again." });
+      await notifyIfRequested(notifyInstallationId);
       onEvent({ type: "done", messageId, usedFallback: false });
       return;
     }
@@ -349,6 +408,7 @@ export async function streamMessage(
       safetyFlag: err instanceof GatewayError ? "provider_failure" : "unknown_error",
     });
     onEvent({ type: "delta", text: fallbackContent });
+    await notifyIfRequested(notifyInstallationId);
     onEvent({ type: "done", messageId, usedFallback: true });
   }
 }

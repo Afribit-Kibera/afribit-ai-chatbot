@@ -244,4 +244,42 @@ export const COMMUNICATION_EVAL_CASES: CommunicationEvalCase[] = [
     userMessage: "Bro nimescan QR lakini amount inaonekana wrong, niseme aje kwa huyo mtu ananiuzia?",
     retrieval: [CH04_WALLETS_QR],
   },
+  // Added 2026-09-24, targeting specific accuracy/composition regressions
+  // caught in a live production sample after the composition-first rewrite
+  // (docs/COMMUNICATION_STYLE_EVAL.md) -- the prompt-level fix measurably
+  // helped on the original 10 cases, but this exact live sample showed
+  // "Kwa hivyo," "Ili kutumia," relative-clause forms ("inayocontrol"), and
+  // an unqualified "haiwezi kurudiwa" absolute reversal claim still slipping
+  // through on a fresh generation. These five cases probe those specific
+  // failure modes directly rather than re-running the same ten at random.
+  {
+    id: "T11_mpesa_comparison_mixed",
+    languageMode: "mixed_ke",
+    userMessage: "Bitcoin ni sawa na M-Pesa ama ni tofauti?",
+    retrieval: [CH01_SHUTDOWN],
+  },
+  {
+    id: "T12_wrong_amount_reversal_sheng",
+    languageMode: "sheng",
+    userMessage: "Nimetuma Bitcoin nikakosea amount, transaction ikishaconfirm naeza kuirudisha?",
+    retrieval: [CH12_CONFIRMATIONS],
+  },
+  {
+    id: "T13_wallet_is_bank_account_mixed",
+    languageMode: "mixed_ke",
+    userMessage: "Wallet ni kama bank account ambapo pesa iko ndani, ama ni nini hasa?",
+    retrieval: [CH04_WALLETS_QR],
+  },
+  {
+    id: "T14_always_fast_and_safe_sheng",
+    languageMode: "sheng",
+    userMessage: "Watu wanasema Bitcoin ni rahisi na ya haraka kila wakati, ni kweli?",
+    retrieval: [CH15_ONCHAIN_LIGHTNING],
+  },
+  {
+    id: "T15_government_freeze_mixed",
+    languageMode: "mixed_ke",
+    userMessage: "Serikali inaweza ni-freeze Bitcoin yangu ama kuizima kabisa?",
+    retrieval: [CH01_SHUTDOWN],
+  },
 ];

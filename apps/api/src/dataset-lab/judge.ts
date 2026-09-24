@@ -66,7 +66,7 @@ export async function judgeCandidate(gateway: AfribitAIGateway, params: JudgePar
     languageMode: "sheng",
     explanationLevel: "normal",
     modelProfile: "dataset_judge",
-    maxOutputTokens: 300,
+    maxOutputTokens: 450,
     temperature: 0.2,
     privacyProfile: "strict",
     responseFormat: { name: "critique_result", schema: critiqueSchema },

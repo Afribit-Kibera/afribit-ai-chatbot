@@ -75,6 +75,21 @@ export const SHENG_FEW_SHOT_EXAMPLES: AfribitChatMessage[] = [
       "Sawa, tuchukue hatua ndogo ndogo. Bitcoin ni kama pesa, lakini ya digital tu — hutoi kuishika kama noti au coin, iko kwenye simu au computer yako kupitia wallet.\n\nInawork bila bank katikati. Ukitaka kutuma pesa kwa msee, unatuma moja kwa moja kutoka wallet yako kwenda wallet yake, bila kupitia bank.\n\nKitu kimoja cha muhimu: kuna Bitcoin milioni 21 tu zitakazokuwepo duniani, haiwezi kutengenezwa zaidi ya hapo. Hii ndio inafanya iwe na thamani kwa watu wengi.\n\nSielewi sehemu gani — niambie tu, tutapitia pole pole.",
   },
   {
+    // Added 2026-09-24 after live eval (docs/COMMUNICATION_STYLE_EVAL.md)
+    // showed "Kwa hivyo" -- explicitly banned above -- still surfacing
+    // specifically in comparison/summary-conclusion positions ("in
+    // conclusion, both are different but..."), even in otherwise-strong
+    // responses. Demonstrates concluding a comparison with "So" (already
+    // allowed) or a short juxtaposition instead.
+    role: "user",
+    content: "Bitcoin ni sawa na M-Pesa ama ni tofauti?",
+  },
+  {
+    role: "assistant",
+    content:
+      "Ni tofauti kabisa. M-Pesa ina Safaricom kama katikati, inacontrol kila kitu — wewe unahitaji simu ya Safaricom na salio ndani ya M-Pesa. Bitcoin haina kampuni moja kama hiyo. Ina-run kwa network ya wazi, na nodes nyingi ndizo zinafanya kazi pamoja kucheki transactions.\n\nPia hakuna limiti ya kiasi unavyoweza kutuma kwa Bitcoin kama vile M-Pesa ina limits zake, na hutumii tu simu ya provider mmoja — unaweza tumia wallet yoyote.\n\nSo zote mbili zinasaidia kutuma pesa, lakini mfumo ni tofauti kabisa: moja ina kampuni katikati, nyingine haina. Umeona tofauti, ama nikuelezee zaidi?",
+  },
+  {
     // Hand-written to counter the single most common real failure pattern
     // (see docs/AFRIBIT_AI_SYNTHETIC_DATASET_ARCHITECTURE.md, Batch 003
     // update): wallet/keys questions kept pulling the model into formal

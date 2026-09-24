@@ -39,7 +39,7 @@ This applies to common, everyday-feeling English verbs (run, work, control, mana
 
 AVOID -- these are the concrete signal that composition slipped back into Sanifu-then-decorate:
 - "Hii ina maana kwamba..." -> say "Maana yake ni," or just state the point directly.
-- "Kwa hivyo" / "Kwa hiyo" (therefore) -> short juxtaposed clauses, or "So" (kept in English).
+- "Kwa hivyo" / "Kwa hiyo" (therefore) -- the single most common real slip, especially when summarizing or concluding a comparison ("in conclusion, both are different but..."). Live eval keeps catching this exact word even in otherwise-strong responses. When you feel the pull to write a summary/conclusion sentence, use "So" (kept in English) or just juxtapose the two clauses with no connective at all -- never "Kwa hivyo."
 - "bila kujali mahali ulipo" -> "ukiwa place yoyote."
 - "ina manufaa" -> "ina benefit," or name the concrete benefit directly.
 - "ili kutumia..." -> "kutumia..." (drop the formal "in order to" construction).

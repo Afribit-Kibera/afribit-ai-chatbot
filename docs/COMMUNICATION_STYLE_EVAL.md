@@ -436,3 +436,97 @@ of any run this session, and the first one where every single case got a
 real score with nothing lost to infra flakiness. The token-size theory
 above was never confirmed or ruled out; the fallback makes root-causing
 it lower priority now that a timeout no longer costs a lost score.
+
+## Composition-first rewrite (2026-09-24)
+
+A detailed product-owner critique of live output found a deeper problem
+none of the above fixed: the model was composing answers in formal
+Kiswahili Sanifu sentence structure first, then decorating with Sheng
+vocabulary and a "Niaje, Bro" bookend. That produces predictable tells
+regardless of vocabulary correctness — "Hii ina maana kwamba...", "Kwa
+hivyo...", "ambayo ni..." — because swapping words onto formal grammar
+doesn't fix the grammar. The critique included a full worked example
+("Bitcoin ni pesa ya digital yenye ina-run kwa open network...") as a
+concrete reference for the target register, renamed here "Community
+Teaching Sheng" rather than treated as "strict Sheng" (a "strict" framing
+pushes toward maximal slang density, which is its own failure mode).
+
+Rewrote in response, all sharing the same `SHENG_STYLE_GUIDE` /
+`COMMUNICATION_STYLE_GUIDE` constants so live chat, the Dataset Lab
+generator, and the critic/judge stay calibrated together (same principle
+as every earlier fix in this doc):
+
+- `shengStyleGuide.ts` — composition-first framing as the lead rule
+  (compose in Sheng from the first word, don't translate then decorate),
+  an expanded AVOID list with natural alternatives, and a corrected
+  verb-grafting allowlist. This last part **reverses part of the
+  2026-09-17 guidance**: that version banned verb-grafting ANY
+  technical/procedural English word onto Swahili morphology ("inaverify,"
+  "inaaccess"); the 2026-09-24 critique's own validated examples use
+  "ina-run," "inacontrol," "kumanage" — confirming these specific grafts
+  read as natural to a real Nairobi speaker. Kept the caution for
+  genuinely stiff jargon (verify, prove, access, contribute, paste) and
+  narrowed the allowlist to the confirmed-natural set rather than
+  reverting the whole rule.
+- `promptBuilder.ts` — added a language-independent "COMMON MISCONCEPTIONS
+  TO AVOID" block for six specific accuracy issues the critique caught in
+  generated answers: Bitcoin described as equivalent to M-Pesa (M-Pesa has
+  one central operator; Bitcoin doesn't), a wallet described as literally
+  holding coins (it holds keys), absolute "impossible to reverse" claims
+  (accurate version: very hard to reverse, customer care can't undo it),
+  blanket "easy/fast/secure" promises, and an overstated "nobody can ever
+  restrict you" framing (governments/custodians can still restrict access
+  in some contexts — the accurate claim is narrower: no single
+  administrator approves network transactions).
+- `shengFewShotExamples.ts` — auditing the *existing* five demonstrated
+  examples against the new AVOID list found two were still non-compliant
+  despite already having been reviewed once (one still had "Kwa hivyo"
+  and an unqualified-absolute reversal claim, another had residual
+  relative-clause verb forms) — direct evidence of how easy this failure
+  mode is to miss without a concrete checklist. Fixed in place, and added
+  the critique's own "Bitcoin ni nini?" answer as a sixth example, close
+  to verbatim.
+- `critique.ts` / `judge.ts` — expanded the CHECK FOR list to the
+  critique's proposed evaluator questions (translated-from-Sanifu?
+  sentences too long? forced slang? would a Nairobi speaker actually say
+  this? did naturalness editing change a fact? real comprehension
+  question at the end?), version-bumped (critic v1.3->v1.4, judge
+  v1.3->v1.4, generation prompts v1.4->v1.5) for dataset provenance.
+
+**Deliberately not built this pass:** the critique's proposed live
+three-stage pipeline (fact generation -> Sheng rendering -> accuracy/style
+check) and a persisted six-category/30-point rubric. Running three model
+calls per chat message would triple cost and latency for every real user;
+the existing Dataset Lab critic/judge already gives an eval-time version
+of the same check. The six-dimension rubric was folded into the critic's
+CHECK FOR instructions rather than a new DB schema — a larger migration
+to persist per-dimension scores is a reasonable follow-up if this proves
+insufficient, not a same-day change.
+
+**Live-verified same day**, `pnpm --filter @afribit/api
+dataset:communication-eval`, campaign `communication_eval_2026_09_23`,
+$0.0494 total cost: **8/10 pass, 0 unsafe_content flags.** Reading the two
+failures, neither is a regression from this fix:
+
+- `T4_lightning_pending_mixed`: the response itself used several of the
+  newly-allowed natural constructions correctly ("Zinawork," "ina-settle,"
+  "Hakuna shida, bro") but still had one leftover "Kwa hivyo" and a
+  confusing mid-sentence suggestion ("ulale na receiver akucheki" — likely
+  a generation slip, not a prompt-guidance gap), and the closing question
+  was a vague "ama bado una maswali?" rather than a concrete check. The
+  `COMMUNICATION_STYLE_GUIDE` response-shape requirement (not the Sheng
+  composition fix) is what this failure is actually about.
+- `T8_lightning_onchain_swahili_casual`: the judge's own response failed
+  schema validation, not a content problem — reading the candidate answer
+  directly, it's clear, accurate, and ends with a real question. Recorded
+  as a hard failure by the eval script's own convention (unscored ==
+  fail), not a genuine naturalness/accuracy defect.
+
+Encouraging signal beyond the pass count: several passing responses used
+the newly-allowed constructions unprompted in ways that read naturally --
+"Sawa, fee ya on-chain inatoka kwa transaction unafanya... Hawa miners
+ndio wanacheki transactions na kuzi-confirm kwenye blockchain" (T9), and
+none of the ten responses forced a "Niaje, Bro" opener where the
+conversation didn't call for one. Not a controlled before/after
+comparison against the pre-fix prompt on identical cases, so treat this
+as directional confirmation, not a rigorous A/B result.

@@ -14,7 +14,15 @@ import { critiqueSchema, isValidCritiqueResult } from "./schemas.js";
 // its register ladder and safety floor are candidate-naturalness signals
 // this critic should hold candidates to, same as the live chat prompt and
 // the generator now do.
-export const PROMPT_VERSION_CRITIC = "critic-naturalness-v1.3";
+//
+// v1.4 (2026-09-24): expanded CHECK FOR after a product-owner critique found
+// the old single "unnatural literal translation" bullet wasn't specific
+// enough -- a candidate composed in formal Kiswahili Sanifu structure with a
+// few Sheng words swapped in can read as "natural-ish" on a vague check but
+// fails a real speaker's ear immediately. The new bullets name the concrete
+// tells directly (see SHENG_STYLE_GUIDE's AVOID list and the six-dimension
+// framing) so the critic checks for what a real reviewer would notice.
+export const PROMPT_VERSION_CRITIC = "critic-naturalness-v1.4";
 
 export interface CritiqueParams {
   campaignId: string;
@@ -48,7 +56,7 @@ export async function critiqueCandidate(gateway: AfribitAIGateway, params: Criti
       {
         role: "system",
         content:
-          `ROLE\nYou are a language-quality critic for Afribit AI, a Bitcoin education chatbot. You review a candidate Sheng/Kiswahili phrasing against the canonical fact it's supposed to convey.\n\nCHECK FOR\n- Unnatural literal translation or overly formal Kiswahili where casual Sheng was expected -- specifically, literal English-into-Kiswahili substitution (e.g. "Ukiwant...") is a real, not marginal, naturalness defect, not just an alternate style.\n- Whether the canonical fact's meaning (including any numbers) survived intact.\n- Any unsafe Bitcoin guidance (e.g. implying guaranteed profit, requesting secrets).\n\n${SHENG_STYLE_GUIDE}\n\n${COMMUNICATION_STYLE_GUIDE}\n\nReturn only the required structured JSON.`,
+          `ROLE\nYou are a language-quality critic for Afribit AI, a Bitcoin education chatbot. You review a candidate Sheng/Kiswahili phrasing against the canonical fact it's supposed to convey.\n\nCHECK FOR\n- Does this sound TRANSLATED from Kiswahili Sanifu -- formal sentence structure (relative-clause verb forms like "anayeweza," connectives like "Kwa hivyo," nominalized abstractions) with a few Sheng words swapped in? This is the single most common and most serious defect, even when individual vocabulary looks correct. Literal English-into-Kiswahili substitution (e.g. "Ukiwant...") is the same underlying problem.\n- Are the sentences too long or do they chain multiple ideas with formal connectives instead of short conversational clauses?\n- Are common English/technical words being translated unnecessarily (mtandaoni, benki, anwani, usalama, muamala) instead of left in English?\n- Is slang being forced -- "Bro"/"msee" inserted as a tic rather than because it fits, or invented neighbourhood-specific slang?\n- Would someone in Nairobi actually say this sentence out loud, in this order, with this grammar?\n- Did the phrasing change or soften a Bitcoin fact to sound more natural (e.g. an absolute "impossible to reverse" claim, a blanket "easy/fast/secure" promise, describing Bitcoin as identical to M-Pesa, a wallet "holding" coins)? Naturalness never excuses a factual change.\n- Does the candidate end with (or represent) one genuine comprehension question, not a vague filler ("niambie ukiwa na swali") or nothing at all?\n- Any unsafe Bitcoin guidance (e.g. implying guaranteed profit, requesting secrets).\n\n${SHENG_STYLE_GUIDE}\n\n${COMMUNICATION_STYLE_GUIDE}\n\nReturn only the required structured JSON.`,
       },
       {
         role: "user",
@@ -135,7 +143,7 @@ export async function critiqueQuestion(gateway: AfribitAIGateway, params: Critiq
       {
         role: "system",
         content:
-          `ROLE\nYou are a language-quality critic for Afribit AI, a Bitcoin education chatbot. You review a candidate Sheng/Kiswahili QUESTION -- not a statement -- meant to sound like something a real beginner would ask.\n\nCHECK FOR\n- Whether the phrasing sounds like a natural question a Nairobi/Kibera Sheng speaker would actually type, not a stiff translation or literal English-into-Kiswahili substitution.\n- Whether the question implies a wrong premise about the concept (set factual_drift true only in that case; otherwise false).\n- Any unsafe framing (e.g. soliciting secrets, implying guaranteed profit).\n\n${SHENG_STYLE_GUIDE}\n\n${COMMUNICATION_STYLE_GUIDE}\n\nReturn only the required structured JSON.`,
+          `ROLE\nYou are a language-quality critic for Afribit AI, a Bitcoin education chatbot. You review a candidate Sheng/Kiswahili QUESTION -- not a statement -- meant to sound like something a real beginner would ask.\n\nCHECK FOR\n- Whether the phrasing sounds like a natural question a Nairobi/Kibera Sheng speaker would actually type -- not a stiff translation, not formal Sanifu sentence structure with Sheng words swapped in, not literal English-into-Kiswahili substitution.\n- Whether common English/technical words were translated unnecessarily instead of left in English.\n- Whether the question implies a wrong premise about the concept (set factual_drift true only in that case; otherwise false).\n- Any unsafe framing (e.g. soliciting secrets, implying guaranteed profit).\n\n${SHENG_STYLE_GUIDE}\n\n${COMMUNICATION_STYLE_GUIDE}\n\nReturn only the required structured JSON.`,
       },
       {
         role: "user",

@@ -9,8 +9,8 @@ import { SHENG_STYLE_GUIDE } from "../prompt/shengStyleGuide.js";
  * them.
  */
 export const PROMPT_VERSIONS = {
-  L04_SHENG_REWRITE: "L04-sheng-rewrite-v1.4",
-  L05_USER_UTTERANCES: "L05-user-utterances-v1.4",
+  L04_SHENG_REWRITE: "L04-sheng-rewrite-v1.5",
+  L05_USER_UTTERANCES: "L05-user-utterances-v1.5",
 } as const;
 
 // v1.1: v1.0 was reliably returning schema-valid-but-empty `examples: []`
@@ -41,6 +41,12 @@ export const PROMPT_VERSIONS = {
 // rewrite or L05 question -- left in rather than trimmed, since the
 // register/safety portions are what matters here and the rest is
 // harmless to include.
+//
+// v1.5 (2026-09-24): SHENG_STYLE_GUIDE itself was rewritten (composition-
+// first framing, "Community Teaching Sheng" instead of an implicit "strict
+// Sheng" target, expanded AVOID list, corrected verb-grafting allowlist) --
+// bumped so generated rows are traceable to the corrected guide, not the
+// pre-fix one that still let formal-Sanifu-with-Sheng-words-through.
 const COMMON_RULES = `IMPORTANT
 - The "examples" array is the actual required output. It must contain exactly the requested number of items. Never return an empty examples array — if you are uncertain, generate your best attempt rather than leaving it empty.
 - Do not translate word-by-word.

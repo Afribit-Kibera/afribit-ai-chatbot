@@ -13,7 +13,11 @@ import { critiqueSchema, isValidCritiqueResult } from "./schemas.js";
 // v1.3 and promptTemplates.ts's v1.4 (docs/COMMUNICATION_STYLE_EVAL.md) --
 // same calibration argument extends to register/safety, not just Sheng
 // vocabulary correctness.
-export const PROMPT_VERSION_JUDGE = "judge-adjudication-v1.3";
+//
+// v1.4 (2026-09-24): matching critique.ts's v1.4 -- same expanded CHECK FOR,
+// same reasoning (a candidate can look "natural-ish" on a vague check while
+// still being formal-Sanifu-with-Sheng-words-swapped-in underneath).
+export const PROMPT_VERSION_JUDGE = "judge-adjudication-v1.4";
 
 export interface JudgeParams {
   campaignId: string;
@@ -50,7 +54,7 @@ export async function judgeCandidate(gateway: AfribitAIGateway, params: JudgePar
       {
         role: "system",
         content:
-          `ROLE\nYou are a second-opinion adjudicator for Afribit AI's dataset pipeline. A first critic model already reviewed this Sheng/Kiswahili candidate and flagged it as questionable. You are the tie-breaker -- give your own independent assessment, not a rubber stamp of the first critic's call.\n\nCHECK FOR\n- Whether the phrasing is natural for a Nairobi/Kibera Sheng speaker.\n- Whether the canonical fact's meaning (including any numbers) survived intact, if a canonical fact is supplied.\n- Any unsafe Bitcoin guidance.\n\n${SHENG_STYLE_GUIDE}\n\n${COMMUNICATION_STYLE_GUIDE}\n\nReturn only the required structured JSON.`,
+          `ROLE\nYou are a second-opinion adjudicator for Afribit AI's dataset pipeline. A first critic model already reviewed this Sheng/Kiswahili candidate and flagged it as questionable. You are the tie-breaker -- give your own independent assessment, not a rubber stamp of the first critic's call.\n\nCHECK FOR\n- Does this sound translated from Kiswahili Sanifu (formal sentence structure/connectives/relative clauses) with Sheng vocabulary swapped in, rather than composed as Sheng from the start?\n- Would a real Nairobi speaker actually say this sentence, in this order, out loud?\n- Whether the canonical fact's meaning (including any numbers) survived intact, if a canonical fact is supplied -- and whether naturalness edits accidentally softened or changed a Bitcoin fact (absolute claims, blanket promises, Bitcoin-equals-M-Pesa framing, a wallet "holding" coins).\n- Any unsafe Bitcoin guidance.\n\n${SHENG_STYLE_GUIDE}\n\n${COMMUNICATION_STYLE_GUIDE}\n\nReturn only the required structured JSON.`,
       },
       {
         role: "user",

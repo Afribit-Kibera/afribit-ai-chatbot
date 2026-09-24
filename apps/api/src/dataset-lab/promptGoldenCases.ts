@@ -37,8 +37,11 @@ function checkCase(tc: CommunicationEvalCase, systemPrompt: string): string[] {
   if (isShengLike && !systemPrompt.includes('never "Je, ...?"')) {
     failures.push('Finding 1 regression: the "Je" check-question ban is missing from SHENG_STYLE_GUIDE for a sheng/mixed_ke case');
   }
-  if (!isShengLike && systemPrompt.includes("SHENG STYLE")) {
+  if (!isShengLike && systemPrompt.includes("COMMUNITY TEACHING SHENG")) {
     failures.push(`SHENG_STYLE_GUIDE leaked into a non-Sheng language mode (${tc.languageMode})`);
+  }
+  if (isShengLike && !systemPrompt.includes("compose the answer in Sheng from the first word")) {
+    failures.push("2026-09-24 regression: composition-first rule missing from SHENG_STYLE_GUIDE for a sheng/mixed_ke case");
   }
 
   if (tc.languageMode === "swahili" && !systemPrompt.includes("genuinely formal register")) {

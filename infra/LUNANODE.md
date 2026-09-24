@@ -174,14 +174,35 @@ environment) — use `docker compose up -d --force-recreate afribit-api`
 after editing `/etc/afribit-ai/api.env`, which is what actually applied
 this fix.
 
-**Vercel git integration is not connected.** `vercel git connect` fails
-even with correct GitHub repo access — most likely Vercel's GitHub App
-needs a one-time interactive authorization that can't be done from a
-non-interactive CLI session. Deploys are manual (`vercel --prod --scope
-afribit`) until that's clicked through in the Vercel dashboard. Also
-worth knowing if this recurs: the project briefly got stuck unbuildable
-(`UNKNOWN` status, deployments never assigned a build machine) right
-after the failed auto-git-connect during project creation — fixed by
-deleting and recreating the project, and deploying *without* an
-intervening `vercel link` call (running `link` again seemed to retrigger
-the same stuck state).
+**Root cause of the earlier stuck deployments (found and fixed
+2026-09-24):** every deployment after the very first one got stuck at
+`UNKNOWN` status, never assigned a build machine, no logs, no clear CLI
+error. The real cause, found by checking the Vercel dashboard directly
+(not visible anywhere in the CLI output): **Vercel's commit-author
+verification silently blocked every deployment** because `vercel deploy`
+attaches the local git repo's commit author metadata even for CLI-based
+deploys, and the repo's commits were authored as `spira@novyrix.com`,
+which isn't a verified email on the connected GitHub account. Fixed by:
+
+1. `git config user.email eddie@afribit.africa` (the correct, verified
+   address) for this repo.
+2. Rewriting all existing commit history to that email with
+   `git filter-branch --env-filter` (both `GIT_AUTHOR_EMAIL` and
+   `GIT_COMMITTER_EMAIL`), then `git push --force-with-lease` — necessary
+   because the check looks at the actual commit author, not just future
+   commits, and every existing commit in this repo carried the
+   unverified address.
+
+Deploys have gone through cleanly on the first try since. If a Vercel
+deployment ever silently stalls again with no build machine assigned and
+no logs, check the commit author's email against the connected GitHub
+account **before** assuming it's a platform outage or a build-config
+problem — nothing in the CLI surfaces this reason directly.
+
+**Vercel git integration is still not connected** (separate issue from
+the above): `vercel git connect` fails even with correct GitHub repo
+access and the correct commit author — most likely Vercel's GitHub App
+itself needs a one-time interactive authorization that can't be done from
+a non-interactive CLI session. Deploys are manual (`vercel --prod --scope
+afribit` from the repo root) until that's clicked through in the Vercel
+dashboard.

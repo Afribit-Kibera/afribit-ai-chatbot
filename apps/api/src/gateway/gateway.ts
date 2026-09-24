@@ -48,6 +48,14 @@ export class AfribitAIGateway {
       if (!primaryProfile.fallbackProfile) {
         throw new GatewayError("Primary model failed and no fallback is configured", primaryError);
       }
+      // Previously silent -- docs/COMMUNICATION_STYLE_EVAL.md Finding 5:
+      // a fallback to a much weaker model is a real, user-facing quality
+      // cliff, and the only way that eval noticed it happened was
+      // comparing response.model against what was requested. Log it so
+      // it's visible without needing an eval script running.
+      console.warn(
+        `[gateway] ${request.modelProfile} failed, falling back to ${primaryProfile.fallbackProfile}: ${primaryError instanceof Error ? primaryError.message : String(primaryError)}`,
+      );
       try {
         return await this.attempt(request, primaryProfile.fallbackProfile);
       } catch (fallbackError) {
@@ -93,6 +101,9 @@ export class AfribitAIGateway {
       if (!primaryProfile.fallbackProfile) {
         throw new GatewayError("Primary model failed and no fallback is configured", primaryError);
       }
+      console.warn(
+        `[gateway] ${request.modelProfile} failed (stream), falling back to ${primaryProfile.fallbackProfile}: ${primaryError instanceof Error ? primaryError.message : String(primaryError)}`,
+      );
       try {
         return yield* this.attemptStream(request, primaryProfile.fallbackProfile);
       } catch (fallbackError) {

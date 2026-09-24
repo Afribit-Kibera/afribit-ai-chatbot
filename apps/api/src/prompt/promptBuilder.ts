@@ -1,4 +1,5 @@
-import type { AfribitChatMessage, ExplanationLevel, LanguageMode, RetrievalResult } from "@afribit/shared";
+import type { AfribitChatMessage, ExplanationLevel, LanguageMode, LanguageExample, RetrievalResult } from "@afribit/shared";
+import { COMMUNICATION_STYLE_GUIDE } from "./communicationStyleGuide.js";
 import { SHENG_FEW_SHOT_EXAMPLES } from "./shengFewShotExamples.js";
 import { SHENG_STYLE_GUIDE } from "./shengStyleGuide.js";
 
@@ -8,7 +9,7 @@ const LANGUAGE_POLICY: Record<LanguageMode, string> = {
   simple_en:
     "Language mode: Simple English.\nUse short sentences and everyday words. Avoid financial or technical jargon unless you explain it immediately.",
   swahili:
-    "Language mode: Kiswahili.\nRespond in clear, natural Kiswahili. Keep it conversational, not textbook-formal. Retain English technical terms (e.g. wallet, sats) when that is more natural than a forced translation.",
+    "Language mode: Kiswahili.\nRespond in clear, natural Kiswahili. Default to conversational, not textbook-formal -- but if the user's own message opens in genuinely formal register (e.g. \"Habari, naomba kuuliza...\"), match that formality rather than flattening it into slang; the register ladder below governs which one applies. Retain English technical terms (e.g. wallet, sats) when that is more natural than a forced translation.",
   sheng: `Language mode: Sheng.\nCommunicate naturally and simply, the way people actually talk in Nairobi/Kibera. Avoid formal textbook Kiswahili unless the user asks for it. Do not force slang into every sentence — natural code-switching is fine. Use English technical terms when that is more natural than a forced translation.\n\n${SHENG_STYLE_GUIDE}`,
   mixed_ke: `Language mode: Natural mixed language (Sheng + English + Kiswahili as it naturally occurs).\nMirror how the user is code-switching. Do not force any single language.\n\n${SHENG_STYLE_GUIDE}`,
 };
@@ -35,6 +36,16 @@ export interface BuildPromptInput {
   languageMode: LanguageMode;
   explanationLevel: ExplanationLevel;
   retrieval: RetrievalResult[];
+  /**
+   * Reviewed language_entries vocabulary matched to the question (see
+   * apps/api/src/knowledge/retrieveLanguageExamples.ts) -- optional and
+   * additive. Absent/empty changes nothing; callers that don't fetch
+   * these (older code paths, most eval scripts) still work exactly as
+   * before. Only rendered for sheng/mixed_ke, same as SHENG_STYLE_GUIDE
+   * and the few-shot examples below -- this is vocabulary grounding for
+   * code-switched registers, not relevant to simple_en/swahili.
+   */
+  languageExamples?: LanguageExample[];
   conversationHistory: AfribitChatMessage[];
   userMessage: string;
 }
@@ -52,12 +63,30 @@ export function buildPrompt(input: BuildPromptInput): AfribitChatMessage[] {
           .join("\n\n")
       : "No approved Afribit knowledge matched this question. Say you're not certain rather than inventing an answer.";
 
+  const isShengLike = input.languageMode === "sheng" || input.languageMode === "mixed_ke";
+  const languageExamples = input.languageExamples ?? [];
+  // docs/COMMUNICATION_STYLE_EVAL.md Finding 3: without this, the model's
+  // only grounded Sheng vocabulary is SHENG_STYLE_GUIDE's small hardcoded
+  // list, so it improvises unreviewed slang under real questions ("dry"
+  // was caught live). This is optional grounding, not a knowledge
+  // source -- explicitly framed as preferred vocabulary, not required
+  // content, so the model isn't forced to use a phrase that doesn't fit.
+  const languageExamplesBlock =
+    isShengLike && languageExamples.length > 0
+      ? `\n\nReviewed Sheng/Kiswahili vocabulary relevant to this question (community-approved, from Afribit's own corpus -- prefer these over improvising unreviewed slang; don't force one in if it doesn't fit):\n${languageExamples
+          .map((e) => `- "${e.utterance}"${e.meaning ? ` — ${e.meaning}` : ""}`)
+          .join("\n")}`
+      : "";
+
   const systemPrompt = [
     SYSTEM_IDENTITY,
     SAFETY_POLICY,
+    // Register/response-shape guidance -- applies in every language mode,
+    // unlike SHENG_STYLE_GUIDE below which is Sheng/mixed_ke-specific.
+    COMMUNICATION_STYLE_GUIDE,
     LANGUAGE_POLICY[input.languageMode],
     LEVEL_POLICY[input.explanationLevel],
-    `Retrieved Afribit knowledge:\n${knowledgeBlock}`,
+    `Retrieved Afribit knowledge:\n${knowledgeBlock}${languageExamplesBlock}`,
   ].join("\n\n");
 
   const messages: AfribitChatMessage[] = [{ role: "system", content: systemPrompt }];

@@ -1,0 +1,2223 @@
+{
+  "respect_and_safety": "Sheng can create warmth and belonging, but slang is not automatically polite. In formal, sensitive, medical, legal, employment, or emergency situations, clear Kiswahili or English may be safer. This manual teaches learners how to choose the right register, not how to replace every word with slang.",
+  "front_matter_raw": [
+    "The Communication Loop",
+    "A conversation is a loop. The speaker forms an intention, sends a message, and watches the response. The listener receives the message, interprets it, checks uncertain details, and responds. Noise can enter at every stage. Noise includes literal sound, weak network coverage, unfamiliar slang, emotion, assumptions, distraction, and fear.",
+    "Step",
+    "Question",
+    "Useful action",
+    "Sheng prompt",
+    "1 Purpose",
+    "What do I need?",
+    "Name the goal before speaking",
+    "Nataka kusema nini exactly?",
+    "2 Audience",
+    "Who am I speaking to?",
+    "Choose the right level of formality",
+    "Huyu ni beshte, customer, teacher ama mzae?",
+    "3 Message",
+    "What must they know?",
+    "Use short concrete details",
+    "Sema point straight na details muhimu.",
+    "4 Check",
+    "Did they understand?",
+    "Ask for a restatement or confirmation",
+    "Umeget? Nimeeleza poa?",
+    "5 Response",
+    "What happens next?",
+    "Confirm the action, owner, and time",
+    "So nani anafanya nini na saa ngapi?",
+    "Core rule  Do not assume that silence means agreement. A person may be confused, uncomfortable, distracted, or afraid to ask. Invite questions and confirm the next step.",
+    "Register Ladder",
+    "Register",
+    "Example opening",
+    "Best fit",
+    "Risk",
+    "Formal",
+    "Habari yako. Naomba kuuliza…",
+    "Official office, interview, elder, unfamiliar client",
+    "Can feel distant among close friends",
+    "Neutral Kenyan",
+    "Sasa, uko aje? Naomba unisaidie…",
+    "Most ordinary mixed settings",
+    "Still check how the other person responds",
+    "Informal Sheng",
+    "Niaje msee? Form ni gani?",
+    "Friends and familiar peers",
+    "Can sound rude or performative with strangers",
+    "Highly local slang",
+    "Neighbourhood-specific words",
+    "People who already share the code",
+    "Meaning changes quickly and outsiders may misunderstand",
+    "Language Rules for the AI Tutor",
+    "Mirror the learner’s level. If the learner writes mostly Kiswahili, answer in clear Kiswahili with only familiar Sheng.",
+    "Never claim that one phrase is used by every Kenyan. Say that usage can vary by age, place, and group.",
+    "Explain tone and relationship. “Buda” and “msee” can sound friendly in one context and too familiar in another.",
+    "Keep emergency, medical, legal, consent, money, and safety instructions direct. Use standard terms alongside Sheng.",
+    "Do not use insults, sexual language, ethnic stereotypes, or criminal slang merely to sound authentic.",
+    "Correct gently. Give the natural alternative, explain the context, and invite community validation.",
+    "Contents",
+    "1 Purpose audience and clear messages",
+    "2 Greetings and checking in",
+    "3 Introductions and names",
+    "4 Respect tone and register",
+    "5 Active listening",
+    "6 Asking useful questions",
+    "7 Clarifying and repairing meaning",
+    "8 Body language voice and silence",
+    "9 Requests offers and asking for help",
+    "10 Yes no and personal boundaries",
+    "11 Time plans and availability",
+    "12 Directions movement and transport",
+    "13 Shopping prices and customer service",
+    "14 Phone calls texts and voice notes",
+    "15 Feelings empathy and checking wellbeing",
+    "16 Feedback corrections and instructions",
+    "17 Apologies accountability and repair",
+    "18 Disagreement negotiation and de escalation",
+    "19 School work and public service communication",
+    "20 Emergencies rumours and high stakes clarity",
+    "21 Ending and following up",
+    "22 Extended role plays",
+    "23 AI tutor operating guide",
+    "24 Assessment and answer guide",
+    "Appendix A Core phrase bank",
+    "Appendix B Sheng glossary",
+    "Appendix C Community review worksheet",
+    "Sources and research notes"
+  ],
+  "chapters": [
+    {
+      "num": 1,
+      "title": "Purpose Audience and Clear Messages",
+      "objective": "Learn to say the right thing to the right person with enough detail for action.",
+      "format": "standard",
+      "simple_english": "Before speaking, identify the result you need. Give the main point early. Add the details the listener needs, then ask for confirmation. A clear message often answers what, who, where, when, and what happens next.",
+      "sheng_teaching_version": "Kabla uongee, jua point yako. Unataka kuuliza, kuomba help, kupeana update ama kupanga kitu? Sema main point mapema, then ongeza details za maana. Mwisho, confirm kama mwenzako amepata na step next ni gani.",
+      "skill_breakdown": [
+        "A vague message forces the listener to guess. “Nikuje?” is incomplete if the listener does not know where or when. “Nikuje kwa office saa nane ama kesho asubuhi?” gives a decision the listener can answer.",
+        "Audience changes the wording. A friend may understand “form ni gani?” A customer, teacher, health worker, or elder may need a neutral sentence such as “Mpango ni upi?” or “What is the plan?”",
+        "One message should have one main action. If several actions matter, list them in order and identify the deadline for each. End by asking the listener to confirm the most important detail."
+      ],
+      "useful_phrases": [
+        {
+          "phrase": "Point ni…",
+          "meaning": "The main point is…",
+          "tone": "Direct and useful when a conversation is drifting"
+        },
+        {
+          "phrase": "Nataka kuconfirm…",
+          "meaning": "I want to confirm…",
+          "tone": "Neutral mixed speech"
+        },
+        {
+          "phrase": "So plan ni gani?",
+          "meaning": "What is the plan?",
+          "tone": "Informal to neutral"
+        },
+        {
+          "phrase": "Niambie place na time",
+          "meaning": "Tell me the place and time",
+          "tone": "Clear request for details"
+        },
+        {
+          "phrase": "Nimeget hivi…",
+          "meaning": "This is what I understood…",
+          "tone": "Use before restating the message"
+        }
+      ],
+      "conversation_practice": [
+        "Amina  Sasa, meeting ni kesho ama leo?  —  Hi, is the meeting tomorrow or today?",
+        "Brian  Ni kesho saa nne, kwa hall ya community centre.  —  Tomorrow at 10 a.m., in the community-centre hall.",
+        "Amina  Sawa. Nimeget ni kesho saa nne kwa hall. Nibebe ID?  —  Okay. I understand tomorrow at 10 in the hall. Should I carry my ID?",
+        "Brian  Eeh, beba ID na notebook.  —  Yes, bring your ID and a notebook."
+      ],
+      "try_it": [
+        "1.  Rewrite “Nitumie ile kitu” so the item, channel, and deadline are clear.",
+        "2.  Give one informal version and one formal version of a request to meet.",
+        "3.  Ask the listener to repeat the agreed action in their own words."
+      ],
+      "common_mistakes": [
+        "Starting with a long story before stating the request.",
+        "Assuming “sawa” proves the listener understood every detail.",
+        "Using slang that the audience does not share.",
+        "Sending several unrelated tasks in one long voice note."
+      ],
+      "ai_teaching_guidance": "Ask the learner for the goal, audience, and setting. Then help them build a short message with a main point, necessary details, and a confirmation question."
+    },
+    {
+      "num": 2,
+      "title": "Greetings and Checking In",
+      "objective": "Open a conversation warmly without becoming too familiar too quickly.",
+      "format": "standard",
+      "simple_english": "A greeting acknowledges the other person and prepares them for the conversation. The safest pattern is greeting, response, brief check-in, then purpose. Match the other person’s level of formality.",
+      "sheng_teaching_version": "Greeting ni kufungua story na kuonyesha umenotice huyo msee. Unaweza start na “Sasa,” “Niaje,” ama “Habari yako,” kutegemea ni nani. Salimia, ngoja response, uliza ako aje kidogo, halafu ingia kwa point.",
+      "skill_breakdown": [
+        "Go Sheng records “sasa” as “hi” and “niaje” as a greeting related to “how.” In living conversation, these words can function as both greeting and check-in. The answer may be “poa,” “fiti,” “safi,” or a longer update.",
+        "A greeting can be short among people who meet often. With a stranger, older person, client, or official, add a respectful phrase and avoid intimate labels until the other person shows comfort.",
+        "Do not treat a routine “uko aje?” as permission to press for private details. If the answer is brief, accept it and move to the reason for speaking."
+      ],
+      "useful_phrases": [
+        {
+          "phrase": "Sasa",
+          "meaning": "Hi or what is happening",
+          "tone": "Common informal opener"
+        },
+        {
+          "phrase": "Niaje",
+          "meaning": "Hi or how is it",
+          "tone": "Informal greeting"
+        },
+        {
+          "phrase": "Uko aje",
+          "meaning": "How are you",
+          "tone": "Informal but widely understood"
+        },
+        {
+          "phrase": "Poa or fiti",
+          "meaning": "Fine or good",
+          "tone": "Common response"
+        },
+        {
+          "phrase": "Habari yako",
+          "meaning": "How are you",
+          "tone": "Safer neutral Kiswahili"
+        }
+      ],
+      "conversation_practice": [
+        "Kevin  Niaje?  —  Hi, how are you?",
+        "Zawadi  Poa. Wewe je?  —  Fine. And you?",
+        "Kevin  Niko fiti. Nilikuwa nataka kuconfirm form ya training.  —  I am fine. I wanted to confirm the training plan.",
+        "Zawadi  Sawa, niulize.  —  Okay, ask me."
+      ],
+      "try_it": [
+        "1.  Practise greeting a close friend, an unfamiliar shopkeeper, and a programme officer.",
+        "2.  Give two natural responses to “Niaje?”",
+        "3.  Move from greeting to purpose in one sentence."
+      ],
+      "common_mistakes": [
+        "Using “Niaje msee” with every older person or official.",
+        "Repeating several slang greetings in one line to sound authentic.",
+        "Ignoring the greeting and immediately demanding help.",
+        "Forcing a personal conversation when the other person gives a short answer."
+      ],
+      "ai_teaching_guidance": "Offer a formal, neutral, and informal greeting. Explain the relationship and setting for each. Do not label one phrase as universally Kenyan."
+    },
+    {
+      "num": 3,
+      "title": "Introductions and Names",
+      "objective": "Introduce yourself clearly and learn how another person wants to be addressed.",
+      "format": "standard",
+      "simple_english": "A useful introduction gives your name, role or connection, and reason for the conversation. Ask the other person’s name and preferred form of address. Repeat the name once if you need to confirm pronunciation.",
+      "sheng_teaching_version": "Introduction poa iko simple: sema jina yako, uko hapo kama nani, na unataka nini. Uliza mwenzako anaitwa aje na anaprefer umuite nini. Ukikosa kuskia jina, omba arudie badala ya ku-guess.",
+      "skill_breakdown": [
+        "Names communicate respect. Some people use a first name with peers but prefer a title, surname, role, or kinship term in another setting. Ask instead of assuming.",
+        "A label such as “buda,” “msee,” “bro,” “siz,” “boss,” or “madam” carries social meaning. It can express warmth, distance, age, gender, or hierarchy. Use it only when it fits the relationship.",
+        "When introducing another person, share only information that is relevant and safe. Do not reveal a phone number, health issue, job search, or personal history without permission."
+      ],
+      "useful_phrases": [
+        {
+          "phrase": "Naitwa…",
+          "meaning": "My name is…",
+          "tone": "Neutral Kiswahili"
+        },
+        {
+          "phrase": "Mimi ni…",
+          "meaning": "I am…",
+          "tone": "Simple introduction"
+        },
+        {
+          "phrase": "Unaitwa aje?",
+          "meaning": "What are you called?",
+          "tone": "Informal"
+        },
+        {
+          "phrase": "Unaprefer nikuitaje?",
+          "meaning": "What do you prefer I call you?",
+          "tone": "Respectful mixed speech"
+        },
+        {
+          "phrase": "Sijasikia jina poa",
+          "meaning": "I did not hear the name clearly",
+          "tone": "Good repair phrase"
+        }
+      ],
+      "conversation_practice": [
+        "Njeri  Habari. Mimi ni Njeri kutoka Afribit. Niko hapa kwa training.  —  Hello. I am Njeri from Afribit. I am here for the training.",
+        "Otieno  Karibu. Mimi ni Otieno.  —  Welcome. I am Otieno.",
+        "Njeri  Asante. Unaprefer nikuitaje, Otieno ama Mr Otieno?  —  Thank you. Do you prefer Otieno or Mr Otieno?",
+        "Otieno  Otieno iko sawa.  —  Otieno is fine."
+      ],
+      "try_it": [
+        "1.  Create a ten-second introduction for a community meeting.",
+        "2.  Ask someone to repeat and spell a name politely.",
+        "3.  Introduce a colleague without sharing private information."
+      ],
+      "common_mistakes": [
+        "Guessing a person’s title, gender, tribe, or relationship from their name.",
+        "Using a nickname before permission.",
+        "Turning the introduction into a long personal history.",
+        "Laughing at an unfamiliar name or pronunciation."
+      ],
+      "ai_teaching_guidance": "Teach the learner to ask for preferred names and titles. Avoid inferring ethnicity, gender, age, or social status from a name."
+    },
+    {
+      "num": 4,
+      "title": "Respect Tone and Register",
+      "objective": "Choose language that fits the relationship, place, and seriousness of the message.",
+      "format": "standard",
+      "simple_english": "Respect is carried by word choice, tone, timing, and behaviour. The same request can sound friendly, rude, afraid, or confident. Start more neutrally when you are unsure, then mirror the other person without copying language that feels unsafe or insulting.",
+      "sheng_teaching_version": "Respect si word moja tu. Iko kwa sauti, timing, vile unasimama, na vile unachoose maneno. Ukiwa hujui huyo msee poa, start neutral. Akiongea informal na context iko sawa, unaweza relax kidogo. Usiforce Sheng ati ndio usound local.",
+      "skill_breakdown": [
+        "Register is the level and style of language used in a situation. Friends often accept shortened words and teasing. Official service, work, health, conflict, and first meetings need clearer and more careful language.",
+        "Respect does not require silence or submission. A person can disagree, refuse, or set a boundary in calm direct language. Assertiveness protects both the speaker’s needs and the other person’s dignity.",
+        "Power matters. A learner may need a safer way to question a supervisor, landlord, police officer, teacher, or service provider. The AI should not assume that a blunt phrase carries no risk."
+      ],
+      "useful_phrases": [
+        {
+          "phrase": "Tafadhali",
+          "meaning": "Please",
+          "tone": "Formal or neutral"
+        },
+        {
+          "phrase": "Naomba…",
+          "meaning": "I request or please…",
+          "tone": "Respectful opening"
+        },
+        {
+          "phrase": "Si unisaidie…",
+          "meaning": "Could you help me…",
+          "tone": "Informal request"
+        },
+        {
+          "phrase": "Buda or msee",
+          "meaning": "Older man father person or guy",
+          "tone": "Highly context dependent"
+        },
+        {
+          "phrase": "Boss",
+          "meaning": "Friendly title or actual supervisor",
+          "tone": "Common but not always preferred"
+        }
+      ],
+      "conversation_practice": [
+        "Learner  Samahani, naomba kuuliza. Registration inaisha saa ngapi?  —  Excuse me, may I ask. What time does registration close?",
+        "Officer  Inaisha saa kumi.  —  It closes at 4 p.m.",
+        "Learner  Asante. So nikifika saa tisa na nusu bado niko sawa?  —  Thank you. If I arrive at 3:30 p.m., am I still okay?",
+        "Officer  Ndiyo.  —  Yes."
+      ],
+      "try_it": [
+        "1.  Turn “Nipe form” into a respectful request.",
+        "2.  Give a safe neutral alternative to “Niaje buda?”",
+        "3.  Practise disagreeing with an older person without insulting them."
+      ],
+      "common_mistakes": [
+        "Believing slang is automatically friendly.",
+        "Speaking louder when the listener asks for clarification.",
+        "Using “please” while the rest of the message remains threatening.",
+        "Copying a community’s accent or slang as a performance."
+      ],
+      "ai_teaching_guidance": "When context is uncertain, recommend a neutral sentence first. Offer the informal version as an option and describe its social risk."
+    },
+    {
+      "num": 5,
+      "title": "Active Listening",
+      "objective": "Show attention, understand the speaker, and verify meaning before responding.",
+      "format": "standard",
+      "simple_english": "Active listening means giving attention, limiting interruption, noticing words and emotion, asking a relevant question, and reflecting back the main meaning. Listening does not require agreement. It requires an honest effort to understand.",
+      "sheng_teaching_version": "Kuskiza active ni kupea msee space amalize, ushike point na feeling, halafu ucheck kama umeget. Unaweza sema “Nimeskia ukisema…” ama “So issue ni…” then umuulize kama uko correct. Kuskiza haimaanishi lazima uagree.",
+      "skill_breakdown": [
+        "Prepare to listen by putting away distractions when possible. Face the speaker in a culturally comfortable way. Eye contact can show attention, but constant staring can feel aggressive or inappropriate.",
+        "Use small signals such as “sawa,” “mmh,” “naskia,” or a nod. These signals mean “continue,” not “I agree with every claim.”",
+        "After the speaker finishes, paraphrase content and emotion: “Nimeskia uko frustrated juu delivery ilichelewa.” Then ask whether that summary is accurate.",
+        "UNICEF active-listening materials use demonstration and practice. The most useful training therefore includes role play, observation, and feedback, not only definitions."
+      ],
+      "useful_phrases": [
+        {
+          "phrase": "Naskia",
+          "meaning": "I hear you",
+          "tone": "Shows attention; not automatic agreement"
+        },
+        {
+          "phrase": "Endelea",
+          "meaning": "Continue",
+          "tone": "Invites the speaker to go on"
+        },
+        {
+          "phrase": "So unasema…",
+          "meaning": "So you are saying…",
+          "tone": "Begins a paraphrase"
+        },
+        {
+          "phrase": "Nimeget point yako",
+          "meaning": "I understand your point",
+          "tone": "Useful before response"
+        },
+        {
+          "phrase": "Niko correct?",
+          "meaning": "Am I correct?",
+          "tone": "Checks the paraphrase"
+        }
+      ],
+      "conversation_practice": [
+        "Customer  Nimewait tangu asubuhi na order bado haijafika.  —  I have waited since morning and the order has not arrived.",
+        "Agent  Naskia. So umejam juu uliambiwa itafika asubuhi, lakini bado hakuna update. Niko correct?  —  I hear you. You are angry because you were told it would arrive in the morning, but there is still no update. Am I correct?",
+        "Customer  Eeh, na nilihitaji kabla ya saa nane.  —  Yes, and I needed it before 2 p.m.",
+        "Agent  Sawa. Wacha nicheki status na nikupee time ya ukweli.  —  Okay. Let me check the status and give you an accurate time."
+      ],
+      "try_it": [
+        "1.  Listen to a one-minute story without interrupting, then summarise it in one sentence.",
+        "2.  Name the fact and the feeling in the customer’s message.",
+        "3.  Ask one open question that helps the speaker continue."
+      ],
+      "common_mistakes": [
+        "Planning your reply while the other person is still speaking.",
+        "Saying “naskia” and immediately dismissing the concern.",
+        "Turning every story into your own story.",
+        "Treating eye contact as a rigid rule across all cultures and situations."
+      ],
+      "ai_teaching_guidance": "Model a four-step listening response: acknowledge, paraphrase, check accuracy, then ask what the speaker needs. Do not diagnose feelings as facts; use “inaonekana” or ask."
+    },
+    {
+      "num": 6,
+      "title": "Asking Useful Questions",
+      "objective": "Use open closed and follow-up questions to get the information you need.",
+      "format": "standard",
+      "simple_english": "Questions have different jobs. Open questions invite explanation. Closed questions confirm a specific fact. Follow-up questions explore an important detail. Ask one question at a time and explain why you need sensitive information.",
+      "sheng_teaching_version": "Swali poa inategemea unataka info gani. Open question inapea msee chance aexplain. Closed question inaconfirm detail moja. Follow-up inachimba point muhimu. Usiulize maswali tano pamoja halafu msee hajui aanzie wapi.",
+      "skill_breakdown": [
+        "Open questions often begin with what, how, why, tell me, or explain. “Nini ilihappen?” invites a story. “Ulienda?” can be answered yes or no.",
+        "Closed questions are useful for dates, amounts, names, and safety checks. They are weak when you need the person’s full experience.",
+        "Avoid loaded questions such as “Mbona hukuwa responsible?” They contain blame. Ask for observable facts: “Ni nini ilikuzuia kufika kwa time?”"
+      ],
+      "useful_phrases": [
+        {
+          "phrase": "Nini ilihappen?",
+          "meaning": "What happened?",
+          "tone": "Open question"
+        },
+        {
+          "phrase": "Unaweza explain kidogo?",
+          "meaning": "Can you explain a little?",
+          "tone": "Open follow-up"
+        },
+        {
+          "phrase": "Ni leo ama kesho?",
+          "meaning": "Is it today or tomorrow?",
+          "tone": "Closed choice"
+        },
+        {
+          "phrase": "Uko na receipt?",
+          "meaning": "Do you have the receipt?",
+          "tone": "Specific closed question"
+        },
+        {
+          "phrase": "Unahitaji nini sai?",
+          "meaning": "What do you need now?",
+          "tone": "Needs-focused question"
+        }
+      ],
+      "conversation_practice": [
+        "Trainer  Ni part gani ya lesson ilikuwa ngumu?  —  Which part of the lesson was difficult?",
+        "Learner  Ile ya kuongea mbele ya group.  —  The part about speaking in front of a group.",
+        "Trainer  Ni nini ilifanya ikuwe ngumu?  —  What made it difficult?",
+        "Learner  Nilikuwa naogopa nitakosea Sheng.  —  I was afraid I would use the wrong Sheng.",
+        "Trainer  Sawa. Ungeprefer kupractice na partner kwanza?  —  Would you prefer to practise with a partner first?"
+      ],
+      "try_it": [
+        "1.  Change a blaming question into a neutral question.",
+        "2.  Write one open and one closed question about a missed appointment.",
+        "3.  Ask for consent before requesting a phone number."
+      ],
+      "common_mistakes": [
+        "Asking “why” in a tone that sounds like an accusation.",
+        "Stacking several questions in one sentence.",
+        "Asking for private information without explaining the purpose.",
+        "Using a closed question when the learner needs room to explain."
+      ],
+      "ai_teaching_guidance": "Identify the information goal before generating a question. Prefer neutral observable wording, and request only information necessary for the task."
+    },
+    {
+      "num": 7,
+      "title": "Clarifying and Repairing Meaning",
+      "objective": "Recover quickly when a word message or instruction is unclear.",
+      "format": "standard",
+      "simple_english": "Misunderstanding is normal, especially in mixed-language conversation. Repair it early. Say what you missed, ask for a repeat or simpler wording, restate your understanding, and confirm the final detail.",
+      "sheng_teaching_version": "Kutomake sense mara ya kwanza ni normal. Sheng, English, Kiswahili na accent zinaweza mix. Usijifanye umeget. Sema “sijaelewa hiyo part,” omba arudie polepole, then sema vile umeget ndio akucorrect.",
+      "skill_breakdown": [
+        "A general “sijaelewa” may be too broad. Point to the exact word, number, place, or action that is unclear.",
+        "Paraphrasing is stronger than asking “umeget?” because it produces evidence of understanding. The listener restates the message in their own words.",
+        "Numbers deserve extra care. Repeat the amount, currency, date, time, and phone number in a consistent format. In text, write important numbers as digits.",
+        "Go Sheng illustrates that a word may hold several meanings. “Noma,” for example, can refer to trouble, something very good, or toughness. Context decides the intended meaning."
+      ],
+      "useful_phrases": [
+        {
+          "phrase": "Sijaelewa hiyo part",
+          "meaning": "I did not understand that part",
+          "tone": "Points to a gap"
+        },
+        {
+          "phrase": "Rudia polepole please",
+          "meaning": "Repeat slowly please",
+          "tone": "Respectful mixed speech"
+        },
+        {
+          "phrase": "Hiyo word inamaanisha nini?",
+          "meaning": "What does that word mean?",
+          "tone": "Vocabulary repair"
+        },
+        {
+          "phrase": "Nimeget ni…",
+          "meaning": "I understand that it is…",
+          "tone": "Restatement"
+        },
+        {
+          "phrase": "Unamaanisha noma aje?",
+          "meaning": "Which meaning of noma do you mean?",
+          "tone": "Checks ambiguous slang"
+        }
+      ],
+      "conversation_practice": [
+        "Musa  Tumeet stage saa kumi na moja.  —  Let us meet at the stage at five.",
+        "Faith  Sijaelewa time. Ni saa kumi na moja asubuhi ama jioni?  —  I did not understand the time. Is it 5 a.m. or 5 p.m.?",
+        "Musa  Jioni, 5 p.m.  —  In the evening, 5 p.m.",
+        "Faith  Sawa, 5 p.m. kwa stage ya Olympic.  —  Okay, 5 p.m. at the Olympic stage."
+      ],
+      "try_it": [
+        "1.  Ask for clarification about an unfamiliar Sheng word.",
+        "2.  Restate a price and delivery time.",
+        "3.  Repair a message that says only “tumeet stage later.”"
+      ],
+      "common_mistakes": [
+        "Pretending to understand because asking feels embarrassing.",
+        "Repeating the same unclear sentence louder.",
+        "Assuming one dictionary meaning fits every use.",
+        "Failing to specify morning or evening when the time can be ambiguous."
+      ],
+      "ai_teaching_guidance": "When a learner says they are confused, isolate the uncertain element. Give a simple paraphrase and one example, then ask the learner to restate the meaning."
+    },
+    {
+      "num": 8,
+      "title": "Body Language Voice and Silence",
+      "objective": "Understand how nonverbal signals change the meaning of words.",
+      "format": "standard",
+      "simple_english": "People interpret posture, face, distance, volume, pace, and silence together with words. Nonverbal signs are clues, not proof. Ask rather than assuming what another person feels.",
+      "sheng_teaching_version": "Maneno pekee haitoshi. Sauti, uso, distance, speed ya kuongea na silence zote zinabeba message. Lakini usiconclude ati msee amekasirika juu tu amenyamaza. Cheki context na uulize kwa heshima.",
+      "skill_breakdown": [
+        "A calm voice can make a firm boundary easier to hear. Shouting can turn a simple disagreement into a threat even when the words appear polite.",
+        "Personal space and eye contact vary across people and cultures. Give space, especially when someone looks frightened, angry, or uncomfortable.",
+        "Silence can mean thinking, disagreement, respect, fear, confusion, or simply no answer. Invite a response without pressure: “Chukua time. Ukiready, niambie.”",
+        "Digital text removes many tone cues. A short “sawa” can sound neutral, cold, or angry depending on the relationship. Add context when misunderstanding would matter."
+      ],
+      "useful_phrases": [
+        {
+          "phrase": "Ongea polepole",
+          "meaning": "Speak slowly",
+          "tone": "Pace request"
+        },
+        {
+          "phrase": "Tulia kidogo",
+          "meaning": "Calm down or pause a little",
+          "tone": "Can help but may also provoke; use carefully"
+        },
+        {
+          "phrase": "Chukua time",
+          "meaning": "Take your time",
+          "tone": "Supportive"
+        },
+        {
+          "phrase": "Uko sawa tuendelee?",
+          "meaning": "Are you okay to continue?",
+          "tone": "Consent check"
+        },
+        {
+          "phrase": "Sauti iko juu kidogo",
+          "meaning": "The volume is a little high",
+          "tone": "Describes behaviour without insult"
+        }
+      ],
+      "conversation_practice": [
+        "Facilitator  Naona umenyamaza. Uko sawa tuendelee ama unahitaji break?  —  I notice you are quiet. Are you okay to continue or do you need a break?",
+        "Participant  Nipe minute moja nifikirie.  —  Give me one minute to think.",
+        "Facilitator  Sawa, chukua time.  —  Okay, take your time."
+      ],
+      "try_it": [
+        "1.  Say the same words in a calm, rushed, and angry tone. Discuss how meaning changes.",
+        "2.  Ask about silence without assuming the reason.",
+        "3.  Rewrite a short text message so the tone is clearer."
+      ],
+      "common_mistakes": [
+        "Reading body language as a guaranteed fact.",
+        "Telling an upset person “tulia” in a dismissive tone.",
+        "Standing too close during conflict.",
+        "Using capital letters in text without considering that they may look like shouting."
+      ],
+      "ai_teaching_guidance": "Describe nonverbal observations tentatively. Say “inaonekana” or “nimeobserve” and ask a question. Never claim to know emotion from one gesture."
+    },
+    {
+      "num": 9,
+      "title": "Requests Offers and Asking for Help",
+      "objective": "Ask clearly without demanding and respond honestly when you can or cannot help.",
+      "format": "standard",
+      "simple_english": "A respectful request names the action, reason when relevant, deadline, and room for the other person to answer. An offer should be specific. A promise should be realistic.",
+      "sheng_teaching_version": "Ukiomba help, usizunguke sana na usicommand msee. Sema unahitaji nini, by when, na kama anaweza. Offer pia ikuwe clear: unaweza kufanya nini exactly? Usiseme “nitakam through” kama hujui utaweza.",
+      "skill_breakdown": [
+        "“Naomba” and “tafadhali” soften a request, but politeness also requires choice. “Unaweza kunisaidia?” allows an honest response better than “Lazima unisaidie.”",
+        "Large requests may need a reason and a smaller alternative. If the person cannot finish the whole task, ask what part is possible.",
+        "Confirm the help: what will be done, by whom, and when. Gratitude should not pressure the person into additional work."
+      ],
+      "useful_phrases": [
+        {
+          "phrase": "Naomba unisaidie…",
+          "meaning": "Please help me…",
+          "tone": "Respectful"
+        },
+        {
+          "phrase": "Unaweza…?",
+          "meaning": "Can you…?",
+          "tone": "Gives room to answer"
+        },
+        {
+          "phrase": "Si unishow…",
+          "meaning": "Could you show or tell me…",
+          "tone": "Informal"
+        },
+        {
+          "phrase": "Naeza help na…",
+          "meaning": "I can help with…",
+          "tone": "Specific offer"
+        },
+        {
+          "phrase": "Sai siwezi, but naeza…",
+          "meaning": "I cannot now, but I can…",
+          "tone": "Honest alternative"
+        }
+      ],
+      "conversation_practice": [
+        "Juma  Naomba unisaidie kucheki hii form kabla ya saa tisa. Unaweza?  —  Please help me check this form before 3 p.m. Can you?",
+        "Linet  Sai niko busy, but naeza icheki saa nane na nusu.  —  I am busy now, but I can check it at 2:30 p.m.",
+        "Juma  Hiyo iko sawa. Asante.  —  That works. Thank you."
+      ],
+      "try_it": [
+        "1.  Turn an order into a request with a real choice.",
+        "2.  Make a specific offer to help a classmate.",
+        "3.  Decline a request and offer a smaller alternative."
+      ],
+      "common_mistakes": [
+        "Using politeness words while refusing the other person any choice.",
+        "Promising a deadline only to avoid saying no.",
+        "Asking for urgent help without stating the deadline.",
+        "Treating a favour as a permanent obligation."
+      ],
+      "ai_teaching_guidance": "Help the learner form a request with action, deadline, and choice. When declining, use a short reason only if safe, then offer an alternative if one exists."
+    },
+    {
+      "num": 10,
+      "title": "Yes No and Personal Boundaries",
+      "objective": "Respond clearly and protect consent time privacy and personal space.",
+      "format": "standard",
+      "simple_english": "A clear yes is voluntary and informed. A clear no should be respected. Silence, fear, pressure, intoxication, uncertainty, or dependence can make consent unclear. Boundaries can cover time, touch, money, information, devices, photos, and conversation topics.",
+      "sheng_teaching_version": "Yes lazima ikuwe ya ukweli, bila pressure, na msee ajue anaagree na nini. “No,” “sitaki,” “siwezi,” ama “wacha” inafaa irespected. Silence si automatic yes. Unaweza set boundary kuhusu simu, picha, doo, touch, time ama info yako.",
+      "skill_breakdown": [
+        "Assertiveness is direct and respectful. It differs from passivity, where needs remain hidden, and aggression, where the speaker threatens or humiliates another person.",
+        "Use an I-statement: name the behaviour, its effect, and the request. “Ukishare number yangu bila kuniuliza, niko uncomfortable. Please niulize kwanza.”",
+        "A boundary does not require a long defence. In unsafe situations, leave, seek help, or contact a trusted person rather than continuing a perfect conversation."
+      ],
+      "useful_phrases": [
+        {
+          "phrase": "Eeh",
+          "meaning": "Yes",
+          "tone": "Confirm what the yes covers"
+        },
+        {
+          "phrase": "Hapana",
+          "meaning": "No",
+          "tone": "Clear neutral refusal"
+        },
+        {
+          "phrase": "Sitaki",
+          "meaning": "I do not want",
+          "tone": "Direct boundary"
+        },
+        {
+          "phrase": "Sai siwezi",
+          "meaning": "I cannot now",
+          "tone": "Time boundary"
+        },
+        {
+          "phrase": "Please usishare hiyo",
+          "meaning": "Please do not share that",
+          "tone": "Privacy boundary"
+        }
+      ],
+      "conversation_practice": [
+        "Alex  Nitumie picha yako nishare kwa group.  —  Send me your photo so I can share it in the group.",
+        "Mumbi  Hapana, sitaki picha yangu isharewe. Unaweza tuma jina yangu tu.  —  No, I do not want my photo shared. You can send only my name.",
+        "Alex  Sawa, nitatuma jina tu.  —  Okay, I will send only the name."
+      ],
+      "try_it": [
+        "1.  State a boundary about a phone without insulting the other person.",
+        "2.  Ask permission before adding someone to a WhatsApp group.",
+        "3.  Practise accepting “no” without demanding an explanation."
+      ],
+      "common_mistakes": [
+        "Treating silence or nervous laughter as agreement.",
+        "Asking repeatedly after a clear refusal.",
+        "Using threats or public shame to obtain compliance.",
+        "Believing boundaries are disrespectful by definition."
+      ],
+      "ai_teaching_guidance": "Prioritise consent and safety. Do not coach the learner to pressure, trick, or guilt another person. If the situation is unsafe, recommend leaving and seeking local help."
+    },
+    {
+      "num": 11,
+      "title": "Time Plans and Availability",
+      "objective": "Make arrangements that include a real date time place and update plan.",
+      "format": "standard",
+      "simple_english": "Plans fail when people assume that “later,” “morning,” or “at the stage” means the same thing to everyone. Confirm the date, exact time, place, contact method, and what to do if someone is late.",
+      "sheng_teaching_version": "“Later,” “kesho,” ama “kwa stage” inaweza kuwa vague. Plan safi iko na date, time exact, place exact, na vile mtacommunicate mtu akichelewa. Repeat details before mfunge story.",
+      "skill_breakdown": [
+        "Kenyan time expressions may mix Kiswahili clock language and the 12-hour clock. To avoid mistakes, repeat both forms when necessary: “saa nane mchana, 2 p.m.”",
+        "Availability is not a promise. Ask “unaweza?” and wait for confirmation. If plans change, update early and give a realistic new time.",
+        "Location names can repeat. Add a landmark, entrance, stage name, or shared pin only when it is safe to share live location."
+      ],
+      "useful_phrases": [
+        {
+          "phrase": "Sai",
+          "meaning": "Now",
+          "tone": "Informal"
+        },
+        {
+          "phrase": "Baadaye",
+          "meaning": "Later",
+          "tone": "Needs a time when action matters"
+        },
+        {
+          "phrase": "Niko njiani",
+          "meaning": "I am on the way",
+          "tone": "Add an honest arrival estimate"
+        },
+        {
+          "phrase": "Nitafika around…",
+          "meaning": "I will arrive around…",
+          "tone": "Estimate"
+        },
+        {
+          "phrase": "Nikichelewa nitakutext",
+          "meaning": "If I am late I will text you",
+          "tone": "Update plan"
+        }
+      ],
+      "conversation_practice": [
+        "Wanjiku  Tumeet kesho saa nane mchana, 2 p.m., kwa entrance ya hall?  —  Shall we meet tomorrow at 2 p.m. at the hall entrance?",
+        "Sam  Eeh. Nikichelewa nitakutext by 1:30.  —  Yes. If I am late I will text by 1:30.",
+        "Wanjiku  Sawa, na usipopata network nipigie.  —  Okay, and if there is no network, call me."
+      ],
+      "try_it": [
+        "1.  Replace “tutaonana later” with a complete plan.",
+        "2.  Confirm a Kiswahili clock time in 12-hour format.",
+        "3.  Send an honest delay update with a new estimated arrival."
+      ],
+      "common_mistakes": [
+        "Saying “niko area” when still far away.",
+        "Using “saa mbili” without confirming morning or evening.",
+        "Changing the place without checking that everyone received the update.",
+        "Sharing live location publicly when a simple landmark is enough."
+      ],
+      "ai_teaching_guidance": "Always label dates and times explicitly. When translating Kiswahili time, confirm the intended clock system instead of guessing."
+    },
+    {
+      "num": 12,
+      "title": "Directions Movement and Transport",
+      "objective": "Give stepwise directions and confirm destination fare and stopping point.",
+      "format": "standard",
+      "simple_english": "Good directions begin from a known starting point and use landmarks, turns, distance, and a final confirmation. In public transport, confirm the route, fare, and where to alight before moving when possible.",
+      "sheng_teaching_version": "Directions poa inaanza place yenye wote mnajua. Sema landmark, turn, na place ya kushukia. Kwa mat, mathree ama nganya, confirm inaenda route gani, fare ni how much, na utashuka wapi. Ukiconfused, uliza mapema.",
+      "skill_breakdown": [
+        "Go Sheng lists “mat” as a matatu and records related terms including “mathree” and “nganya.” These are informal. “Matatu” is the clearer neutral word.",
+        "Give one step at a time. “Enda straight, turn left kwa clinic, then uliza gate ya field” is easier than a paragraph containing many unmarked turns.",
+        "Safety comes first. Avoid directing an unfamiliar person through an isolated shortcut merely because it is faster. If lost, move to a safer visible place before checking a phone."
+      ],
+      "useful_phrases": [
+        {
+          "phrase": "Mat or mathree",
+          "meaning": "Matatu",
+          "tone": "Informal transport term"
+        },
+        {
+          "phrase": "Panda",
+          "meaning": "Board or get on",
+          "tone": "Shared Kiswahili"
+        },
+        {
+          "phrase": "Shuka",
+          "meaning": "Alight or get off",
+          "tone": "Shared Kiswahili"
+        },
+        {
+          "phrase": "Stage gani?",
+          "meaning": "Which stage",
+          "tone": "Route question"
+        },
+        {
+          "phrase": "Nishow nikifika…",
+          "meaning": "Tell me when I reach…",
+          "tone": "Informal request"
+        }
+      ],
+      "conversation_practice": [
+        "Passenger  Hii mat inaenda Olympic?  —  Does this matatu go to Olympic?",
+        "Conductor  Eeh, panda.  —  Yes, board.",
+        "Passenger  Fare ni how much, na nishow nikifika stage ya Olympic please.  —  How much is the fare, and please tell me when we reach Olympic stage.",
+        "Conductor  Ni fifty. Nitakushow.  —  It is fifty. I will tell you."
+      ],
+      "try_it": [
+        "1.  Give three-step walking directions from a known landmark.",
+        "2.  Ask a conductor to confirm destination and fare.",
+        "3.  Explain what to do if the listener misses a turn."
+      ],
+      "common_mistakes": [
+        "Using only “huko mbele” without a landmark or distance.",
+        "Entering transport before confirming the route when unsure.",
+        "Assuming the fare is fixed at all times.",
+        "Sharing a shortcut without considering safety or accessibility."
+      ],
+      "ai_teaching_guidance": "For navigation, ask for starting point, destination, transport mode, and accessibility needs. Do not invent a route or live fare; recommend local confirmation."
+    },
+    {
+      "num": 13,
+      "title": "Shopping Prices and Customer Service",
+      "objective": "Ask about products money quality receipts and problems without confusion.",
+      "format": "standard",
+      "simple_english": "A purchase conversation should identify the item, quantity, price, condition, payment method, and receipt or confirmation. Complaints should describe the problem and requested solution.",
+      "sheng_teaching_version": "Kwa biashara, confirm kitu gani, quantity, bei, condition, na payment itakuwa aje. Ukicomplain, sema ilihappen nini na unataka solution gani. Usianze na matusi; facts zinasaidia msee asolve issue haraka.",
+      "skill_breakdown": [
+        "Money slang changes quickly. “Doo,” “chapaa,” “ganji,” and “mkwanja” may be understood as money, but use “pesa,” “cash,” “shillings,” or the exact currency where confusion could cause loss.",
+        "Repeat the total and change. For digital payment, the merchant should check receipt on their own system rather than relying only on the customer’s screenshot.",
+        "A useful complaint contains date, item, amount, problem, evidence if safe, and the outcome requested. Separate the person from the problem."
+      ],
+      "useful_phrases": [
+        {
+          "phrase": "Bei ni gani?",
+          "meaning": "What is the price?",
+          "tone": "Neutral"
+        },
+        {
+          "phrase": "Ni how much?",
+          "meaning": "How much is it?",
+          "tone": "Common mixed speech"
+        },
+        {
+          "phrase": "Doo or chapaa",
+          "meaning": "Money",
+          "tone": "Informal; avoid in precise records"
+        },
+        {
+          "phrase": "Nipe receipt please",
+          "meaning": "Please give me a receipt",
+          "tone": "Clear request"
+        },
+        {
+          "phrase": "Nataka exchange ama refund",
+          "meaning": "I want an exchange or refund",
+          "tone": "State requested outcome"
+        }
+      ],
+      "conversation_practice": [
+        "Customer  Hii ni how much?  —  How much is this?",
+        "Seller  Ni mia tano.  —  It is five hundred shillings.",
+        "Customer  Mia tano total, sawa? Nitalipa M-PESA.  —  Five hundred total, correct? I will pay by M-PESA.",
+        "Seller  Eeh. Tuma kwa till hii, then ngoja niconfirm.  —  Yes. Send to this till, then wait for me to confirm."
+      ],
+      "try_it": [
+        "1.  Confirm item, quantity, and total before paying.",
+        "2.  Make a complaint about a damaged item without insulting the seller.",
+        "3.  Ask for a receipt and state the payment method."
+      ],
+      "common_mistakes": [
+        "Using slang numbers or money words in a high-value transaction.",
+        "Leaving the quantity unclear.",
+        "Treating a payment screenshot as final proof.",
+        "Attacking the seller’s character instead of describing the product problem."
+      ],
+      "ai_teaching_guidance": "Use exact numbers and currency labels. For complaints, build a factual timeline and a specific request. Never ask for a PIN, OTP, password, or full financial credential."
+    },
+    {
+      "num": 14,
+      "title": "Phone Calls Texts and Voice Notes",
+      "objective": "Choose the right channel and make digital messages easy to understand.",
+      "format": "standard",
+      "simple_english": "Phone calls are useful for urgent or complex exchange. Text is useful for records, exact details, and messages the recipient can read later. Voice notes can carry tone but are hard to scan. Ask before sending long recordings.",
+      "sheng_teaching_version": "Call ni poa kama issue ni urgent ama mnataka back-and-forth. Text ni poa kwa address, amount, date na record. Voice note inaweza explain vizuri, but usitume dakika tano bila warning. Sema point mapema na mwisho confirm action.",
+      "skill_breakdown": [
+        "Start an unfamiliar call by naming yourself, checking whether it is a good time, and stating the purpose. Do not demand personal information before identifying yourself.",
+        "A good text has a greeting, purpose, details, and required response. Avoid “Hi” alone when the recipient may not know you.",
+        "For a voice note, state the topic in the first sentence. Keep one note to one topic. Follow with exact numbers or addresses in text.",
+        "Tone is easier to misread in text. Use punctuation and context, not a pile of emojis, to clarify seriousness."
+      ],
+      "useful_phrases": [
+        {
+          "phrase": "Niko naongea na nani?",
+          "meaning": "Who am I speaking with?",
+          "tone": "Useful but introduce yourself too"
+        },
+        {
+          "phrase": "Ni time poa kuongea?",
+          "meaning": "Is this a good time to talk?",
+          "tone": "Consent check"
+        },
+        {
+          "phrase": "Nitakutext details",
+          "meaning": "I will text the details",
+          "tone": "Good for exact information"
+        },
+        {
+          "phrase": "Cheki voice note yangu",
+          "meaning": "Check my voice note",
+          "tone": "Informal"
+        },
+        {
+          "phrase": "Please confirm umeona",
+          "meaning": "Please confirm that you saw it",
+          "tone": "Receipt request"
+        }
+      ],
+      "conversation_practice": [
+        "Caller  Habari, mimi ni Asha kutoka training team. Ni time poa kuongea for two minutes?  —  Hello, I am Asha from the training team. Is this a good time to talk for two minutes?",
+        "Recipient  Eeh, endelea.  —  Yes, continue.",
+        "Caller  Naconfirm venue ya kesho. Nitakutext address na time sai.  —  I am confirming tomorrow’s venue. I will text the address and time now.",
+        "Recipient  Sawa, nita-confirm nikiona.  —  Okay, I will confirm when I see it."
+      ],
+      "try_it": [
+        "1.  Write a complete first text to a person who does not know your number.",
+        "2.  Turn a long voice note into three short text points.",
+        "3.  Ask permission to call about a sensitive matter."
+      ],
+      "common_mistakes": [
+        "Calling repeatedly without checking whether the person is available.",
+        "Sending “Hi” and waiting before stating the purpose.",
+        "Putting exact phone numbers or amounts only inside audio.",
+        "Assuming a blue tick proves understanding or agreement."
+      ],
+      "ai_teaching_guidance": "Ask whether urgency, privacy, record keeping, or accessibility should determine the channel. Keep sensitive data minimal and never request authentication secrets."
+    },
+    {
+      "num": 15,
+      "title": "Feelings Empathy and Checking Wellbeing",
+      "objective": "Recognise emotion respond with care and avoid making promises you cannot keep.",
+      "format": "standard",
+      "simple_english": "Empathy means trying to understand another person’s experience and communicating that effort. A supportive response listens, reflects, asks what the person needs, and respects privacy. It does not require solving everything.",
+      "sheng_teaching_version": "Empathy ni kujaribu kuelewa vile kitu imeaffect msee na kumuonyesha umemsikia. Unaweza sema “Pole, hiyo inaonekana ilikuwa ngumu” then uulize “Unahitaji niskize tu ama tukitafute solution?” Usipromise kitu huwezi deliver.",
+      "skill_breakdown": [
+        "Do not rush to advice. Some people need to be heard before they can discuss action. Ask whether they want listening, practical help, information, or space.",
+        "Use feeling words carefully. “Unaonekana stressed” is an observation; “wewe uko depressed” is a diagnosis and should not be invented.",
+        "Privacy has limits when someone may be in immediate danger. In high-risk situations, involve trusted local help or emergency services rather than promising total secrecy."
+      ],
+      "useful_phrases": [
+        {
+          "phrase": "Pole",
+          "meaning": "I am sorry or I sympathise",
+          "tone": "Comfort; not always an admission of fault"
+        },
+        {
+          "phrase": "Naskia",
+          "meaning": "I hear you",
+          "tone": "Attention"
+        },
+        {
+          "phrase": "Uko aje for real?",
+          "meaning": "How are you really?",
+          "tone": "Use only where relationship allows"
+        },
+        {
+          "phrase": "Unahitaji nini sai?",
+          "meaning": "What do you need now?",
+          "tone": "Needs-focused"
+        },
+        {
+          "phrase": "Niko hapa kuskiza",
+          "meaning": "I am here to listen",
+          "tone": "Supportive"
+        }
+      ],
+      "conversation_practice": [
+        "Ruth  Leo niko down. Vitu zimekuwa mingi.  —  I feel down today. There has been a lot.",
+        "Derrick  Pole. Niko hapa kuskiza. Unataka tuongee ama unahitaji space kidogo?  —  I am sorry. I am here to listen. Do you want to talk or need some space?",
+        "Ruth  Nataka tu kuongea kidogo.  —  I just want to talk a little.",
+        "Derrick  Sawa, naskiza.  —  Okay, I am listening."
+      ],
+      "try_it": [
+        "1.  Respond to bad news without immediately giving advice.",
+        "2.  Ask whether the person wants listening or practical help.",
+        "3.  Name a feeling tentatively and ask whether you understood correctly."
+      ],
+      "common_mistakes": [
+        "Saying “usijali” when the concern is serious.",
+        "Competing with the person’s story.",
+        "Diagnosing a mental-health condition from slang or one message.",
+        "Promising secrecy when immediate safety may require help."
+      ],
+      "ai_teaching_guidance": "Use reflective and non-diagnostic language. If a person mentions immediate harm, suicide, violence, or medical danger, move from casual conversation to urgent local safety support."
+    },
+    {
+      "num": 16,
+      "title": "Feedback Corrections and Instructions",
+      "objective": "Give useful feedback that names the task the evidence and the next improvement.",
+      "format": "standard",
+      "simple_english": "Good feedback is specific, timely, and focused on behaviour or work. It explains what happened, why it matters, and what the person can do next. Instructions should use a clear sequence and a check for understanding.",
+      "sheng_teaching_version": "Feedback poa haishambulii msee. Inaonyesha task ilikuwa gani, nini ilifanya poa ama haikuwa clear, na step next. Kwa instructions, peana step moja moja, then uliza learner arudie kwa words zake.",
+      "skill_breakdown": [
+        "Replace labels with observations. “Wewe ni careless” attacks identity. “Form iko na sections mbili blank” identifies a fixable issue.",
+        "Balance is not the same as giving fake praise. Name a real strength when it helps, then state the priority correction clearly.",
+        "For instructions, use verbs, order, and completion criteria. A demonstration may work better than a long explanation."
+      ],
+      "useful_phrases": [
+        {
+          "phrase": "Hii part iko clear",
+          "meaning": "This part is clear",
+          "tone": "Specific positive feedback"
+        },
+        {
+          "phrase": "Hapa kuna detail imekosekana",
+          "meaning": "A detail is missing here",
+          "tone": "Task-focused correction"
+        },
+        {
+          "phrase": "Step ya kwanza ni…",
+          "meaning": "The first step is…",
+          "tone": "Sequence"
+        },
+        {
+          "phrase": "Nishow vile utaifanya",
+          "meaning": "Show or tell me how you will do it",
+          "tone": "Understanding check"
+        },
+        {
+          "phrase": "Tujaribu tena",
+          "meaning": "Let us try again",
+          "tone": "Supportive retry"
+        }
+      ],
+      "conversation_practice": [
+        "Trainer  Opening yako ilikuwa clear. Hapa kwa request, deadline imekosekana.  —  Your opening was clear. The deadline is missing from the request.",
+        "Learner  So niongeze time?  —  Should I add the time?",
+        "Trainer  Eeh. Sema action na by when. Jaribu tena.  —  Yes. State the action and deadline. Try again.",
+        "Learner  Naomba unitumie form by 4 p.m.  —  Please send me the form by 4 p.m."
+      ],
+      "try_it": [
+        "1.  Rewrite a personal criticism as an observation.",
+        "2.  Give one instruction with a clear completion check.",
+        "3.  Ask the learner to teach the step back to you."
+      ],
+      "common_mistakes": [
+        "Using vague praise such as “poa sana” with no evidence.",
+        "Correcting the person in public when private feedback is safer.",
+        "Giving ten corrections at once.",
+        "Asking “umeget?” without testing understanding."
+      ],
+      "ai_teaching_guidance": "Generate feedback around observable behaviour, impact, and next action. Do not infer laziness, intelligence, attitude, or character from one mistake."
+    },
+    {
+      "num": 17,
+      "title": "Apologies Accountability and Repair",
+      "objective": "Acknowledge harm take responsibility and agree on a realistic repair.",
+      "format": "standard",
+      "simple_english": "A complete apology names what happened, accepts responsibility, recognises the effect, and states the repair. It avoids excuses that cancel the apology. The affected person may still need time or may not accept immediately.",
+      "sheng_teaching_version": "Apology ya maana haisemi “sorry kama uliumia.” Sema ulifanya nini, ukubali ilikuwa wrong, uone impact, na useme utarepair aje. “But” ikifuatia apology inaweza kuifuta. Pea msee time kama bado amejam.",
+      "skill_breakdown": [
+        "“Pole” can express sympathy. “Samahani” or “sorry” can apologise. If you caused the problem, add responsibility rather than relying on one word.",
+        "Repair should match the harm: correct false information, replace damaged property, return money, inform affected people, or change the future process.",
+        "Forgiveness cannot be demanded. The speaker controls the apology and repair; the other person controls their response."
+      ],
+      "useful_phrases": [
+        {
+          "phrase": "Samahani",
+          "meaning": "Excuse me or I apologise",
+          "tone": "Neutral"
+        },
+        {
+          "phrase": "Pole",
+          "meaning": "I sympathise or I am sorry",
+          "tone": "Meaning depends on cause"
+        },
+        {
+          "phrase": "Nilifanya mistake",
+          "meaning": "I made a mistake",
+          "tone": "Takes ownership"
+        },
+        {
+          "phrase": "Nita-correct aje?",
+          "meaning": "How can I correct it?",
+          "tone": "Repair question"
+        },
+        {
+          "phrase": "Next time nitaconfirm kwanza",
+          "meaning": "Next time I will confirm first",
+          "tone": "Future change"
+        }
+      ],
+      "conversation_practice": [
+        "Moses  Samahani, nilishare time wrong kwa group. Hiyo ilifanya watu wafike late.  —  I am sorry, I shared the wrong time in the group. That made people arrive late.",
+        "Moses  Nimetuma correction sai na next time nitaconfirm na organiser kwanza.  —  I have sent the correction now, and next time I will confirm with the organiser first.",
+        "Akinyi  Sawa. Please pia text wale hawako kwa group.  —  Okay. Please also text those who are not in the group.",
+        "Moses  Nitafanya hivyo sai.  —  I will do that now."
+      ],
+      "try_it": [
+        "1.  Improve “sorry but ulikuwa umeniconfuse.”",
+        "2.  Match an apology with a practical repair.",
+        "3.  Respond when the other person needs time before accepting."
+      ],
+      "common_mistakes": [
+        "Using “if” to deny the effect.",
+        "Explaining intent instead of acknowledging impact.",
+        "Demanding “si nimesema sorry?”",
+        "Promising change without a concrete action."
+      ],
+      "ai_teaching_guidance": "Help the learner separate apology, explanation, and repair. Do not pressure the harmed person to forgive or resume contact."
+    },
+    {
+      "num": 18,
+      "title": "Disagreement Negotiation and De Escalation",
+      "objective": "Handle conflict with calm facts boundaries options and safety awareness.",
+      "format": "standard",
+      "simple_english": "Disagreement becomes easier to manage when people lower intensity, define the issue, hear each other’s interests, and explore options. De-escalation is not suitable for every danger. If there is an immediate threat, prioritise distance and help.",
+      "sheng_teaching_version": "Mki-disagree, punguza heat kwanza. Sema issue moja, skiza point ya mwenzako, na separate facts na assumptions. Tafuta option yenye ina-address needs muhimu. Lakini kama kuna threat, weapon, violence ama hujafeel safe, toka hapo na utafute help.",
+      "skill_breakdown": [
+        "Remain calm, use a clear voice, and avoid insults or sudden movements. Official safety guidance also emphasises calm verbal communication and positive body language.",
+        "Use an I-statement: “Nimefrustrate payment ikichelewa bila update, juu naplan stock. Nataka tuagree date ya ukweli.” This describes experience and need without attacking identity.",
+        "Paraphrase the other side before proposing a solution. Agreement on the problem often matters more than rushing to an answer.",
+        "Offer limited practical choices. Too many options can confuse; fake choices increase mistrust."
+      ],
+      "useful_phrases": [
+        {
+          "phrase": "Wacha nimalize please",
+          "meaning": "Please let me finish",
+          "tone": "Turn-taking boundary"
+        },
+        {
+          "phrase": "Nimeget point yako",
+          "meaning": "I understand your point",
+          "tone": "Not automatic agreement"
+        },
+        {
+          "phrase": "Sijaagree na hiyo part",
+          "meaning": "I disagree with that part",
+          "tone": "Issue-focused"
+        },
+        {
+          "phrase": "Tufocus kwa issue moja",
+          "meaning": "Let us focus on one issue",
+          "tone": "Keeps scope manageable"
+        },
+        {
+          "phrase": "Option ni hizi mbili",
+          "meaning": "These are the two options",
+          "tone": "Structured negotiation"
+        }
+      ],
+      "conversation_practice": [
+        "Tenant  Nimefrustrate maji ikikatwa bila notice. Nataka nijue schedule.  —  I am frustrated when the water is cut without notice. I need to know the schedule.",
+        "Caretaker  Naskia. Issue ni notice, si ati maji haifai kufungwa kabisa. Correct?  —  I hear you. The issue is notice, not that water can never be shut off. Correct?",
+        "Tenant  Eeh. Tukiambiwa mapema tunaweza prepare.  —  Yes. If we are told early, we can prepare.",
+        "Caretaker  Sawa. Nitatuma update kwa group one day before.  —  Okay. I will send an update to the group one day before."
+      ],
+      "try_it": [
+        "1.  Turn a personal attack into an I-statement.",
+        "2.  Paraphrase the other side before disagreeing.",
+        "3.  Name one signal that means the conversation should stop for safety."
+      ],
+      "common_mistakes": [
+        "Trying to win by humiliating the other person.",
+        "Bringing every past problem into one disagreement.",
+        "Saying “tulia” while shouting.",
+        "Continuing a conversation when there is immediate danger."
+      ],
+      "ai_teaching_guidance": "Support calm, specific, non-coercive language. If the user describes violence, threats, stalking, weapons, or immediate danger, prioritise safety planning and local emergency help over conversational technique."
+    },
+    {
+      "num": 19,
+      "title": "School Work and Public Service Communication",
+      "objective": "Adapt everyday speech for classrooms workplaces interviews and service desks.",
+      "format": "standard",
+      "simple_english": "Formal settings reward clarity, evidence, and respectful turn-taking. Sheng can still support understanding, but key instructions, records, and decisions should use language all participants can interpret consistently.",
+      "sheng_teaching_version": "Kwa shule, job ama office ya service, unaweza mix language kiasi, but details muhimu ziwe clear. Jina, date, role, amount, requirement na decision isiwe hidden kwa slang. Uliza process, repeat next step, na omba written record kama inafaa.",
+      "skill_breakdown": [
+        "At work, separate friendly talk from official instruction. If a supervisor says “cheki hiyo kitu,” ask what document, standard, and deadline they mean.",
+        "In an interview or public office, start formally. You can simplify language without pretending to know specialist terms.",
+        "When giving feedback upward, focus on task effects and possible solutions. Record important decisions in writing where appropriate.",
+        "Accessibility matters. Ask whether the person prefers spoken, written, signed, translated, or simplified communication."
+      ],
+      "useful_phrases": [
+        {
+          "phrase": "Naomba clarification",
+          "meaning": "I request clarification",
+          "tone": "Formal mixed speech"
+        },
+        {
+          "phrase": "Deadline ni lini?",
+          "meaning": "When is the deadline?",
+          "tone": "Direct work question"
+        },
+        {
+          "phrase": "Requirement ni gani?",
+          "meaning": "What is the requirement?",
+          "tone": "Service or school question"
+        },
+        {
+          "phrase": "Naweza pata written confirmation?",
+          "meaning": "Can I get written confirmation?",
+          "tone": "Record request"
+        },
+        {
+          "phrase": "Nani anahandle hii issue?",
+          "meaning": "Who handles this issue?",
+          "tone": "Process question"
+        }
+      ],
+      "conversation_practice": [
+        "Employee  Naomba clarification kuhusu report. Unahitaji draft ama final copy by Friday?  —  I need clarification about the report. Do you need a draft or final copy by Friday?",
+        "Supervisor  Draft by Friday, final Tuesday.  —  Draft by Friday, final on Tuesday.",
+        "Employee  Sawa. Nitatuma draft Friday before 3 p.m. kwa email.  —  Okay. I will email the draft before 3 p.m. Friday."
+      ],
+      "try_it": [
+        "1.  Turn a vague work instruction into three clarification questions.",
+        "2.  Ask a service desk for the next step and required document.",
+        "3.  Request an accessible format without apologising for the need."
+      ],
+      "common_mistakes": [
+        "Using peer slang in a formal complaint where meaning must be recorded.",
+        "Agreeing to a task without checking the deadline or standard.",
+        "Assuming a quiet learner has understood.",
+        "Treating communication accommodation as a favour rather than access."
+      ],
+      "ai_teaching_guidance": "Preserve exact requirements, dates, and decisions. Offer plain-language explanations, but do not rewrite official rules in a way that changes their meaning."
+    },
+    {
+      "num": 20,
+      "title": "Emergencies Rumours and High Stakes Clarity",
+      "objective": "Use direct verified language when delay or ambiguity can cause harm.",
+      "format": "standard",
+      "simple_english": "In emergencies, state the danger, exact location, number of people affected, and help needed. Use standard words where possible. For rumours, pause before forwarding, identify the original source, check the date and place, and correct false information visibly.",
+      "sheng_teaching_version": "Emergency si time ya slang mingi. Sema danger ni gani, location exact, watu wangapi wameaffectiwa, na help gani inahitajika. Kwa rumours, usiforward juu tu imekuja kwa group. Cheki source, date, place na evidence kwanza.",
+      "skill_breakdown": [
+        "Lead with the urgent fact: “Kuna moto kwa second floor.” Then give location and access details. Do not bury the emergency inside a long greeting.",
+        "Do not share graphic images or a victim’s identity merely to prove that something happened. Protect dignity and follow local guidance.",
+        "A screenshot can be old, edited, or taken from another event. Verify through an official source, direct witness, or trusted local authority before repeating a claim.",
+        "If an AI cannot confirm current emergency contacts or local conditions, it must say so and direct the user to verified local services rather than inventing a number."
+      ],
+      "useful_phrases": [
+        {
+          "phrase": "Nisaidie",
+          "meaning": "Help me",
+          "tone": "Direct emergency request"
+        },
+        {
+          "phrase": "Kuna moto",
+          "meaning": "There is a fire",
+          "tone": "State danger"
+        },
+        {
+          "phrase": "Location ni…",
+          "meaning": "The location is…",
+          "tone": "Give exact place"
+        },
+        {
+          "phrase": "Usiforward bado",
+          "meaning": "Do not forward yet",
+          "tone": "Rumour pause"
+        },
+        {
+          "phrase": "Source ni gani?",
+          "meaning": "What is the source?",
+          "tone": "Verification question"
+        }
+      ],
+      "conversation_practice": [
+        "Caller  Nisaidie. Kuna mtu ameanguka kwa entrance ya community hall, Olympic. Hapumui kawaida. Tunahitaji medical help sai.  —  Help. A person has collapsed at the community hall entrance in Olympic. They are not breathing normally. We need medical help now.",
+        "Receiver  Nimeget location ni entrance ya hall Olympic. Kuna mtu ameenda kuita help onsite?  —  I understand the location is the hall entrance in Olympic. Has someone gone to call for on-site help?",
+        "Caller  Eeh, security ameenda. Niko na yeye hapa.  —  Yes, security has gone. I am staying with the person."
+      ],
+      "try_it": [
+        "1.  Give a twenty-second emergency report with danger, location, people, and need.",
+        "2.  Check an alarming message before forwarding it.",
+        "3.  Write a correction to a rumour you previously shared."
+      ],
+      "common_mistakes": [
+        "Using jokes or ambiguous slang in a safety alert.",
+        "Forwarding before checking date and location.",
+        "Publishing private victim details.",
+        "Inventing an emergency number or medical instruction."
+      ],
+      "ai_teaching_guidance": "Use short standard language. Ask only safety-relevant questions. For current contacts, weather, security, medical, or legal instructions, use verified authoritative sources and state uncertainty."
+    },
+    {
+      "num": 21,
+      "title": "Ending and Following Up",
+      "objective": "Close a conversation with a summary next action and respectful goodbye.",
+      "format": "standard",
+      "simple_english": "A good ending confirms what was decided, who will act, and when. It also gives the other person a final chance to correct the summary. Follow-up should add value rather than repeat “hello” without context.",
+      "sheng_teaching_version": "Kufunga story poa ni kusummarise agreement: nani anafanya nini, by when, na mtaconfirm aje. Pea msee chance akucorrect. Follow-up ikuwe na context; usitume “sasa” pekee halafu asijue ni kuhusu nini.",
+      "skill_breakdown": [
+        "Use a short recap for important conversations. “So nitakutumia draft by 4 p.m., then utanipatia feedback kesho.”",
+        "Choose an ending that fits the relationship. “Sawa, tutaongea” is informal. “Asante kwa wakati wako” is neutral and respectful.",
+        "A follow-up message should mention the earlier conversation, the pending item, and any new deadline. Avoid blame when a reminder is enough."
+      ],
+      "useful_phrases": [
+        {
+          "phrase": "Sawa basi",
+          "meaning": "Okay then",
+          "tone": "Informal closure"
+        },
+        {
+          "phrase": "Tutaongea",
+          "meaning": "We will talk later",
+          "tone": "Informal; vague unless follow-up is unimportant"
+        },
+        {
+          "phrase": "Asante kwa time yako",
+          "meaning": "Thank you for your time",
+          "tone": "Neutral"
+        },
+        {
+          "phrase": "So tumekubaliana…",
+          "meaning": "So we have agreed…",
+          "tone": "Summary opener"
+        },
+        {
+          "phrase": "Nafollow up kuhusu…",
+          "meaning": "I am following up about…",
+          "tone": "Contextual reminder"
+        }
+      ],
+      "conversation_practice": [
+        "Coordinator  So tumekubaliana utatuma majina by Thursday, then nitaconfirm venue Friday.  —  We agreed that you will send the names by Thursday, then I will confirm the venue Friday.",
+        "Volunteer  Correct. Nikikwama nitakutext mapema.  —  Correct. If I get stuck, I will text early.",
+        "Coordinator  Sawa, asante kwa time yako.  —  Okay, thank you for your time."
+      ],
+      "try_it": [
+        "1.  Close a meeting with owner, action, and deadline.",
+        "2.  Write a polite reminder with context.",
+        "3.  End a social conversation without sounding abrupt."
+      ],
+      "common_mistakes": [
+        "Ending immediately after making a request.",
+        "Using “tutaongea” for an action that needs a date.",
+        "Following up with only a question mark.",
+        "Summarising an agreement that the other person never accepted."
+      ],
+      "ai_teaching_guidance": "Before ending, summarise the decision and ask for confirmation. If no agreement exists, label the item as pending rather than settled."
+    },
+    {
+      "num": 22,
+      "title": "Extended Role Plays",
+      "objective": "Combine greetings listening clarification requests boundaries and follow up in realistic situations.",
+      "format": "role_plays",
+      "raw_lines": [
+        "Role Play One Missed Training Session",
+        "Goal: find out what happened, avoid blame, and agree on a practical next step.",
+        "Facilitator  Sasa Mary. Hatukukuona training jana. Uko sawa?  —  Hi Mary. We did not see you at training yesterday. Are you okay?",
+        "Mary  Niko sawa. Nilipata issue ya mtoto na sikuweza kufika.  —  I am okay. I had a childcare issue and could not come.",
+        "Facilitator  Pole. So childcare ndio ilikuzuia, correct?  —  I am sorry. Childcare is what prevented you, correct?",
+        "Mary  Eeh.  —  Yes.",
+        "Facilitator  Ungeprefer catch-up call leo jioni ama session ya Saturday?  —  Would you prefer a catch-up call this evening or the Saturday session?",
+        "Mary  Saturday iko better.  —  Saturday is better.",
+        "Facilitator  Sawa. Nitakutext time na venue leo before 5 p.m.  —  Okay. I will text the time and venue today before 5 p.m.",
+        "Role Play Two Wrong Price at a Shop",
+        "Goal: state the evidence, request a correction, and keep the conversation focused.",
+        "Customer  Samahani, kwa shelf price ilikuwa 180, but receipt imeonyesha 230.  —  Excuse me, the shelf price was 180, but the receipt shows 230.",
+        "Attendant  Uko na picha ya shelf ama tunaweza tuende tucheki?  —  Do you have a picture of the shelf, or can we go check?",
+        "Customer  Tunaweza enda tucheki. Nataka price iconfirmiwe kabla niondoke.  —  We can go check. I want the price confirmed before I leave.",
+        "Attendant  Sawa, twende.  —  Okay, let us go.",
+        "Role Play Three Privacy in a Group Chat",
+        "Goal: set a boundary, propose an alternative, and confirm compliance.",
+        "Admin  Tutapost number yako kwa group ndio wasee wakupigie.  —  We will post your number in the group so people can call you.",
+        "Member  Please usipost number yangu bila consent. Weka email ya project ama waDM admin.  —  Please do not post my number without consent. Share the project email or ask them to message the admin.",
+        "Admin  Sawa, tutatumia project email.  —  Okay, we will use the project email.",
+        "Member  Asante kwa kuconfirm.  —  Thank you for confirming.",
+        "Role Play Four Angry Service User",
+        "Goal: listen, lower intensity, identify the need, and set a boundary against abuse.",
+        "User  Nimechoka na hii office! Kila mtu ananizungusha!  —  I am tired of this office. Everyone sends me around.",
+        "Officer  Naskia umefrustrate juu hujapata answer clear. Niambie uliambiwa uende wapi last.  —  I hear you are frustrated because you have not received a clear answer. Tell me where you were last directed.",
+        "User  Records, then wakaniambia nirudi hapa.  —  Records, then they told me to return here.",
+        "Officer  Sawa. Nita-check file number yako. Naweza help, but siwezi endelea kama unanipigia kelele. Tuongee calmly.  —  Okay. I will check your file number. I can help, but I cannot continue while being shouted at. Let us speak calmly.",
+        "Facilitator Debrief",
+        "1.  What was the speaker’s main goal?",
+        "2.  Which phrase showed listening without automatically agreeing?",
+        "3.  Where did the conversation need clarification?",
+        "4.  Was the request specific and realistic?",
+        "5.  Did anyone set a boundary? Was it clear and respectful?",
+        "6.  What action, owner, and deadline ended the conversation?"
+      ]
+    },
+    {
+      "num": 23,
+      "title": "AI Tutor Operating Guide",
+      "objective": "Turn the material into consistent safe and locally reviewable teaching behaviour.",
+      "format": "ai_operating_guide",
+      "raw_lines": [
+        "Default Teaching Sequence",
+        "1.  Identify the learner’s goal and setting.",
+        "2.  Choose formal, neutral, or informal language.",
+        "3.  Teach one communication skill and no more than five new phrases at a time.",
+        "4.  Explain meaning, tone, and social risk for each phrase.",
+        "5.  Model a short conversation.",
+        "6.  Ask the learner to produce their own version.",
+        "7.  Give specific feedback and invite a local alternative.",
+        "Response Template",
+        "Field",
+        "What the AI should provide",
+        "Example",
+        "Goal",
+        "The action the learner needs",
+        "Ask for directions",
+        "Safe neutral line",
+        "Works in most settings",
+        "Samahani, naomba kuuliza…",
+        "Informal Sheng line",
+        "For familiar peers",
+        "Niaje, nishow njia ya…",
+        "Tone note",
+        "Relationship and risk",
+        "Avoid “msee” with an unfamiliar elder",
+        "Check question",
+        "Evidence of understanding",
+        "Umeshuka stage gani?",
+        "Practice",
+        "A short learner task",
+        "Give directions using two landmarks",
+        "Safety Rules",
+        "Do not invent current prices, fares, emergency contacts, laws, office hours, or routes.",
+        "Do not request passwords, PINs, OTPs, recovery phrases, private medical records, or unnecessary identity documents.",
+        "Do not generate harassment, coercion, threats, ethnic insults, sexual pressure, or instructions for evading authorities.",
+        "Do not imitate a neighbourhood accent as entertainment.",
+        "Do not shame a learner for standard Kiswahili, English, pronunciation, disability, literacy level, or code choice.",
+        "When harm is immediate, switch from slang practice to clear safety information and verified local support.",
+        "Correction Method",
+        "Step",
+        "AI move",
+        "Example",
+        "Notice",
+        "Name the exact issue",
+        "The time is unclear",
+        "Explain",
+        "State why it matters",
+        "Saa mbili could mean morning or evening",
+        "Model",
+        "Give a natural alternative",
+        "Saa mbili asubuhi, 8 a.m.",
+        "Retry",
+        "Ask learner to rewrite",
+        "Confirm date, time, and place",
+        "Validate",
+        "Invite local review",
+        "What would people in your area say?",
+        "Uncertainty Language",
+        "“Hii word mara nyingi inamaanisha…, but context inaweza ibadilishe.”",
+        "“Hii version ni informal. Kwa office, tumia…”",
+        "“Sina evidence ya current fare. Confirm kwa stage before upande.”",
+        "“Usage inaweza differ na age group na area. Unaiskia aje kwenu?”"
+      ]
+    },
+    {
+      "num": 24,
+      "title": "Assessment and Answer Guide",
+      "objective": "Check practical communication instead of testing vocabulary alone.",
+      "format": "assessment",
+      "raw_lines": [
+        "Part One Quick Knowledge Check",
+        "1.  What are the five parts of the communication loop used in this manual?",
+        "2.  What is the difference between an open and closed question?",
+        "3.  Why is paraphrasing stronger than asking only “umeget?”",
+        "4.  Give one neutral and one informal greeting.",
+        "5.  What makes an I-statement different from an accusation?",
+        "6.  Name four details needed in a complete plan.",
+        "7.  Why can “noma” be misunderstood?",
+        "8.  When should a person switch from Sheng to clearer standard language?",
+        "Part Two Performance Tasks",
+        "1.  Greet an unfamiliar service officer, introduce yourself, and ask for the correct queue.",
+        "2.  Listen to a partner describe a problem, paraphrase it, and ask one open question.",
+        "3.  Ask for a meeting using an exact date, time, place, and confirmation request.",
+        "4.  Decline a request to share your phone number and offer a safer alternative.",
+        "5.  Complain about a wrong price using facts and a requested solution.",
+        "6.  Give a calm disagreement using an I-statement and one practical option.",
+        "7.  Record a twenty-second voice note, then send exact numbers in text.",
+        "8.  Close a conversation with action, owner, and deadline.",
+        "Simple Scoring Rubric",
+        "Skill",
+        "Needs practice",
+        "Developing",
+        "Ready",
+        "Clarity",
+        "Main point missing",
+        "Point present but details incomplete",
+        "Point and key details are clear",
+        "Listening",
+        "Interrupts or assumes",
+        "Uses one listening signal",
+        "Paraphrases and checks meaning",
+        "Register",
+        "Tone mismatches setting",
+        "Mostly suitable",
+        "Adapts naturally and respectfully",
+        "Action",
+        "No next step",
+        "Action unclear or undated",
+        "Owner action and time confirmed",
+        "Safety",
+        "Pressures or overshares",
+        "Recognises some risk",
+        "Protects consent privacy and safety",
+        "Suggested Answers",
+        "Communication loop: purpose, audience, message, check, and response or next action.",
+        "Open questions invite explanation; closed questions confirm a specific fact or choice.",
+        "Paraphrasing gives the speaker evidence of what the listener understood and an opportunity to correct it.",
+        "Neutral greeting: “Habari yako.” Informal greeting: “Niaje” or “Sasa.”",
+        "An I-statement describes the speaker’s experience, effect, and request instead of labelling the other person.",
+        "A complete plan normally needs date, time, place, and update or contact method.",
+        "“Noma” can mean trouble, something impressive, or toughness depending on context.",
+        "Use standard language when accuracy, formality, safety, consent, money, health, law, or emergency response matters."
+      ]
+    }
+  ],
+  "phrase_bank": [
+    {
+      "function": "Opening",
+      "phrase": "Sasa",
+      "meaning": "Hi",
+      "tone_note": "Informal"
+    },
+    {
+      "function": "Opening",
+      "phrase": "Niaje",
+      "meaning": "Hi or how are things",
+      "tone_note": "Informal"
+    },
+    {
+      "function": "Opening",
+      "phrase": "Habari yako",
+      "meaning": "How are you",
+      "tone_note": "Neutral"
+    },
+    {
+      "function": "Opening",
+      "phrase": "Uko aje",
+      "meaning": "How are you",
+      "tone_note": "Informal"
+    },
+    {
+      "function": "Response",
+      "phrase": "Poa",
+      "meaning": "Fine or cool",
+      "tone_note": "Informal"
+    },
+    {
+      "function": "Response",
+      "phrase": "Fiti",
+      "meaning": "Good or okay",
+      "tone_note": "Informal"
+    },
+    {
+      "function": "Response",
+      "phrase": "Safi",
+      "meaning": "Good or clean",
+      "tone_note": "Informal or shared"
+    },
+    {
+      "function": "Response",
+      "phrase": "Niko sawa",
+      "meaning": "I am okay",
+      "tone_note": "Neutral"
+    },
+    {
+      "function": "Listening",
+      "phrase": "Naskia",
+      "meaning": "I hear you",
+      "tone_note": "Attention not automatic agreement"
+    },
+    {
+      "function": "Listening",
+      "phrase": "Endelea",
+      "meaning": "Continue",
+      "tone_note": "Invites speaker"
+    },
+    {
+      "function": "Listening",
+      "phrase": "Nimeget point yako",
+      "meaning": "I understand your point",
+      "tone_note": "Mixed speech"
+    },
+    {
+      "function": "Listening",
+      "phrase": "So unasema…",
+      "meaning": "So you are saying…",
+      "tone_note": "Paraphrase opener"
+    },
+    {
+      "function": "Clarifying",
+      "phrase": "Sijaelewa hiyo part",
+      "meaning": "I did not understand that part",
+      "tone_note": "Direct and safe"
+    },
+    {
+      "function": "Clarifying",
+      "phrase": "Rudia polepole please",
+      "meaning": "Repeat slowly please",
+      "tone_note": "Respectful mixed speech"
+    },
+    {
+      "function": "Clarifying",
+      "phrase": "Hiyo word inamaanisha nini",
+      "meaning": "What does that word mean",
+      "tone_note": "Vocabulary check"
+    },
+    {
+      "function": "Clarifying",
+      "phrase": "Nimeget ni… correct?",
+      "meaning": "I understood that it is… correct",
+      "tone_note": "Confirmation"
+    },
+    {
+      "function": "Question",
+      "phrase": "Nini ilihappen",
+      "meaning": "What happened",
+      "tone_note": "Open"
+    },
+    {
+      "function": "Question",
+      "phrase": "Unaweza explain kidogo",
+      "meaning": "Can you explain a little",
+      "tone_note": "Open"
+    },
+    {
+      "function": "Question",
+      "phrase": "Ni leo ama kesho",
+      "meaning": "Today or tomorrow",
+      "tone_note": "Closed choice"
+    },
+    {
+      "function": "Question",
+      "phrase": "Unahitaji nini sai",
+      "meaning": "What do you need now",
+      "tone_note": "Needs-focused"
+    },
+    {
+      "function": "Request",
+      "phrase": "Naomba unisaidie",
+      "meaning": "Please help me",
+      "tone_note": "Respectful"
+    },
+    {
+      "function": "Request",
+      "phrase": "Unaweza…?",
+      "meaning": "Can you…",
+      "tone_note": "Gives choice"
+    },
+    {
+      "function": "Request",
+      "phrase": "Si unishow…",
+      "meaning": "Could you show or tell me",
+      "tone_note": "Informal"
+    },
+    {
+      "function": "Request",
+      "phrase": "Tafadhali",
+      "meaning": "Please",
+      "tone_note": "Formal or neutral"
+    },
+    {
+      "function": "Boundary",
+      "phrase": "Hapana",
+      "meaning": "No",
+      "tone_note": "Clear refusal"
+    },
+    {
+      "function": "Boundary",
+      "phrase": "Sitaki",
+      "meaning": "I do not want",
+      "tone_note": "Direct"
+    },
+    {
+      "function": "Boundary",
+      "phrase": "Sai siwezi",
+      "meaning": "I cannot now",
+      "tone_note": "Time boundary"
+    },
+    {
+      "function": "Boundary",
+      "phrase": "Please usishare hiyo",
+      "meaning": "Please do not share that",
+      "tone_note": "Privacy"
+    },
+    {
+      "function": "Plan",
+      "phrase": "Form ni gani",
+      "meaning": "What is the plan",
+      "tone_note": "Informal"
+    },
+    {
+      "function": "Plan",
+      "phrase": "Niko njiani",
+      "meaning": "I am on the way",
+      "tone_note": "Add honest ETA"
+    },
+    {
+      "function": "Plan",
+      "phrase": "Nitafika around…",
+      "meaning": "I will arrive around…",
+      "tone_note": "Estimate"
+    },
+    {
+      "function": "Plan",
+      "phrase": "Nikichelewa nitakutext",
+      "meaning": "If late I will text",
+      "tone_note": "Update"
+    },
+    {
+      "function": "Place",
+      "phrase": "Niko area",
+      "meaning": "I am nearby or in the area",
+      "tone_note": "Informal and sometimes vague"
+    },
+    {
+      "function": "Place",
+      "phrase": "Tuko base",
+      "meaning": "We are at the usual place",
+      "tone_note": "Informal; shared context needed"
+    },
+    {
+      "function": "Place",
+      "phrase": "Tuko kejani",
+      "meaning": "We are at home or in the room",
+      "tone_note": "Informal"
+    },
+    {
+      "function": "Place",
+      "phrase": "Naenda tao",
+      "meaning": "I am going to town or CBD",
+      "tone_note": "Informal"
+    },
+    {
+      "function": "Transport",
+      "phrase": "Hii mat inaenda…?",
+      "meaning": "Does this matatu go to…",
+      "tone_note": "Informal"
+    },
+    {
+      "function": "Transport",
+      "phrase": "Nishow nikifika",
+      "meaning": "Tell me when I arrive",
+      "tone_note": "Informal"
+    },
+    {
+      "function": "Transport",
+      "phrase": "Nishukishe hapa",
+      "meaning": "Let me alight here",
+      "tone_note": "Shared Kiswahili"
+    },
+    {
+      "function": "Transport",
+      "phrase": "Fare ni how much",
+      "meaning": "How much is the fare",
+      "tone_note": "Mixed speech"
+    },
+    {
+      "function": "Shopping",
+      "phrase": "Bei ni gani",
+      "meaning": "What is the price",
+      "tone_note": "Neutral"
+    },
+    {
+      "function": "Shopping",
+      "phrase": "Ni how much",
+      "meaning": "How much is it",
+      "tone_note": "Mixed speech"
+    },
+    {
+      "function": "Shopping",
+      "phrase": "Nipe receipt please",
+      "meaning": "Please give me a receipt",
+      "tone_note": "Clear request"
+    },
+    {
+      "function": "Shopping",
+      "phrase": "Total ni… correct?",
+      "meaning": "The total is… correct",
+      "tone_note": "Confirmation"
+    },
+    {
+      "function": "Phone",
+      "phrase": "Ni time poa kuongea",
+      "meaning": "Is this a good time to talk",
+      "tone_note": "Consent check"
+    },
+    {
+      "function": "Phone",
+      "phrase": "Nitakutext details",
+      "meaning": "I will text details",
+      "tone_note": "Exact information"
+    },
+    {
+      "function": "Phone",
+      "phrase": "Please confirm umeona",
+      "meaning": "Please confirm you saw it",
+      "tone_note": "Receipt check"
+    },
+    {
+      "function": "Phone",
+      "phrase": "Nafollow up kuhusu…",
+      "meaning": "I am following up about…",
+      "tone_note": "Context"
+    },
+    {
+      "function": "Empathy",
+      "phrase": "Pole",
+      "meaning": "I am sorry or I sympathise",
+      "tone_note": "Context dependent"
+    },
+    {
+      "function": "Empathy",
+      "phrase": "Niko hapa kuskiza",
+      "meaning": "I am here to listen",
+      "tone_note": "Supportive"
+    },
+    {
+      "function": "Empathy",
+      "phrase": "Unataka help ama space",
+      "meaning": "Do you want help or space",
+      "tone_note": "Choice"
+    },
+    {
+      "function": "Empathy",
+      "phrase": "Chukua time",
+      "meaning": "Take your time",
+      "tone_note": "Supportive"
+    },
+    {
+      "function": "Conflict",
+      "phrase": "Wacha nimalize please",
+      "meaning": "Please let me finish",
+      "tone_note": "Turn-taking"
+    },
+    {
+      "function": "Conflict",
+      "phrase": "Sijaagree na hiyo part",
+      "meaning": "I disagree with that part",
+      "tone_note": "Issue-focused"
+    },
+    {
+      "function": "Conflict",
+      "phrase": "Tufocus kwa issue moja",
+      "meaning": "Let us focus on one issue",
+      "tone_note": "Scope control"
+    },
+    {
+      "function": "Conflict",
+      "phrase": "Tuongee calmly",
+      "meaning": "Let us speak calmly",
+      "tone_note": "De-escalation"
+    },
+    {
+      "function": "Apology",
+      "phrase": "Samahani",
+      "meaning": "Excuse me or I apologise",
+      "tone_note": "Neutral"
+    },
+    {
+      "function": "Apology",
+      "phrase": "Nilifanya mistake",
+      "meaning": "I made a mistake",
+      "tone_note": "Ownership"
+    },
+    {
+      "function": "Apology",
+      "phrase": "Nita-correct aje",
+      "meaning": "How can I correct it",
+      "tone_note": "Repair"
+    },
+    {
+      "function": "Apology",
+      "phrase": "Next time nitaconfirm",
+      "meaning": "Next time I will confirm",
+      "tone_note": "Future change"
+    },
+    {
+      "function": "Closing",
+      "phrase": "Sawa basi",
+      "meaning": "Okay then",
+      "tone_note": "Informal"
+    },
+    {
+      "function": "Closing",
+      "phrase": "Asante kwa time yako",
+      "meaning": "Thank you for your time",
+      "tone_note": "Neutral"
+    },
+    {
+      "function": "Closing",
+      "phrase": "So tumekubaliana…",
+      "meaning": "So we agreed…",
+      "tone_note": "Summary"
+    },
+    {
+      "function": "Closing",
+      "phrase": "Tutaongea",
+      "meaning": "We will talk later",
+      "tone_note": "Informal and sometimes vague"
+    }
+  ],
+  "glossary": [
+    {
+      "term": "aje",
+      "meaning": "how",
+      "tone_and_context": "Shared; appears in uko aje and niaje"
+    },
+    {
+      "term": "area",
+      "meaning": "nearby place or neighbourhood",
+      "tone_and_context": "English used informally"
+    },
+    {
+      "term": "ati",
+      "meaning": "that or supposedly",
+      "tone_and_context": "Shared colloquial marker; tone matters"
+    },
+    {
+      "term": "bana",
+      "meaning": "emphasis or familiar address",
+      "tone_and_context": "Informal; can sound impatient"
+    },
+    {
+      "term": "base",
+      "meaning": "usual meeting place",
+      "tone_and_context": "Informal"
+    },
+    {
+      "term": "beshte",
+      "meaning": "friend",
+      "tone_and_context": "Informal and familiar"
+    },
+    {
+      "term": "buda",
+      "meaning": "father older man or male address",
+      "tone_and_context": "Highly context dependent"
+    },
+    {
+      "term": "chapaa",
+      "meaning": "money",
+      "tone_and_context": "Informal"
+    },
+    {
+      "term": "cheki",
+      "meaning": "look see or check",
+      "tone_and_context": "Go Sheng links it to English “check”"
+    },
+    {
+      "term": "chill",
+      "meaning": "relax or stay",
+      "tone_and_context": "English informal"
+    },
+    {
+      "term": "chomoka",
+      "meaning": "leave or get away",
+      "tone_and_context": "Informal; context varies"
+    },
+    {
+      "term": "dem",
+      "meaning": "girl or young woman",
+      "tone_and_context": "Can objectify; use cautiously"
+    },
+    {
+      "term": "doo",
+      "meaning": "money",
+      "tone_and_context": "Informal"
+    },
+    {
+      "term": "fika",
+      "meaning": "arrive",
+      "tone_and_context": "Shared Kiswahili"
+    },
+    {
+      "term": "fiti",
+      "meaning": "good okay or fine",
+      "tone_and_context": "Common informal response"
+    },
+    {
+      "term": "form",
+      "meaning": "plan or agenda",
+      "tone_and_context": "Go Sheng definition"
+    },
+    {
+      "term": "freshi",
+      "meaning": "fine or fresh",
+      "tone_and_context": "Informal; spelling varies"
+    },
+    {
+      "term": "ganji",
+      "meaning": "money",
+      "tone_and_context": "Informal and variable"
+    },
+    {
+      "term": "get",
+      "meaning": "understand or obtain",
+      "tone_and_context": "English verb adapted in mixed speech"
+    },
+    {
+      "term": "hapa",
+      "meaning": "here",
+      "tone_and_context": "Shared Kiswahili"
+    },
+    {
+      "term": "huko",
+      "meaning": "there",
+      "tone_and_context": "Shared Kiswahili"
+    },
+    {
+      "term": "jam",
+      "meaning": "become angry or upset",
+      "tone_and_context": "Informal mixed verb"
+    },
+    {
+      "term": "jo",
+      "meaning": "familiar address or emphasis",
+      "tone_and_context": "Very informal"
+    },
+    {
+      "term": "juu",
+      "meaning": "because or on top",
+      "tone_and_context": "Shared; context decides"
+    },
+    {
+      "term": "keja",
+      "meaning": "house or room",
+      "tone_and_context": "Go Sheng definition; informal"
+    },
+    {
+      "term": "kesho",
+      "meaning": "tomorrow",
+      "tone_and_context": "Standard Kiswahili"
+    },
+    {
+      "term": "leo",
+      "meaning": "today",
+      "tone_and_context": "Standard Kiswahili"
+    },
+    {
+      "term": "manze or maze",
+      "meaning": "man or emphatic interjection",
+      "tone_and_context": "Go Sheng records exasperated emphasis"
+    },
+    {
+      "term": "mat",
+      "meaning": "matatu",
+      "tone_and_context": "Go Sheng definition"
+    },
+    {
+      "term": "mathree",
+      "meaning": "matatu",
+      "tone_and_context": "Informal synonym"
+    },
+    {
+      "term": "mbogi",
+      "meaning": "crew or group",
+      "tone_and_context": "Go Sheng definition"
+    },
+    {
+      "term": "msee",
+      "meaning": "person or guy",
+      "tone_and_context": "Go Sheng definition; familiarity varies"
+    },
+    {
+      "term": "mtaa",
+      "meaning": "neighbourhood",
+      "tone_and_context": "Common urban usage"
+    },
+    {
+      "term": "mkwanja",
+      "meaning": "money",
+      "tone_and_context": "Informal"
+    },
+    {
+      "term": "nganya",
+      "meaning": "matatu especially styled matatu",
+      "tone_and_context": "Informal and contextual"
+    },
+    {
+      "term": "niaje",
+      "meaning": "hello or how is it",
+      "tone_and_context": "Go Sheng greeting"
+    },
+    {
+      "term": "niko down",
+      "meaning": "I feel low",
+      "tone_and_context": "Mixed emotional phrase"
+    },
+    {
+      "term": "niko fiti",
+      "meaning": "I am fine",
+      "tone_and_context": "Informal"
+    },
+    {
+      "term": "niko njiani",
+      "meaning": "I am on the way",
+      "tone_and_context": "Shared mixed use"
+    },
+    {
+      "term": "noma",
+      "meaning": "trouble impressive or tough",
+      "tone_and_context": "Multiple meanings; confirm context"
+    },
+    {
+      "term": "panda",
+      "meaning": "board climb or rise",
+      "tone_and_context": "Shared Kiswahili"
+    },
+    {
+      "term": "poa",
+      "meaning": "cool fine good or stay",
+      "tone_and_context": "Meaning changes with grammar and context"
+    },
+    {
+      "term": "rada",
+      "meaning": "awareness understanding or situation",
+      "tone_and_context": "Go Sheng records understand a situation"
+    },
+    {
+      "term": "safi",
+      "meaning": "clean good or fine",
+      "tone_and_context": "Shared Kiswahili and informal response"
+    },
+    {
+      "term": "sai",
+      "meaning": "now",
+      "tone_and_context": "Informal contraction"
+    },
+    {
+      "term": "sare",
+      "meaning": "leave or forget it",
+      "tone_and_context": "Usage varies; confirm locally"
+    },
+    {
+      "term": "sasa",
+      "meaning": "hi or now",
+      "tone_and_context": "Go Sheng records greeting meaning"
+    },
+    {
+      "term": "sema",
+      "meaning": "say speak or greeting prompt",
+      "tone_and_context": "Go Sheng lists several conversational uses"
+    },
+    {
+      "term": "shika rada",
+      "meaning": "understand or stay aware",
+      "tone_and_context": "Informal phrase"
+    },
+    {
+      "term": "shika",
+      "meaning": "hold catch or understand",
+      "tone_and_context": "Shared; context decides"
+    },
+    {
+      "term": "shukran",
+      "meaning": "thank you",
+      "tone_and_context": "Common colloquial borrowing"
+    },
+    {
+      "term": "shuka",
+      "meaning": "alight or go down",
+      "tone_and_context": "Shared Kiswahili"
+    },
+    {
+      "term": "siz",
+      "meaning": "sister or familiar female address",
+      "tone_and_context": "Informal; ask preference"
+    },
+    {
+      "term": "skiza",
+      "meaning": "listen or hear; sometimes tell or convince",
+      "tone_and_context": "Go Sheng shows extended meanings"
+    },
+    {
+      "term": "show",
+      "meaning": "tell or show",
+      "tone_and_context": "English used as a Sheng verb"
+    },
+    {
+      "term": "stress",
+      "meaning": "worry or pressure",
+      "tone_and_context": "English noun or mixed verb"
+    },
+    {
+      "term": "tao",
+      "meaning": "town or Nairobi CBD",
+      "tone_and_context": "Informal urban usage"
+    },
+    {
+      "term": "tulia",
+      "meaning": "calm down stay still or wait",
+      "tone_and_context": "Shared; can provoke if tone is dismissive"
+    },
+    {
+      "term": "uko aje",
+      "meaning": "how are you",
+      "tone_and_context": "Informal check-in"
+    },
+    {
+      "term": "vipi",
+      "meaning": "how or what is up",
+      "tone_and_context": "Informal greeting"
+    },
+    {
+      "term": "wasee",
+      "meaning": "people or guys",
+      "tone_and_context": "Plural of msee in informal speech"
+    },
+    {
+      "term": "wacha",
+      "meaning": "stop leave or let",
+      "tone_and_context": "Shared Kiswahili"
+    },
+    {
+      "term": "wallahi",
+      "meaning": "I swear by God",
+      "tone_and_context": "Religious expression; do not use casually"
+    },
+    {
+      "term": "WhatsApp",
+      "meaning": "message or use WhatsApp",
+      "tone_and_context": "Brand used as channel or verb"
+    },
+    {
+      "term": "voice note",
+      "meaning": "recorded audio message",
+      "tone_and_context": "Common digital term"
+    }
+  ],
+  "sources": [
+    "The document synthesises the sources below. Definitions and examples have been paraphrased or newly written for teaching. No source should be treated as a complete or permanently current map of Sheng.",
+    "Sheng Language and Definitions",
+    "Go Sheng homepage  Describes itself as a Sheng dictionary and provides community-oriented entries.",
+    "Go Sheng entry for Niaje  Greeting meaning and origin note.",
+    "Go Sheng entry for Fiti  Good, okay, or fine.",
+    "Go Sheng entry for Manze  Interjection and emphasis.",
+    "Go Sheng entry for Msee  Person or guy.",
+    "Go Sheng entry for Cheki  See, look, or check.",
+    "Go Sheng entry for Rada  Understand or be aware of a situation.",
+    "Go Sheng entry for Form  Agenda or plan.",
+    "Go Sheng entry for Keja  House or room.",
+    "Go Sheng entry for Noma  Multiple meanings including trouble, very good, and tough.",
+    "Go Sheng entry for Sasa  Greeting use.",
+    "Go Sheng entry for Sema  Say, speak, or conversational greeting prompt.",
+    "Go Sheng entry for Skiza  Extended meanings around listening, telling, and convincing.",
+    "Go Sheng entry for Mbogi  Crew or group.",
+    "Go Sheng entry for Mat  Matatu and related informal synonyms.",
+    "Language Research",
+    "Sheng Rise of a Kenyan Swahili Vernacular introduction  Describes Sheng as fluid, multilingual, and connected to audience and setting.",
+    "The Expanding Domains of Sheng  Documents Sheng-based usage beyond informal youth conversation, including school-related domains.",
+    "University of Nairobi record for Sheng and English  Academic record for research on mixed urban codes.",
+    "Communication Skills",
+    "UNICEF active listening activity  Practice-based active-listening activity for adolescents.",
+    "MIT key tips for active listening  Questions, clarification, and paraphrasing.",
+    "Cornell assertive communication skills  Respectful assertiveness, I-statements, clear needs, and calm nonverbal communication.",
+    "UK NPSA de-escalation and conflict  Calm communication and positive body language in conflict.",
+    "WHO foundational helping skills announcement  Active listening, empathy, and collaboration as teachable helping skills."
+  ]
+}

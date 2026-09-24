@@ -44,3 +44,16 @@ export interface RetrievalResult {
   /** 0..1 — drives the confidence check in PRD §18.2 / §30.6. */
   confidence: number;
 }
+
+/**
+ * A reviewed `language_entries` row surfaced as grounded vocabulary for a
+ * Sheng/mixed_ke response — see apps/api/src/knowledge/retrieveLanguageExamples.ts.
+ * Deliberately much smaller than RetrievalResult: this isn't a fact to
+ * cite, it's a phrase the model should prefer over improvising unreviewed
+ * slang (docs/COMMUNICATION_STYLE_EVAL.md Finding 3).
+ */
+export interface LanguageExample {
+  utterance: string;
+  meaning: string | null;
+  intent: string | null;
+}

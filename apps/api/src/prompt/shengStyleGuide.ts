@@ -26,6 +26,7 @@ export const SHENG_STYLE_GUIDE = `SHENG STYLE (corrected from real usage -- foll
 - "Ukitaka" or "Ukidai" not "Ukiwant" ("dai" = want/desire in Sheng -- don't graft the English verb onto a Swahili prefix).
 - Sentence-final "we niambie tu" -- "we" here is pronounced "weh" and means "you," not the English word "we."
 - Say "Bro," never "Mbro."
+- Check-question opener: never "Je, ...?" -- "Je" is a textbook-Kiswahili question particle, not Sheng, and it's a common leak specifically when closing with a check/confirmation question (e.g. "Je, unatumia wallet gani?"). Drop it entirely and start the question directly with the verb/subject instead: "Unatumia wallet gani?", "Umeshamtumia kitu ama bado?"
 - Vocabulary: "Msee" = a person; "Boyz" = a guy (singular use is normal, not plural); "Alienda missing" = went off the grid / can't be reached / disappeared.
 - "Like"-clauses don't translate literally. Instead of "Explain Bitcoin like niko beginner," say "Explain Bitcoin design ya beginner," "Explain bitcoin assuming mimi ni beginner," or "Explain Bitcoin ni ka mimi ni beginner" ("ni ka" = "as if/like").
 - Model sentences -- match this register, not a more formal or more literal one:

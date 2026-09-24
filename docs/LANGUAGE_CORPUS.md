@@ -73,13 +73,19 @@ production admin-approval gate):
 | `allowed_for_training` | Must be explicitly set true by a reviewer. Default false. |
 | `allowed_for_evaluation` | Default false; commonly true even for unreviewed licensed human data, since eval/stress-testing is lower-risk than shaping production responses — but still false for undocumented/no-provenance sources. |
 
-**No application code reads `language_entries` for retrieval yet** (RAG
-currently only queries `knowledge_entries` — see
-`apps/api/src/knowledge/retrieval.ts`). These flags are forward-looking:
-when a feature is built that selects language examples for RAG context,
-few-shot prompting, or export, it MUST filter on the relevant
-`allowed_for_*` flag rather than treating a row's mere presence as
-permission. Never `SELECT *` this table into a training/export pipeline.
+**Update 2026-09-23:** `apps/api/src/knowledge/retrieveLanguageExamples.ts`
+now reads `language_entries` for RAG context — the first application code
+to do so. It filters on `status = 'approved' AND allowed_for_rag = true`
+exactly as this section always required, and is wired into live chat via
+`chatService.ts`'s `prepareChat()` for sheng/mixed_ke only. It is
+lexical-only (no embeddings table exists for this content) and has no
+domain/topic scoping — see the module's own doc comment and
+`docs/COMMUNICATION_STYLE_EVAL.md` Finding 3 for the full story and a
+known limitation found during verification. `allowed_for_training` and
+`allowed_for_evaluation` still have no reader — any future feature that
+selects for those purposes MUST filter on the relevant flag the same way,
+never treat a row's mere presence as permission. Never `SELECT *` this
+table into a training/export pipeline.
 
 ## Target shape, not raw row count
 
@@ -132,6 +138,7 @@ Rough target composition for a first defensible corpus, prioritizing L2/L3
 | Naturalness rankings | ~5,000 judgements | Same pilot (`naturalness_ranking` task type) |
 | Bitcoin safety scenarios | ~500 | Same pilot (`unsafe_response_detection`, `misleading_guarantee_detection`) |
 | Evaluation set | ~500 prompts | Not started in this repo |
+| Afribit-authored teaching manuals (L3, community-approved) | n/a — not a target, tracked here since it's a new first-party source | 271 rows added 2026-09-22 from two manuals (`Bitcoin_Basics_in_Kenyan_Sheng_Afribit_AI.docx`, `Basic_Communication_Skills_in_Kenyan_Sheng_Afribit_AI.docx`, repo root) via `apps/api/src/db/seedCommunityManuals.ts`: 37 glossary rows (Bitcoin Basics) + 105 per-chapter phrase rows + 64 phrase-bank rows + 65 glossary rows (Communication Skills). Landed at `corpus_layer='L2_community_collected'`, `source_type='afribit_authored'`, `human_authored=true`, all `allowed_for_*` flags false. The same two manuals also seeded 62 `knowledge_entries` rows (37 Bitcoin Basics chapters/FAQ/practice flows, 25 Communication Skills chapters/role-plays) at `status='needs_language_review'`. **Update 2026-09-23:** both manuals were presented to and approved by community reviewers as their Version 1.0, first community-approved version (source `.docx` front matter updated to record this). `apps/api/src/db/promoteCommunityManuals.ts` promoted all 271 `language_entries` rows to `corpus_layer='L3_afribit_reviewed'`, `afribit_reviewed=true`, `status='approved'`, `allowed_for_rag=true`, `allowed_for_evaluation=true` — and all 62 `knowledge_entries` rows to `status='published'`. `allowed_for_training` deliberately left `false` on every row: community approval covered chat/model use, not fine-tuning or redistribution, which stays a separate, unaddressed decision. **Update 2026-09-23 (later):** `retrieveLanguageExamples.ts` now reads these rows for real — see this doc's own note above and `docs/COMMUNICATION_STYLE_EVAL.md` Finding 3 for the full story. |
 
 The Microtasks pilot counts above are unknown from `afribit-ai` — querying
 them means reaching `insats-engine`'s production database, which per

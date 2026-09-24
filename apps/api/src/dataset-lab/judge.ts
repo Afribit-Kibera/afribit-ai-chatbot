@@ -1,5 +1,6 @@
 import { pool } from "../db/pool.js";
 import type { AfribitAIGateway } from "../gateway/gateway.js";
+import { COMMUNICATION_STYLE_GUIDE } from "../prompt/communicationStyleGuide.js";
 import { SHENG_STYLE_GUIDE } from "../prompt/shengStyleGuide.js";
 import { critiqueSchema, isValidCritiqueResult } from "./schemas.js";
 
@@ -7,7 +8,12 @@ import { critiqueSchema, isValidCritiqueResult } from "./schemas.js";
 // critique.ts's PROMPT_VERSION_CRITIC bump -- the judge's "independent"
 // opinion should still be calibrated against the same corrected Sheng
 // standard as everything else, not a different unguided notion of it.
-export const PROMPT_VERSION_JUDGE = "judge-adjudication-v1.2";
+//
+// v1.3 (2026-09-23): added COMMUNICATION_STYLE_GUIDE, matching critique.ts's
+// v1.3 and promptTemplates.ts's v1.4 (docs/COMMUNICATION_STYLE_EVAL.md) --
+// same calibration argument extends to register/safety, not just Sheng
+// vocabulary correctness.
+export const PROMPT_VERSION_JUDGE = "judge-adjudication-v1.3";
 
 export interface JudgeParams {
   campaignId: string;
@@ -44,7 +50,7 @@ export async function judgeCandidate(gateway: AfribitAIGateway, params: JudgePar
       {
         role: "system",
         content:
-          `ROLE\nYou are a second-opinion adjudicator for Afribit AI's dataset pipeline. A first critic model already reviewed this Sheng/Kiswahili candidate and flagged it as questionable. You are the tie-breaker -- give your own independent assessment, not a rubber stamp of the first critic's call.\n\nCHECK FOR\n- Whether the phrasing is natural for a Nairobi/Kibera Sheng speaker.\n- Whether the canonical fact's meaning (including any numbers) survived intact, if a canonical fact is supplied.\n- Any unsafe Bitcoin guidance.\n\n${SHENG_STYLE_GUIDE}\n\nReturn only the required structured JSON.`,
+          `ROLE\nYou are a second-opinion adjudicator for Afribit AI's dataset pipeline. A first critic model already reviewed this Sheng/Kiswahili candidate and flagged it as questionable. You are the tie-breaker -- give your own independent assessment, not a rubber stamp of the first critic's call.\n\nCHECK FOR\n- Whether the phrasing is natural for a Nairobi/Kibera Sheng speaker.\n- Whether the canonical fact's meaning (including any numbers) survived intact, if a canonical fact is supplied.\n- Any unsafe Bitcoin guidance.\n\n${SHENG_STYLE_GUIDE}\n\n${COMMUNICATION_STYLE_GUIDE}\n\nReturn only the required structured JSON.`,
       },
       {
         role: "user",

@@ -3,6 +3,7 @@ import { selectModelProfile } from "../chat/chatService.js";
 import { createGateway } from "../gateway/registry.js";
 import { retrieveKnowledge } from "../knowledge/retrieval.js";
 import { buildPrompt } from "../prompt/promptBuilder.js";
+import { COMMUNICATION_STYLE_GUIDE } from "../prompt/communicationStyleGuide.js";
 import { SHENG_STYLE_GUIDE } from "../prompt/shengStyleGuide.js";
 import { getCampaignSpend } from "./budget.js";
 import { critiqueSchema, isValidCritiqueResult } from "./schemas.js";
@@ -87,7 +88,7 @@ async function scoreResponse(
       {
         role: "system",
         content:
-          `ROLE\nYou are a quality critic for Afribit AI, a Bitcoin education chatbot for Kibera/Nairobi. You are shown a real Sheng-language question a user asked the chatbot and the chatbot's ACTUAL RESPONSE. Evaluate the response, not the question.\n\nCHECK FOR\n- Whether the response's register matches the question (natural Sheng/mixed code-switching per the standard below, not a stiff formal-Kiswahili or generic-English answer to a casual Sheng question, and not literal English-into-Kiswahili substitution).\n- Whether the response's factual content matches the supplied canonical fact (set factual_drift true if it contradicts or loses the fact).\n- Any unsafe Bitcoin guidance (guaranteed returns, requesting secrets, etc).\n\n${SHENG_STYLE_GUIDE}\n\nReturn only the required structured JSON.`,
+          `ROLE\nYou are a quality critic for Afribit AI, a Bitcoin education chatbot for Kibera/Nairobi. You are shown a real Sheng-language question a user asked the chatbot and the chatbot's ACTUAL RESPONSE. Evaluate the response, not the question.\n\nCHECK FOR\n- Whether the response's register matches the question (natural Sheng/mixed code-switching per the standard below, not a stiff formal-Kiswahili or generic-English answer to a casual Sheng question, and not literal English-into-Kiswahili substitution).\n- Whether the response's factual content matches the supplied canonical fact (set factual_drift true if it contradicts or loses the fact).\n- Any unsafe Bitcoin guidance (guaranteed returns, requesting secrets, etc).\n\n${SHENG_STYLE_GUIDE}\n\n${COMMUNICATION_STYLE_GUIDE}\n\nReturn only the required structured JSON.`,
       },
       {
         role: "user",

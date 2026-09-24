@@ -1,0 +1,805 @@
+{
+  "chapters": [
+    {
+      "num": 1,
+      "title": "Bitcoin ni nini",
+      "objective": "Understand Bitcoin as a payment network and a form of digital money.",
+      "format": "standard",
+      "simple_english": "Bitcoin is an open digital money system. People can send value to each other through a network of computers. No single bank, company, or government owns the network. Bitcoin is also the name of the unit of value used by that network.",
+      "sheng_teaching_version": "Bitcoin ni system ya pesa ya digital yenye wasee wanaweza tumiana value direct kupitia network. Si kampuni moja, si app moja, na si bank moja ndio iko inachunga kila kitu. Hiyo network iko na computers mob zenye zinafuata rules same. Pia neno Bitcoin linatumika kumaanisha ile doo yenye inatumwa kwa network.",
+      "full_explanation": [
+        "A learner should separate three meanings. Bitcoin can mean the network, the rules used by the network, or the money unit transferred on that network. A wallet application is only a tool for connecting to Bitcoin. If one wallet company closes, the Bitcoin network does not automatically close.",
+        "Bitcoin was described in a 2008 paper published under the name Satoshi Nakamoto. The network started operating in 2009. Satoshi did not create a company that owns every wallet or approves every payment. The software and rules are open for people to inspect, run, and improve.",
+        "Bitcoin is peer to peer. In simple terms, that means participants can transfer value without asking one central payment company to update its private database. The network still needs rules, verification, and communication. Removing one central operator does not remove the need for security or responsibility.",
+        "Bitcoin is not the same as every cryptocurrency. Other digital assets may use different rules, owners, supply models, or technical designs. An AI tutor should not use crypto and Bitcoin as if they always mean the same thing."
+      ],
+      "kibera_example": "A customer buys groceries worth KES 300 and asks to pay with Bitcoin. The customer and merchant use compatible wallets. The payment moves through Bitcoin or through a Bitcoin payment layer such as Lightning. Afribit, the wallet maker, and the mobile network provider do not become the owner of Bitcoin simply because they helped the payment happen.",
+      "check_understanding": [
+        "1.  Is Bitcoin one mobile application?",
+        "2.  Who owns the entire Bitcoin network?",
+        "3.  What two things can the word Bitcoin describe?"
+      ],
+      "common_confusion": [
+        "Bitcoin is not a company with a customer-care desk that can reverse every payment.",
+        "Having a wallet account does not automatically mean the user controls the private keys.",
+        "Bitcoin is digital, but digital does not mean imaginary. The network keeps a verifiable record of ownership and spending."
+      ],
+      "ai_teaching_guidance": "Start with the network and money distinction. If the learner asks whether Bitcoin is an app, answer that a wallet is the app, while Bitcoin is the network and asset the app accesses."
+    },
+    {
+      "num": 2,
+      "title": "Why Bitcoin Can Work Without One Company",
+      "objective": "Learn how shared rules allow strangers and computers to agree on valid payments.",
+      "format": "standard",
+      "simple_english": "Traditional payment systems normally rely on an institution to keep the official account record. Bitcoin distributes verification across a network. Participants use the same rules to decide whether a transaction and block are valid.",
+      "sheng_teaching_version": "Kwa payment za kawaida, kuna kampuni ama bank iko na record yake na ndio inasema nani ako na balance gani. Kwa Bitcoin, record na verification haisimami kwa office moja. Nodes kwa network zinafuata rules same, ndio maana zinaweza agree transaction gani ni valid bila boss mmoja wa system.",
+      "full_explanation": [
+        "Decentralization does not mean every participant does the same job. Wallets create and sign transactions. Nodes relay and verify transactions and blocks. Miners assemble valid transactions into candidate blocks and compete using proof of work. Users decide which software and services to use.",
+        "A node does not trust a block merely because a miner produced it. The node checks the block against Bitcoin rules. A miner that creates an invalid block risks wasting energy because nodes can reject the block. This separation helps prevent one participant from writing any record they want.",
+        "Consensus here does not mean that people vote in a meeting for each payment. It means compatible software independently applies the same rules and converges on the same valid transaction history. Changes to important rules require broad adoption because incompatible rules can split participants into different networks.",
+        "Bitcoin still depends on real-world systems. Learners need working devices, software, electricity or battery power, and some form of network access to send or receive. A decentralized protocol can still be accessed through centralized services, so the service a person chooses matters."
+      ],
+      "kibera_example": "Imagine several traders keeping copies of the same chama record. Each trader checks new entries using the same agreed rules. One trader cannot simply add a fake payment and force everyone else to accept it. Bitcoin is much more technical than this example, but the idea of shared verification is useful.",
+      "check_understanding": [
+        "1.  What does a node check?",
+        "2.  Can a miner force valid nodes to accept an invalid block?",
+        "3.  Does decentralization mean no rules exist?"
+      ],
+      "common_confusion": [
+        "Decentralized does not mean uncontrolled.",
+        "Bitcoin has no single owner, but users can still depend on centralized wallets or exchanges.",
+        "Consensus is not a promise that every person agrees on Bitcoin’s value or purpose."
+      ],
+      "ai_teaching_guidance": "Use a shared-record analogy, then clearly state its limit. Do not imply that Bitcoin is based on human trust alone. Its rules are enforced by software and cryptographic verification."
+    },
+    {
+      "num": 3,
+      "title": "BTC and Sats",
+      "objective": "Learn the units used to count Bitcoin and avoid confusion with large BTC prices.",
+      "format": "standard",
+      "simple_english": "One bitcoin is divided into 100,000,000 satoshis. A satoshi, usually called a sat, is the smallest standard unit recorded by Bitcoin. People can buy, earn, save, or spend small fractions of one bitcoin.",
+      "sheng_teaching_version": "Bitcoin moja iko na sats 100,000,000. Sat ni unit ndogo ya Bitcoin. Haufai kununua Bitcoin mzima ndio utumie network. Unaweza lipwa ama utume sats kidogo kulingana na value mnatumia.",
+      "full_explanation": [
+        "BTC is the common abbreviation for bitcoin as a unit. Sats make small payments easier to read. For example, 5,000 sats is usually clearer for a small purchase than writing 0.00005000 BTC.",
+        "The KES value of a sat changes because the market price of Bitcoin changes. A training document should not hard-code a permanent conversion such as one sat equals a fixed number of shillings. A wallet may calculate the current estimate at the moment of payment.",
+        "Display units can create psychological confusion. A learner may think 0.0001 BTC is almost nothing because the decimal starts with zeros. The same amount is 10,000 sats. The units changed, but the value did not.",
+        "A wallet can show BTC, sats, KES, or another currency. The learner should identify which unit is displayed before approving a payment. Sending 10,000 sats is different from sending 10,000 BTC or KES."
+      ],
+      "kibera_example": "A trainer wants to send each learner a small practice amount. Instead of saying 0.000005 BTC, the trainer says 500 sats. The wallet may also show a KES estimate, but the trainer explains that the KES estimate can move with the exchange rate.",
+      "check_understanding": [
+        "1.  How many sats are in one BTC?",
+        "2.  Why should a learner check the unit before sending?",
+        "3.  Does the KES value of one sat stay fixed?"
+      ],
+      "common_confusion": [
+        "You do not need one whole bitcoin to participate.",
+        "A small-looking BTC decimal can still represent meaningful value.",
+        "Sats are not a separate coin. They are units of bitcoin."
+      ],
+      "ai_teaching_guidance": "When answering value questions, state the Bitcoin amount exactly and label any fiat conversion as a current estimate. Do not invent a live exchange rate."
+    },
+    {
+      "num": 4,
+      "title": "Wallets Addresses and QR Codes",
+      "objective": "Understand the tools used to receive and send Bitcoin.",
+      "format": "standard",
+      "simple_english": "A Bitcoin wallet is software or a device that manages the keys used to receive and spend bitcoin. A Bitcoin address or payment request tells another wallet where or how to pay. A QR code is a machine-readable way to carry that payment information.",
+      "sheng_teaching_version": "Wallet ni app ama device yenye inamanage keys zako na kukusaidia receive ama spend Bitcoin. Address ni details za kupokea payment. QR code ni njia rahisi ya kubeba hizo details ndio msee asisumbuke kutype characters mingi.",
+      "full_explanation": [
+        "It is common to say a wallet stores bitcoin, but the coins do not sit inside the phone like photos. The network record shows which outputs can be spent by particular keys. The wallet holds or accesses the information needed to control those funds.",
+        "An address is meant for receiving. It is generally safe to share a receiving address, although publishing and reusing it can reduce privacy. A private key or recovery phrase is never a receiving address and must never be shared.",
+        "A QR code can encode an address, an on-chain payment request, a Lightning invoice, or another payment identifier. A learner must still check the wallet screen after scanning. A QR code is convenient, but it is not proof that the recipient name and amount are correct.",
+        "Wallets from different developers can still send to each other when they use compatible Bitcoin payment formats. The sender and receiver do not always need the same app. However, an on-chain address cannot simply be treated as a Lightning invoice, and wallet support differs.",
+        "A merchant should generate a fresh payment request for the customer when possible. Fresh requests improve payment matching and may improve privacy. Static QR codes are convenient, but the merchant needs a reliable method to identify which customer paid and how much was received."
+      ],
+      "kibera_example": "At a kiosk, the merchant enters KES 250 in a wallet that creates a Lightning invoice. The customer scans the QR code. Before tapping Pay, the customer checks the amount and merchant context. The merchant confirms receipt on their own device instead of trusting only the customer’s screenshot.",
+      "check_understanding": [
+        "1.  What does a wallet manage?",
+        "2.  What should you check after scanning a QR code?",
+        "3.  Is a receiving address the same as a recovery phrase?"
+      ],
+      "common_confusion": [
+        "The wallet interface is not the Bitcoin network itself.",
+        "A QR code can contain different kinds of payment data.",
+        "A payment screenshot can be edited and is not the merchant’s strongest proof of receipt."
+      ],
+      "ai_teaching_guidance": "If a learner asks why two wallets cannot pay each other, first identify whether the request is on-chain or Lightning. Ask for the visible error message, not secret wallet data."
+    },
+    {
+      "num": 5,
+      "title": "Private Keys Signatures and Ownership",
+      "objective": "Understand how a wallet proves that a user is authorized to spend.",
+      "format": "standard",
+      "simple_english": "A private key is secret data that authorizes spending. Wallet software uses the private key to create a digital signature for a transaction. The network can verify the signature without learning the private key.",
+      "sheng_teaching_version": "Private key ni siri yenye inapea wallet uwezo ya kuspend Bitcoin yako. Ukituma payment, wallet inasign transaction mathematically. Network inaweza check signature ni valid bila kuona private key yenyewe.",
+      "full_explanation": [
+        "A digital signature is not a handwritten name. It is mathematical evidence that the transaction was authorized by the holder of the required private key and that relevant transaction data was not changed after signing.",
+        "A public key can be derived from a private key, while deriving the private key from the public key is designed to be computationally impractical. Bitcoin addresses are created from scripts or key-related data depending on the address type. Beginner teaching can use the lock-and-key idea, but the tutor should not claim an address literally contains a private key.",
+        "Anyone who obtains a private key may be able to authorize spending from the funds controlled by that key. There is usually no central support agent who can undo that theft. This is why wallet secrets require stronger protection than an ordinary username.",
+        "Self-custody users usually do not handle raw private keys one by one. Modern wallets derive many keys from a wallet backup or seed. The recovery phrase is therefore extremely sensitive because it may recreate many private keys."
+      ],
+      "kibera_example": "A customer signs a transaction inside the wallet by confirming with a PIN or device security. The PIN may unlock the local wallet, but the cryptographic signature is created using key material. The PIN and private key are not the same thing.",
+      "check_understanding": [
+        "1.  What does a private key allow a wallet to do?",
+        "2.  Does the network need to see the private key to verify a signature?",
+        "3.  Is a wallet PIN always the private key?"
+      ],
+      "common_confusion": [
+        "A private key is not an address.",
+        "A PIN can protect access to an app but may not restore the wallet on a new phone.",
+        "A valid signature proves authorization by a key, not the real-world identity or honesty of the recipient."
+      ],
+      "ai_teaching_guidance": "Never request, display, or accept a private key in a support conversation. If a learner posts one, warn them that it must be treated as compromised and direct them to trusted wallet-specific recovery guidance without repeating the secret."
+    },
+    {
+      "num": 6,
+      "title": "Recovery Phrases and Backups",
+      "objective": "Learn how wallet recovery works and why the backup must remain private.",
+      "format": "standard",
+      "simple_english": "Many self-custody wallets provide a recovery phrase, sometimes called a seed phrase, made of a sequence of words. It can recreate the keys for the wallet. Anyone who has it may be able to take the funds.",
+      "sheng_teaching_version": "Recovery phrase ama seed phrase ni zile words wallet inakupea kama backup ya mwisho. Simu ikipotea, hizo words zinaweza kusaidia urudishe wallet kwa device ingine. Lakini msee akizipata, anaweza control doo yako. Usipige screenshot, usitume WhatsApp, na usipee support agent.",
+      "full_explanation": [
+        "A recovery phrase is different from an app password, PIN, email login, or one-time password. Those may protect an account or local device. A recovery phrase can recreate the underlying wallet keys in compatible software.",
+        "BIP 39 describes a widely used method for generating mnemonic words and turning them into a seed, but not every wallet uses BIP 39 and not every wallet can recover every other wallet. A passphrase, wallet type, derivation path, multisignature setup, or additional backup data may also matter.",
+        "Write the phrase accurately in the correct order and store it where fire, water, theft, and casual viewing are considered. Do not store the only copy on the same phone as the wallet. Do not enter it into a website because someone claims to be support.",
+        "A recovery test should follow the specific wallet’s safe instructions. Beginners should not delete a working wallet just to test a backup. A training environment can use a separate practice wallet with a tiny amount and no connection to real savings.",
+        "A custodial wallet may not provide a recovery phrase because the service controls the keys. In that case, recovery may depend on the service’s account process. The AI tutor must first identify the custody model."
+      ],
+      "kibera_example": "A learner loses a phone. If the wallet was self-custody and the recovery phrase is correct, the learner may restore access on a compatible wallet. If the phrase was saved only as a screenshot on the lost phone, both availability and secrecy are now at risk.",
+      "check_understanding": [
+        "1.  Who can spend funds if they obtain the recovery phrase?",
+        "2.  Is a recovery phrase the same as a wallet PIN?",
+        "3.  Why should the only backup not stay on the same phone?"
+      ],
+      "common_confusion": [
+        "No genuine support agent needs the recovery phrase to check a transaction.",
+        "Cloud photos and chat backups can expose screenshots.",
+        "A recovery phrase does not always restore a custodial account or every wallet configuration."
+      ],
+      "ai_teaching_guidance": "Ask which wallet and custody model the learner uses. Give process guidance without asking the learner to type, photograph, or read out any recovery words."
+    },
+    {
+      "num": 7,
+      "title": "Self Custody and Custodial Wallets",
+      "objective": "Compare control responsibility and third party risk.",
+      "format": "standard",
+      "simple_english": "In self-custody, the user controls the keys needed to spend. In a custodial service, a company or organization controls the keys and keeps an account balance for the user. Both can look like a wallet app, but the risk and recovery model differ.",
+      "sheng_teaching_version": "Self-custody ni wewe unacontrol keys. Ukipoteza backup, hakuna kampuni inaweza kukurudishia. Custodial wallet ni service ndio inashikilia keys, halafu app inakuonyesha account balance. Hapo unatrust hiyo service ikupee access na ikuruhusu withdraw.",
+      "full_explanation": [
+        "Self-custody reduces dependence on a custodian, but it makes backup and device security the user’s responsibility. Custody is not automatically better or worse for every beginner. The right choice depends on the amount, skills, threat model, recovery needs, and willingness to learn.",
+        "A custodial service may offer easy account recovery, usernames, internal transfers, or simple Lightning access. It also introduces counterparty risk. The service may be hacked, become insolvent, freeze access, change policies, suffer an outage, or face legal restrictions.",
+        "Some systems use shared or federated custody. Control may be divided among several guardians instead of one company or one individual. The tutor should explain the actual setup rather than forcing every product into only two labels.",
+        "A learner can use more than one model for different purposes. A small spending balance may stay in an easy mobile wallet, while long-term savings may require a more carefully protected setup. This is a risk-management decision, not a guarantee of safety.",
+        "The practical test is control: who can sign a transaction, who can block a withdrawal, and what happens if the phone, provider, or internet connection disappears?"
+      ],
+      "kibera_example": "Two merchants both use a wallet app. Merchant A has a recovery phrase and can restore the wallet independently. Merchant B signs in with a phone number and depends on the provider to approve withdrawals. The screens may look similar, but the custody models are different.",
+      "check_understanding": [
+        "1.  Who controls the keys in self-custody?",
+        "2.  What new risk appears with a custodian?",
+        "3.  Why can two wallet apps have different recovery procedures?"
+      ],
+      "common_confusion": [
+        "Not your keys does not mean the balance is fake; it means control depends on another party.",
+        "Self-custody is not safe if the user exposes or loses the backup.",
+        "A wallet brand name alone may not describe the full custody model."
+      ],
+      "ai_teaching_guidance": "Do not shame beginners for choosing convenience. Explain the tradeoff and scale the advice to the amount at risk. For product-specific claims, use the provider’s current documentation."
+    },
+    {
+      "num": 8,
+      "title": "How a Bitcoin Transaction Moves",
+      "objective": "Follow a payment from the sender’s wallet to network confirmation.",
+      "format": "standard",
+      "simple_english": "A Bitcoin transaction transfers control of bitcoin from existing spendable outputs to new outputs. The sender’s wallet builds the transaction, signs it, and broadcasts it. Nodes verify and relay it. A miner may include it in a block, after which confirmations accumulate.",
+      "sheng_teaching_version": "Ukituma Bitcoin, wallet inatengeneza transaction ikionyesha ni value gani inamove na inaenda wapi. Wallet inasign, kisha inabroadcast kwa network. Nodes zinacheck rules. Miner akiweka transaction kwa block valid, transaction inapata confirmation.",
+      "full_explanation": [
+        "Bitcoin does not use an account balance internally in the same way as a bank ledger. Wallets track unspent transaction outputs, called UTXOs. If a wallet has 20,000 sats, those sats may be controlled through one output or several outputs.",
+        "When spending, the wallet selects enough inputs, creates the recipient output, often creates a change output back to the wallet, and assigns a transaction fee. The total input value equals the total output value plus the fee.",
+        "After signing, the wallet broadcasts the transaction to peers. Valid nodes may keep it in their memory pool, commonly called the mempool, while it waits for block inclusion. Mempools can differ because nodes have different policies and receive transactions at different times.",
+        "A miner chooses valid transactions for a candidate block, often giving priority to transactions with competitive fee rates. Once a valid block is found and accepted by nodes, the transaction has its first confirmation.",
+        "If the recipient needs to refund a payment, they create a new transaction. The original network entry is not erased. This difference matters when comparing Bitcoin with reversible card or mobile-money systems."
+      ],
+      "kibera_example": "A customer has two wallet outputs worth 6,000 sats each and wants to pay 10,000 sats. The wallet can use both as inputs, pay the merchant, send any remaining change to a new wallet-controlled output, and pay the miner fee. The customer usually sees only the final amount and fee, while the wallet handles the construction.",
+      "check_understanding": [
+        "1.  What does the wallet do before broadcasting?",
+        "2.  What is a UTXO?",
+        "3.  How is a refund different from reversing the original transaction?"
+      ],
+      "common_confusion": [
+        "A transaction can be seen by nodes before it is confirmed.",
+        "Broadcast does not guarantee immediate block inclusion.",
+        "The fee is not necessarily sent to the merchant."
+      ],
+      "ai_teaching_guidance": "Explain the simple lifecycle first: build, sign, broadcast, verify, include, confirm. Introduce UTXOs only after the learner understands the visible payment flow."
+    },
+    {
+      "num": 9,
+      "title": "The Blockchain and Public Record",
+      "objective": "Understand the ordered record that Bitcoin nodes verify.",
+      "format": "standard",
+      "simple_english": "The blockchain is Bitcoin’s ordered public record of confirmed transactions. Blocks link to earlier blocks, which makes past records increasingly difficult to change without redoing proof of work and overtaking the accepted chain.",
+      "sheng_teaching_version": "Blockchain ni record ya public yenye iko arranged kwa blocks. Transaction ikiconfirmiwa inaingia kwa block. Kila block ina-link na ile ya nyuma. Hiyo chain inasaidia network ijue order ya transactions na izuie coin moja ispendiwe mara mbili.",
+      "full_explanation": [
+        "The blockchain lets nodes determine which outputs have already been spent and which remain available. This prevents double spending, where someone tries to use the same bitcoin in conflicting payments.",
+        "Public does not mean every transaction displays a person’s legal name. The chain shows addresses or scripts, values, transaction relationships, and timing data. Identity can become linked through exchanges, merchants, reused addresses, public posts, or other information.",
+        "Blocks contain transaction data and a header that commits to the block contents and the previous block. If old transaction data changes, the commitments change. A valid alternative history would require new proof of work and network acceptance.",
+        "A blockchain explorer is a website or application that displays public network data. It can help check a transaction, but it does not hold or control the funds. Users should avoid assuming that one explorer is the network itself.",
+        "Not every action inside a custodial platform appears as an individual on-chain transaction. A provider may update its internal database until bitcoin is deposited to or withdrawn from the service."
+      ],
+      "kibera_example": "A merchant sees an on-chain transaction ID and checks it in an explorer. The explorer reports whether it is unconfirmed or included in a block. The merchant still relies on their own wallet or trusted infrastructure for the final operational decision.",
+      "check_understanding": [
+        "1.  What problem does the blockchain help prevent?",
+        "2.  Does the blockchain automatically show a person’s name?",
+        "3.  Is a blockchain explorer the same as the blockchain?"
+      ],
+      "common_confusion": [
+        "Public is not the same as anonymous.",
+        "A custodial app balance can change without a separate on-chain transaction.",
+        "The blockchain records transfers and spend conditions, not a simple list of named bank accounts."
+      ],
+      "ai_teaching_guidance": "When a learner shares a transaction ID, explain that it is public information but may reveal payment relationships. Do not ask for a recovery phrase to investigate a transaction."
+    },
+    {
+      "num": 10,
+      "title": "Nodes Rules and Consensus",
+      "objective": "Learn who verifies Bitcoin and why miners do not make the rules alone.",
+      "format": "standard",
+      "simple_english": "A Bitcoin node runs software that can verify transactions and blocks against Bitcoin’s rules. Full nodes independently check the blockchain. Consensus emerges when participants use compatible rules and recognize the same valid chain.",
+      "sheng_teaching_version": "Node ni computer ina-run Bitcoin software na inacheck transactions na blocks. Full node haambiwi tu na miner ati block ni sawa. Inaverify yenyewe. Nodes zikitumia rules compatible, zinaweza agree ni chain gani valid.",
+      "full_explanation": [
+        "A full node checks conditions such as valid transaction structure, valid signatures, no double spending, acceptable block size and weight, correct proof of work, and valid block rewards. The exact rule set is technical, but the core idea is independent verification.",
+        "Lightweight wallets do not download and verify everything in the same way as full nodes. They may depend on wallet servers, compact filters, block headers, or service-provider infrastructure. Convenience can create additional trust or privacy tradeoffs.",
+        "Running a node can improve independent verification and privacy, but it requires storage, bandwidth, maintenance, and technical skill. A beginner can use Bitcoin without running a full node, although they should understand whom their wallet trusts for network information.",
+        "Developers propose and write software changes, but they cannot automatically force every user to run new rules. Miners order transactions into blocks, but valid nodes can reject rule-breaking blocks. Businesses, wallets, miners, and users influence adoption through the software and services they choose."
+      ],
+      "kibera_example": "Afribit runs a Bitcoin node connected to its BTCPay Server. This can help the organization independently verify on-chain payments instead of asking a public explorer for every answer. It also creates an operational responsibility to maintain, update, monitor, and secure the server.",
+      "check_understanding": [
+        "1.  What does a full node verify?",
+        "2.  Can developers force all users to install a rule change?",
+        "3.  What tradeoffs come with running a node?"
+      ],
+      "common_confusion": [
+        "A node is not the same as a miner.",
+        "Using a wallet does not prove the user runs a full node.",
+        "More nodes do not vote by simple majority on each transaction."
+      ],
+      "ai_teaching_guidance": "Avoid saying nodes vote. Say they independently enforce the rules in the software they run. When discussing a specific wallet, verify how it obtains network data."
+    },
+    {
+      "num": 11,
+      "title": "Mining Proof of Work and Blocks",
+      "objective": "Understand how pending transactions are ordered and added to the chain.",
+      "format": "standard",
+      "simple_english": "Mining is the competitive process of building a candidate block and performing proof of work. A successful miner broadcasts the block. Nodes accept it only if it follows Bitcoin’s rules. The miner can receive newly issued bitcoin and transaction fees.",
+      "sheng_teaching_version": "Mining ni competition ya kutengeneza block valid na kufanya proof of work. Miner akipata solution, anatuma block kwa network. Nodes zinacheck kama rules zimefuatwa. Block ikiwa valid, miner anaweza pata block subsidy pamoja na transaction fees.",
+      "full_explanation": [
+        "Proof of work requires miners to repeatedly hash block-header data while changing values until the result meets the network target. Finding a block is probabilistic. More computing power increases the chance of success but does not guarantee which miner finds the next block.",
+        "The network adjusts mining difficulty approximately every 2,016 blocks so that blocks continue to arrive around a ten-minute average despite changes in total hash power. Ten minutes is an average, not a schedule. Two blocks can arrive close together, or a long gap can occur.",
+        "Mining makes rewriting history costly because an attacker would need to redo proof of work and catch up with the chain accepted by the network. Security depends on more than electricity alone: nodes must still enforce valid rules.",
+        "Miners choose which valid transactions to include, normally influenced by fee rate and their own policies. They cannot spend a user’s coins without a valid authorization simply because they mine a block.",
+        "Mining uses real energy and specialized equipment. Discussions about its costs and benefits should use evidence and context. A basic lesson should explain the mechanism without making unsupported claims that energy use is either meaningless or automatically beneficial."
+      ],
+      "kibera_example": "Think of miners competing to seal the next verified page of the public record. The winning page is not accepted because the miner is famous. Nodes inspect whether the page follows the rules and whether its proof of work is valid.",
+      "check_understanding": [
+        "1.  What does proof of work contribute?",
+        "2.  Why is ten minutes not a guaranteed confirmation time?",
+        "3.  Who checks the block after a miner broadcasts it?"
+      ],
+      "common_confusion": [
+        "Mining does not create arbitrary bitcoin amounts.",
+        "Miners order valid transactions but do not own every transaction.",
+        "A mining app on an ordinary phone is not equivalent to competitive Bitcoin ASIC mining."
+      ],
+      "ai_teaching_guidance": "Separate mining from scams that use the word mining. Do not tell learners that tapping a phone screen mines Bitcoin unless the product genuinely participates in Bitcoin proof of work."
+    },
+    {
+      "num": 12,
+      "title": "Confirmations and Payment Finality",
+      "objective": "Decide when an on-chain payment is reliable enough for the situation.",
+      "format": "standard",
+      "simple_english": "A transaction gets its first confirmation when it is included in a valid block. Each accepted block added after it increases the confirmation count. More confirmations make reversing the transaction increasingly difficult.",
+      "sheng_teaching_version": "Transaction ikingia kwa block valid, inapata confirmation ya kwanza. Kila block ingine ikiongezwa juu yake, confirmation inaongezeka. Confirmations mob zinafanya kurudisha history nyuma ikuwe ngumu zaidi.",
+      "full_explanation": [
+        "Before confirmation, an on-chain transaction may appear in the mempool. It can still conflict with another transaction, be replaced under some policies, or wait for a long time if the fee rate is low. A zero-confirmation payment therefore carries more risk.",
+        "The number of confirmations a merchant requires should reflect value, customer trust, and operational risk. A low-value face-to-face purchase may use a different policy from a high-value equipment sale. There is no single confirmation number that makes every payment perfectly safe.",
+        "One confirmation arrives after the block containing the transaction is accepted. A commonly used high-value reference is six confirmations, but organizations should define a policy rather than repeat a number without context.",
+        "Lightning payments use a different operational model. A successful wallet result normally settles through the Lightning channel network without waiting for a new on-chain block for each retail payment. Channel opens, closes, and disputes ultimately anchor to Bitcoin.",
+        "A merchant should confirm the payment in the receiving wallet or payment processor. A sender’s success screen is useful, but it should not be the merchant’s only evidence."
+      ],
+      "kibera_example": "A customer pays for tea using Lightning and the merchant’s wallet shows the invoice as settled almost immediately. For an on-chain purchase of expensive equipment, the merchant may wait for confirmations according to a written policy before releasing the item.",
+      "check_understanding": [
+        "1.  When does the first on-chain confirmation occur?",
+        "2.  Why can an unconfirmed transaction be riskier?",
+        "3.  Should every merchant use the same confirmation policy?"
+      ],
+      "common_confusion": [
+        "Seen is not always confirmed.",
+        "Six confirmations is a risk reference, not a magical guarantee.",
+        "Lightning payment status should be checked by the receiver."
+      ],
+      "ai_teaching_guidance": "Ask whether the payment is on-chain or Lightning before explaining confirmation time. Do not promise a precise arrival time for a probabilistic process."
+    },
+    {
+      "num": 13,
+      "title": "Bitcoin Supply and Halving",
+      "objective": "Understand issuance scarcity and the difference between supply rules and market price.",
+      "format": "standard",
+      "simple_english": "Bitcoin’s rules limit total issuance to 21 million BTC. New bitcoin enters circulation through the block subsidy paid to miners. The subsidy is cut in half every 210,000 blocks, roughly every four years, until issuance becomes negligible and eventually stops.",
+      "sheng_teaching_version": "Bitcoin supply iko na limit ya BTC million 21. Bitcoin mpya inaingia kupitia block subsidy ya miners. Baada ya blocks 210,000, hiyo subsidy inakatwa half. Hii ndio halving. Ni rule ya issuance, si promise ati price lazima ipande.",
+      "full_explanation": [
+        "The supply limit is enforced by consensus rules checked by nodes. A miner cannot claim any reward amount they want. A block that creates more than the allowed subsidy plus fees is invalid and can be rejected.",
+        "A halving is based on block height, not a calendar appointment. People estimate the date using average block times. Because block discovery varies, the exact time is known only as the network approaches that height.",
+        "Scarcity does not guarantee demand or price. Market price reflects buyers, sellers, liquidity, expectations, regulation, technology, and many other factors. The AI tutor must not turn the supply schedule into a promise of profit.",
+        "Lost keys can make some bitcoin permanently unspendable, but the network does not know with certainty which old coins are lost. It only knows whether valid spending conditions are later satisfied.",
+        "As the block subsidy declines, transaction fees are expected to form a larger share of miner revenue. Future fee markets and security are active topics of technical and economic discussion."
+      ],
+      "kibera_example": "A learner hears that a halving is coming and assumes the price must double. The trainer separates two ideas: the protocol cuts new issuance per block, while the market decides price. One does not mechanically set the other.",
+      "check_understanding": [
+        "1.  What is halved?",
+        "2.  Who enforces the allowed block reward?",
+        "3.  Does halving guarantee a price increase?"
+      ],
+      "common_confusion": [
+        "Twenty-one million describes issuance, not the number of coins actively available for sale.",
+        "Halving does not cut existing wallet balances.",
+        "Scarcity is one property; it is not investment advice."
+      ],
+      "ai_teaching_guidance": "Use neutral language. State the supply rule, explain uncertainty in calendar estimates, and refuse guaranteed price claims."
+    },
+    {
+      "num": 14,
+      "title": "Transaction Fees",
+      "objective": "Learn why fees exist and what makes an on-chain fee rise or fall.",
+      "format": "standard",
+      "simple_english": "An on-chain transaction fee pays for scarce block space. Wallets normally estimate a fee rate based on transaction size and current demand. The fee is not simply a percentage of the value being sent.",
+      "sheng_teaching_version": "On-chain fee ni payment ya space kwa block. Wallet inaestimate kulingana na transaction size na vile network iko busy. Kutuma BTC mingi si lazima kuwe na fee kubwa kuliko kutuma BTC kidogo. Inputs na data ya transaction ndio inaweza change size.",
+      "full_explanation": [
+        "Fees are commonly discussed in satoshis per virtual byte. A transaction using several inputs can be larger than one using a single input, even if both send the same value. This is why two similar-looking payments can have different fees.",
+        "Miners often prioritize transactions offering higher fee rates. A low-fee transaction may wait during congestion. Some wallets support fee bumping methods, but the exact options depend on how the transaction was created and on wallet support.",
+        "The sender normally chooses and pays the on-chain miner fee, although services may present charges differently. Custodial platforms can add withdrawal or service fees that are separate from the network fee.",
+        "Lightning fees use a different model. A routed payment may include a small base fee and a proportional routing fee. The user’s wallet usually handles route selection, and the final fee should be shown before or after payment according to the app.",
+        "For very small on-chain payments, fees can be large relative to the payment amount. Lightning may be more practical for frequent small retail transactions, while on-chain transactions remain important for settlement and self-custody movement."
+      ],
+      "kibera_example": "Two customers each send KES-equivalent value on-chain. One wallet spends many small UTXOs and creates a larger transaction, while the other spends one suitable UTXO. Their network fees may differ even though the shopping value is the same.",
+      "check_understanding": [
+        "1.  What resource does the on-chain fee purchase?",
+        "2.  Is the fee always a fixed percentage of the payment?",
+        "3.  How can a service fee differ from a network fee?"
+      ],
+      "common_confusion": [
+        "High payment value does not automatically mean high miner fee.",
+        "A wallet fee estimate is not a permanent price.",
+        "Lightning and on-chain fees are calculated differently."
+      ],
+      "ai_teaching_guidance": "When a learner reports an expensive fee, ask whether it is on-chain, Lightning, or a provider withdrawal charge. Never assume all displayed fees go to miners."
+    },
+    {
+      "num": 15,
+      "title": "On Chain and Lightning Payments",
+      "objective": "Choose the correct payment rail and understand the tradeoffs.",
+      "format": "standard",
+      "simple_english": "An on-chain payment is recorded in a Bitcoin block. Lightning is a second-layer payment network that uses payment channels anchored to Bitcoin. Lightning can support fast, low-cost payments without putting every retail transfer directly into a block.",
+      "sheng_teaching_version": "On-chain payment inaenda kwa blockchain na inangoja block confirmation. Lightning ni layer ingine juu ya Bitcoin yenye inatumia payment channels. Inasaidia payments ndogo zipite haraka na fee ndogo bila kila payment kuingia direct kwa block.",
+      "full_explanation": [
+        "On-chain payments use Bitcoin addresses or payment requests and are useful for settlement, moving funds between custody setups, and payments where direct blockchain recording is appropriate. Confirmation timing and fees depend on block demand.",
+        "Lightning payments commonly use invoices. The network searches for a route through connected channels. The payment can fail if there is no suitable route, insufficient liquidity, an expired invoice, or another temporary problem.",
+        "Lightning does not create a different asset. A Lightning balance represents bitcoin committed within channel-based arrangements or credited by a service. The custody model still matters: some Lightning wallets hold the keys for the user, while others rely on a provider or federation.",
+        "Moving bitcoin between on-chain and Lightning can involve channel management, swaps, service transfers, or wallet-specific functions. The process and fee are not identical across wallets.",
+        "For a busy informal merchant, the payment workflow must remain quick. A fixed or reusable payment identifier can reduce steps, but the system still needs a trustworthy way to match amount, merchant, and payment status without exposing wallet secrets."
+      ],
+      "kibera_example": "A vegetable seller has several customers waiting. A Lightning QR or compatible reusable payment request lets a customer scan and pay quickly. The merchant hears or sees a confirmed receipt in their own wallet. Larger treasury movements can be settled on-chain later according to the organization’s process.",
+      "check_understanding": [
+        "1.  Which payment type waits for block confirmation?",
+        "2.  Why can a Lightning payment fail even when both users have wallets?",
+        "3.  Does Lightning use a different coin?"
+      ],
+      "common_confusion": [
+        "Lightning is built on Bitcoin, but it is not identical to an on-chain transaction.",
+        "Fast does not mean risk-free or always successful.",
+        "A Lightning wallet can still be custodial."
+      ],
+      "ai_teaching_guidance": "Teach the visible difference first: address versus invoice, block confirmation versus Lightning settlement. Then explain custody and liquidity if the learner asks deeper questions."
+    },
+    {
+      "num": 16,
+      "title": "Privacy and Transaction Visibility",
+      "objective": "Use Bitcoin without assuming it is anonymous.",
+      "format": "standard",
+      "simple_english": "Bitcoin is pseudonymous, not automatically anonymous. On-chain transaction data is public. A person’s identity may become linked to addresses through wallet reuse, regulated services, merchant records, public posts, device data, or transaction patterns.",
+      "sheng_teaching_version": "Bitcoin si anonymous automatically. On-chain transactions zinaonekana public. Jina yako haijaandikwa direct kwa address, lakini activity inaweza linkiwa na wewe kupitia exchange, merchant, address reuse, posts, ama other data.",
+      "full_explanation": [
+        "Using a fresh address for each on-chain receipt can reduce simple address reuse, but it does not solve every privacy problem. Transactions can combine inputs and reveal relationships between outputs.",
+        "Publishing a donation address means the public can inspect activity associated with that address. An organization should decide whether transparency or donor privacy is more important and design the payment flow accordingly.",
+        "Custodial services can know the user’s identity, phone number, IP address, device information, balance, and counterparties even when outside observers see less. Privacy from the public is not the same as privacy from the provider.",
+        "Lightning can reduce the amount of retail activity placed directly on-chain, but it is not perfect anonymity. Nodes, wallet providers, counterparties, and network observers may learn different pieces of information depending on the design.",
+        "Screenshots, public transaction IDs, and support chats can reveal more than the user expects. The AI tutor should ask for the minimum data needed and should encourage redaction of names, balances, addresses, and unrelated transactions."
+      ],
+      "kibera_example": "A merchant posts one static on-chain address on social media for all customers. Anyone can inspect transactions associated with that address. A payment processor that creates fresh requests may improve payment matching and reduce obvious reuse, although other links can still exist.",
+      "check_understanding": [
+        "1.  Why is Bitcoin called pseudonymous?",
+        "2.  Does a new address make a person fully anonymous?",
+        "3.  Who might learn information inside a custodial wallet?"
+      ],
+      "common_confusion": [
+        "Public ledger does not mean every identity is immediately known.",
+        "Anonymous is too strong a promise.",
+        "A transaction ID can expose financial relationships even though it cannot spend funds."
+      ],
+      "ai_teaching_guidance": "Request only the minimum diagnostic information. Explain that transaction IDs and addresses are public but still sensitive in context. Never request wallet secrets."
+    },
+    {
+      "num": 17,
+      "title": "Security and Avoiding Scams",
+      "objective": "Build habits that protect learners before they handle meaningful value.",
+      "format": "standard",
+      "simple_english": "Bitcoin payments are difficult to reverse, and stolen self-custody funds may be impossible to recover. Security depends on protecting secrets, verifying payment details, using trustworthy software, and recognizing social-engineering scams.",
+      "sheng_teaching_version": "Bitcoin ikishatumwa vibaya, hakuna cancel button ya central office. Protect recovery phrase na private keys. Check address na amount before Pay. Usitrust DM ya msee anajiita support, na usiamini guaranteed profit ama fee ya kuunlock funds.",
+      "full_explanation": [
+        "No legitimate helper needs a recovery phrase or private key to investigate a payment. A scammer may create urgency, impersonate support, promise an airdrop or investment return, or ask the user to install remote-control software.",
+        "Verify the full payment request through a trusted channel. Malware can replace copied addresses. A small test payment can reduce risk for a new high-value destination, but the user must verify that the second payment uses the intended address or request as well.",
+        "Use device locks, wallet PINs, current software, and secure backups. Download wallets from verified sources. Treat a rooted, shared, or malware-infected phone as a higher-risk environment.",
+        "Do not display a recovery phrase during a live class. Use printed fake examples that can never control real funds. Trainers should not collect learners’ phrases for safekeeping.",
+        "Separate spending funds from savings when the amount justifies it. A phone wallet used daily has different exposure from a carefully stored wallet. The design should match the user’s ability to operate and recover it.",
+        "For merchants, verify receipt in the receiving system. Do not release goods solely because a customer shows a screenshot, animation, or message saying paid."
+      ],
+      "kibera_example": "A learner receives a Telegram message from someone claiming to be wallet support. The person asks for the twelve words to fix a stuck payment. The correct action is to stop. The phrase would let the scammer recreate the wallet; it cannot safely be shared for troubleshooting.",
+      "check_understanding": [
+        "1.  What secrets should support never request?",
+        "2.  Why should a merchant check their own receiving system?",
+        "3.  Name two signs of a social-engineering scam."
+      ],
+      "common_confusion": [
+        "A familiar logo does not prove a message is genuine.",
+        "A transaction being irreversible makes verification more important.",
+        "Remote access to a phone can expose wallet information even if the phrase is not typed into chat."
+      ],
+      "ai_teaching_guidance": "If a user may be under active attack, prioritize stopping further loss. Tell them not to share more information, disconnect remote access, and use the wallet provider’s official security process. Do not improvise recovery steps without knowing the wallet type."
+    },
+    {
+      "num": 18,
+      "title": "Price Volatility and Responsible Learning",
+      "objective": "Separate learning how Bitcoin works from speculation about price.",
+      "format": "standard",
+      "simple_english": "Bitcoin’s market price can rise or fall sharply. The protocol does not guarantee profit. A person should understand volatility, custody, fees, and loss scenarios before putting meaningful household or business money at risk.",
+      "sheng_teaching_version": "Price ya Bitcoin inaweza panda ama shuka haraka. Kujua vile Bitcoin inawork si guarantee ya profit. Msee anafaa aelewe risk, custody, fees na security kabla aweke doo ya rent, food, school fees ama biashara.",
+      "full_explanation": [
+        "A merchant who prices goods in KES but accepts Bitcoin faces exchange-rate risk between receipt and conversion or spending. The merchant needs a policy: keep the bitcoin, convert some, convert all, or use it to pay suppliers. Each choice has different risk and operational cost.",
+        "A customer can pay the correct KES value at the moment of sale while the BTC amount changes from day to day. Wallet quotes can expire because the exchange rate moves. A fresh invoice reduces disputes about which rate applied.",
+        "Education should include downside scenarios. A wallet provider can fail, a phone can be lost, a phrase can be exposed, the price can fall, fees can rise, and a Lightning route can fail. Clear risks build better decisions than hype.",
+        "An AI tutor must distinguish factual protocol questions from personal financial decisions. It can explain how halving works, but it should not tell a learner that a halving guarantees profit or that borrowing money to buy bitcoin is safe.",
+        "Responsible experimentation begins with amounts small enough to lose without harming the learner. A successful practice payment teaches more than a large first purchase made under pressure."
+      ],
+      "kibera_example": "A merchant receives a KES 1,000 equivalent payment in bitcoin. If the BTC price falls before the merchant pays a KES-denominated supplier, the value may no longer cover the same cost. The merchant needs a treasury rule instead of assuming the price only moves upward.",
+      "check_understanding": [
+        "1.  Does the Bitcoin protocol promise profit?",
+        "2.  Why can a KES-priced merchant face exchange-rate risk?",
+        "3.  What amount is appropriate for a first practice payment?"
+      ],
+      "common_confusion": [
+        "Protocol scarcity does not eliminate market risk.",
+        "Accepting Bitcoin is different from keeping all revenue in Bitcoin.",
+        "Educational excitement should not become financial pressure."
+      ],
+      "ai_teaching_guidance": "Decline guaranteed-return requests. Explain the mechanism and risks, then direct personal investment decisions to qualified, jurisdiction-appropriate advice."
+    },
+    {
+      "num": 19,
+      "title": "Merchant and Customer Practice",
+      "objective": "Apply the concepts in fast everyday payment situations.",
+      "format": "merchant_customer_practice",
+      "raw_lines": [
+        "Customer Payment Flow",
+        "1.  Confirm the price with the merchant in the agreed unit, such as KES.",
+        "2.  Ask whether the payment request is on-chain or Lightning.",
+        "3.  Open the wallet and scan the merchant’s current QR code or use the verified payment request.",
+        "4.  Check the amount, unit, fee, and destination context before approving.",
+        "5.  Approve the payment without exposing the PIN, recovery phrase, or private key.",
+        "6.  Wait for the wallet result and allow the merchant to confirm receipt on the receiving side.",
+        "7.  Keep a receipt or transaction reference when the purchase requires records.",
+        "Sheng Customer Script",
+        "Bei ni ngapi kwa KES? Hii QR ni Lightning ama on-chain? Nimecheck amount na fee. Nalipa sasa. Tafadhali confirm kwa wallet yako imeingia.",
+        "Merchant Payment Flow",
+        "1.  State the price clearly and generate the correct payment request.",
+        "2.  Show the QR without handing an unlocked wallet to the customer.",
+        "3.  Watch the merchant’s own wallet or point-of-sale status.",
+        "4.  Match the amount and request to the correct sale.",
+        "5.  Release goods according to the merchant’s Lightning or confirmation policy.",
+        "6.  Record the sale in the normal business process if receipts, stock, or tax records are required.",
+        "7.  Move funds or convert them later under a separate treasury process so the checkout stays fast.",
+        "Sheng Merchant Script",
+        "Total ni KES 450. Scan hii QR. Usiapprove mpaka uone amount iko sawa. Nikiiona ime-settle kwa side yangu, tunamaliza sale.",
+        "Practice Scenarios",
+        "Situation",
+        "Safe response",
+        "Wrong amount",
+        "The customer sees KES 4,500 equivalent instead of KES 450. Do not pay. Cancel or go back and ask the merchant to generate a correct request.",
+        "Expired Lightning invoice",
+        "The wallet says the invoice expired. Ask for a new invoice. Do not repeatedly pay old screenshots.",
+        "Payment pending",
+        "Identify whether it is Lightning or on-chain. Check the receiving wallet and transaction status. Do not immediately send a second payment without understanding the first.",
+        "Customer shows screenshot only",
+        "The merchant checks their own wallet or processor. Goods are released according to the merchant’s receipt policy.",
+        "Network unavailable",
+        "Do not invent an offline confirmation. Agree to retry when connectivity returns or use another mutually accepted payment method.",
+        "Refund requested",
+        "The merchant verifies the original sale and obtains a fresh, verified refund destination. A refund is a new transaction and may have a fee.",
+        "Operational Principle",
+        "The checkout should be quick. Training, wallet setup, backups, treasury decisions, and troubleshooting should happen outside the moment when customers are waiting. The payment step should focus on amount, request, approval, and receipt."
+      ]
+    },
+    {
+      "num": 20,
+      "title": "Frequently Asked Questions",
+      "objective": "Give short answers that an AI tutor can expand when the learner asks for more detail.",
+      "format": "faq",
+      "faqs": [
+        {
+          "question": "Do I need to buy one whole bitcoin?",
+          "answer": "No. One BTC has 100,000,000 sats. You can use a small fraction."
+        },
+        {
+          "question": "Is Bitcoin an app?",
+          "answer": "No. Bitcoin is a network and asset. A wallet app is one tool used to access it."
+        },
+        {
+          "question": "Can Bitcoin be switched off by one company?",
+          "answer": "No single company operates the entire network. However, a wallet provider, exchange, internet service, or government action can affect a user’s access to particular services."
+        },
+        {
+          "question": "Can support recover my self-custody wallet?",
+          "answer": "Usually only the correct backup and wallet details can restore it. Support should never ask for the recovery phrase."
+        },
+        {
+          "question": "Why is my payment pending?",
+          "answer": "For on-chain payments, fee rate and block demand may delay confirmation. For Lightning, routing, liquidity, invoice expiry, or wallet service problems may cause delay or failure."
+        },
+        {
+          "question": "Can I reverse a Bitcoin payment?",
+          "answer": "There is no central undo button. The recipient can send a refund as a new transaction."
+        },
+        {
+          "question": "Is Bitcoin anonymous?",
+          "answer": "No. On-chain activity is public and identities can be linked through other data. Bitcoin is better described as pseudonymous."
+        },
+        {
+          "question": "What if I lose my phone?",
+          "answer": "Recovery depends on the wallet model. A self-custody wallet may be restored using its correct backup. A custodial wallet may use the provider’s account recovery process."
+        },
+        {
+          "question": "Is Lightning different money?",
+          "answer": "No. Lightning transfers bitcoin using a payment-channel network anchored to Bitcoin."
+        },
+        {
+          "question": "Why did the fee change?",
+          "answer": "Network demand, transaction size, routing conditions, and provider charges can change. First identify whether the fee is on-chain, Lightning, or a service fee."
+        },
+        {
+          "question": "Who creates new bitcoin?",
+          "answer": "Valid block subsidies issue new bitcoin to miners under rules enforced by nodes. The allowed amount declines through halvings."
+        },
+        {
+          "question": "Can miners steal my bitcoin?",
+          "answer": "Mining alone does not let a miner create your valid signature. Protecting private keys remains essential."
+        },
+        {
+          "question": "Is a transaction ID secret?",
+          "answer": "No, it refers to public transaction data, but sharing it can reveal payment relationships and should be done carefully."
+        },
+        {
+          "question": "Can I use Bitcoin without internet?",
+          "answer": "Preparing or exchanging information offline is possible in specialized setups, but ordinary wallets normally need connectivity to learn network state and broadcast or route payments."
+        },
+        {
+          "question": "Does a halving mean price doubles?",
+          "answer": "No. A halving reduces new issuance per block. Market price is determined separately."
+        },
+        {
+          "question": "Should I keep business revenue in Bitcoin?",
+          "answer": "That is a treasury and risk decision. Consider volatility, supplier currency, cash-flow needs, custody, security, records, and applicable law."
+        }
+      ]
+    }
+  ],
+  "glossary": [
+    {
+      "term": "Address",
+      "meaning": "Receiving information for an on-chain payment.",
+      "sheng_explanation": "Details za kupokea on-chain payment. Si private key."
+    },
+    {
+      "term": "Bitcoin",
+      "meaning": "The network, protocol, and monetary unit used by the network.",
+      "sheng_explanation": "Network na digital money yenye wasee hutumiana."
+    },
+    {
+      "term": "Bitcoin Core",
+      "meaning": "A widely used open-source Bitcoin full-node implementation.",
+      "sheng_explanation": "Software moja common ya ku-run full node na kuverify rules."
+    },
+    {
+      "term": "Block",
+      "meaning": "A batch of valid transactions linked to the previous block.",
+      "sheng_explanation": "Package ya transactions valid yenye ina-link na block ya nyuma."
+    },
+    {
+      "term": "Blockchain",
+      "meaning": "The ordered public record of confirmed Bitcoin transactions.",
+      "sheng_explanation": "Record ya public ya transactions confirmed, imepangwa kwa blocks."
+    },
+    {
+      "term": "BTC",
+      "meaning": "The common unit abbreviation for bitcoin.",
+      "sheng_explanation": "Short form ya unit ya bitcoin."
+    },
+    {
+      "term": "Change output",
+      "meaning": "Bitcoin returned to a wallet-controlled output after spending inputs.",
+      "sheng_explanation": "Balance ya input inarudi kwa output mpya ya wallet baada ya payment na fee."
+    },
+    {
+      "term": "Confirmation",
+      "meaning": "Evidence that a transaction is included in a block, with more blocks added after it.",
+      "sheng_explanation": "Transaction iko kwa block; blocks zikiongezeka confirmations zinaongezeka."
+    },
+    {
+      "term": "Consensus",
+      "meaning": "Compatible participants independently applying the same protocol rules.",
+      "sheng_explanation": "Nodes zinafuata rules compatible na zinafikia history same valid."
+    },
+    {
+      "term": "Custodial wallet",
+      "meaning": "A service controls the keys and provides the user an account.",
+      "sheng_explanation": "Service ndio inashikilia keys; wewe unatumia account yao."
+    },
+    {
+      "term": "Digital signature",
+      "meaning": "Mathematical proof authorizing a transaction with a private key.",
+      "sheng_explanation": "Proof ya math inaonyesha transaction imesigniwa na key inayofaa."
+    },
+    {
+      "term": "Double spend",
+      "meaning": "An attempt to spend the same bitcoin in conflicting transactions.",
+      "sheng_explanation": "Kujaribu kutumia coin same kwa payments mbili zinazoconflict."
+    },
+    {
+      "term": "Fee",
+      "meaning": "Value paid for block space, routing, withdrawal, or service depending on context.",
+      "sheng_explanation": "Charge ya network ama service; lazima ujue ni fee gani."
+    },
+    {
+      "term": "Full node",
+      "meaning": "Software that independently verifies blocks and transactions.",
+      "sheng_explanation": "Computer/software inacheck Bitcoin rules yenyewe."
+    },
+    {
+      "term": "Halving",
+      "meaning": "The block subsidy reduction after each 210,000-block interval.",
+      "sheng_explanation": "Block subsidy inakatwa half baada ya blocks 210,000."
+    },
+    {
+      "term": "Hash",
+      "meaning": "A fixed-size result produced from data by a cryptographic hash function.",
+      "sheng_explanation": "Fingerprint ya math inayotoka kwa data; data ikibadilika result hubadilika."
+    },
+    {
+      "term": "Lightning invoice",
+      "meaning": "A payment request used on the Lightning Network.",
+      "sheng_explanation": "Request ya kulipa kupitia Lightning; mara mingi iko na expiry."
+    },
+    {
+      "term": "Lightning Network",
+      "meaning": "A payment-channel network built on Bitcoin for fast payments.",
+      "sheng_explanation": "Layer ya payments fast juu ya Bitcoin, inatumia channels."
+    },
+    {
+      "term": "Mempool",
+      "meaning": "A node’s collection of valid unconfirmed transactions it knows about.",
+      "sheng_explanation": "Waiting area ya node ya transactions valid bado hazijaingia block."
+    },
+    {
+      "term": "Miner",
+      "meaning": "A participant that builds candidate blocks and performs proof of work.",
+      "sheng_explanation": "Msee ama company inatengeneza candidate blocks na kufanya proof of work."
+    },
+    {
+      "term": "Mining",
+      "meaning": "The proof-of-work process used to add valid blocks.",
+      "sheng_explanation": "Competition ya proof of work ya kuongeza block valid."
+    },
+    {
+      "term": "Node",
+      "meaning": "Bitcoin software participating in network communication and validation.",
+      "sheng_explanation": "Software/computer iko kwa network; node type inaamua inaverify nini."
+    },
+    {
+      "term": "On chain",
+      "meaning": "A transaction or activity recorded directly on the Bitcoin blockchain.",
+      "sheng_explanation": "Payment inaingia direct kwa blockchain."
+    },
+    {
+      "term": "Output",
+      "meaning": "A transaction result defining value and conditions for future spending.",
+      "sheng_explanation": "Sehemu ya transaction inaweka value na condition ya kuispend baadaye."
+    },
+    {
+      "term": "Payment request",
+      "meaning": "Information a payer uses to create the correct payment.",
+      "sheng_explanation": "Details za payment kama address, invoice, amount na message."
+    },
+    {
+      "term": "Peer to peer",
+      "meaning": "Participants interact through a network without one central operator for every transfer.",
+      "sheng_explanation": "Wasee wanaconnect kwa network bila kampuni moja kuapprove kila transfer."
+    },
+    {
+      "term": "Private key",
+      "meaning": "Secret data used to authorize spending.",
+      "sheng_explanation": "Siri ya kuauthorize spending. Usishare."
+    },
+    {
+      "term": "Proof of work",
+      "meaning": "Computational work miners perform to produce a valid block header.",
+      "sheng_explanation": "Computing work ya miner inayohitajika kwa block valid."
+    },
+    {
+      "term": "Public key",
+      "meaning": "Key data derived from a private key and used in verification.",
+      "sheng_explanation": "Key ya public inatoka kwa private key na inasaidia verification."
+    },
+    {
+      "term": "QR code",
+      "meaning": "A scannable representation of payment information.",
+      "sheng_explanation": "Code unascan yenye inaweza carry address ama invoice."
+    },
+    {
+      "term": "Recovery phrase",
+      "meaning": "Words that may recreate a wallet’s key material.",
+      "sheng_explanation": "Backup words za wallet. Msee akizipata anaweza control funds."
+    },
+    {
+      "term": "Sat or satoshi",
+      "meaning": "One hundred-millionth of one bitcoin.",
+      "sheng_explanation": "Unit ndogo ya Bitcoin; BTC moja iko na sats million 100."
+    },
+    {
+      "term": "Self custody",
+      "meaning": "The user controls the keys and recovery process.",
+      "sheng_explanation": "Wewe ndio unacontrol keys na backup."
+    },
+    {
+      "term": "Transaction",
+      "meaning": "A signed data structure transferring control of bitcoin.",
+      "sheng_explanation": "Data imesigniwa yenye inamove control ya Bitcoin."
+    },
+    {
+      "term": "Transaction ID",
+      "meaning": "A public identifier for an on-chain transaction.",
+      "sheng_explanation": "Reference ya public ya on-chain transaction."
+    },
+    {
+      "term": "UTXO",
+      "meaning": "An unspent transaction output available to be used as an input.",
+      "sheng_explanation": "Output bado haijaspendiwa na inaweza tumika kwa transaction mpya."
+    },
+    {
+      "term": "Wallet",
+      "meaning": "Software or a device that manages keys and payment activity.",
+      "sheng_explanation": "App ama device inamanage keys, receive na spend."
+    }
+  ],
+  "sources": [
+    "This manual is an independent educational adaptation. It is not an official Bitcoin.org translation. If this draft conflicts with the English source material or the Bitcoin protocol, the source and protocol documentation take precedence. The Sheng wording requires community validation before public deployment.",
+    "Bitcoin.org  How does Bitcoin workhttps://bitcoin.org/en/how-it-works",
+    "Bitcoin.org  Some things you need to knowhttps://bitcoin.org/en/you-need-to-know",
+    "Bitcoin.org  Vocabularyhttps://bitcoin.org/en/vocabulary",
+    "Bitcoin.org  Securing your wallethttps://bitcoin.org/en/secure-your-wallet",
+    "Bitcoin.org  Protect your privacyhttps://bitcoin.org/en/protect-your-privacy",
+    "Bitcoin.org  Avoid scamshttps://bitcoin.org/en/scams",
+    "Bitcoin Developer Documentation  Block Chainhttps://developer.bitcoin.org/devguide/block_chain.html",
+    "Bitcoin Developer Documentation  Transactionshttps://developer.bitcoin.org/devguide/transactions.html",
+    "Bitcoin Developer Documentation  Walletshttps://developer.bitcoin.org/devguide/wallets.html",
+    "Bitcoin Improvement Proposals  BIP 39 Mnemonic code for generating deterministic keyshttps://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki",
+    "Lightning Network  How it workshttps://lightning.network/how-it-works/",
+    "Satoshi Nakamoto  Bitcoin A Peer to Peer Electronic Cash Systemhttps://bitcoin.org/bitcoin.pdf"
+  ]
+}

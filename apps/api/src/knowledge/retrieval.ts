@@ -90,7 +90,8 @@ function expandSynonyms(terms: string[]): string[] {
  * one relevant word is enough, and let ts_rank_cd's term-count weighting
  * still favor entries that match more of the query (PRD §18.3).
  */
-function buildOrQuery(query: string): string | null {
+/** Exported for reuse by retrieveLanguageExamples.ts -- same tokenization/synonym behavior should apply to both, or a query that finds the right knowledge_entries could still miss the matching language_entries phrase for no good reason. */
+export function buildOrQuery(query: string): string | null {
   const terms = query
     .split(/\s+/)
     .map((word) => word.replace(/[^\p{L}\p{N}]/gu, ""))

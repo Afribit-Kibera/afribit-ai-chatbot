@@ -1,4 +1,5 @@
 import type { AfribitChatMessage } from "@afribit/shared";
+import { COMMUNICATION_STYLE_GUIDE } from "../prompt/communicationStyleGuide.js";
 import { SHENG_STYLE_GUIDE } from "../prompt/shengStyleGuide.js";
 
 /**
@@ -8,8 +9,8 @@ import { SHENG_STYLE_GUIDE } from "../prompt/shengStyleGuide.js";
  * them.
  */
 export const PROMPT_VERSIONS = {
-  L04_SHENG_REWRITE: "L04-sheng-rewrite-v1.3",
-  L05_USER_UTTERANCES: "L05-user-utterances-v1.3",
+  L04_SHENG_REWRITE: "L04-sheng-rewrite-v1.4",
+  L05_USER_UTTERANCES: "L05-user-utterances-v1.4",
 } as const;
 
 // v1.1: v1.0 was reliably returning schema-valid-but-empty `examples: []`
@@ -28,6 +29,18 @@ export const PROMPT_VERSIONS = {
 // prompt in promptBuilder.ts, and with critique.ts/judge.ts's scoring
 // prompts) with concrete corrected vocabulary and example sentences from
 // direct product-owner review, replacing vague "sound natural" guidance.
+//
+// v1.4 (2026-09-23): added COMMUNICATION_STYLE_GUIDE alongside
+// SHENG_STYLE_GUIDE, for the same reason it was added to the live chat
+// prompt (docs/COMMUNICATION_STYLE_EVAL.md) -- its register ladder and
+// "never invent slang the user didn't use" rule are directly relevant to
+// generation naturalness, and its safety floor applies to any generated
+// Bitcoin content, not just live chat responses. Its Response Template
+// section (direct answer + example + closing check question) targets a
+// full conversational reply and doesn't map cleanly onto a single L04
+// rewrite or L05 question -- left in rather than trimmed, since the
+// register/safety portions are what matters here and the rest is
+// harmless to include.
 const COMMON_RULES = `IMPORTANT
 - The "examples" array is the actual required output. It must contain exactly the requested number of items. Never return an empty examples array — if you are uncertain, generate your best attempt rather than leaving it empty.
 - Do not translate word-by-word.
@@ -39,7 +52,9 @@ const COMMON_RULES = `IMPORTANT
 - These are synthetic candidates and will be human reviewed before any production use — you are not giving financial advice, you are drafting review material.
 - Return only the required structured JSON.
 
-${SHENG_STYLE_GUIDE}`;
+${SHENG_STYLE_GUIDE}
+
+${COMMUNICATION_STYLE_GUIDE}`;
 
 /** Doc §16 example, adapted: a canonical fact rewritten as natural Sheng. */
 export function buildL04Prompt(params: { canonicalFact: string; concept: string; count: number }): AfribitChatMessage[] {

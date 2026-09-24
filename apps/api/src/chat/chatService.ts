@@ -2,11 +2,12 @@ import { randomUUID } from "node:crypto";
 import type { AfribitChatMessage, ExplanationLevel, LanguageMode } from "@afribit/shared";
 import { pool } from "../db/pool.js";
 import { retrieveKnowledge } from "../knowledge/retrieval.js";
+import { retrieveLanguageExamples } from "../knowledge/retrieveLanguageExamples.js";
 import { buildPrompt } from "../prompt/promptBuilder.js";
 import { detectSecret, SECRET_WARNING_MESSAGE } from "../safety/secretDetector.js";
 import { GatewayError } from "../gateway/gateway.js";
 import type { AfribitAIGateway } from "../gateway/gateway.js";
-import { sendPushToInstallation } from "../notifications/pushService.js";
+import { sendPushByToken } from "../notifications/pushService.js";
 
 export interface SendMessageInput {
   sessionId: string | null;
@@ -14,7 +15,15 @@ export interface SendMessageInput {
   message: string;
   languageMode?: LanguageMode;
   explanationLevel?: ExplanationLevel;
-  notifyInstallationId?: string;
+  /**
+   * SECURITY: this must be the server-issued notify_token from
+   * PUT /api/v1/notifications/subscription's response, NEVER a raw
+   * installationId -- installationId is a non-secret client-generated
+   * UUID, and using it here previously let anyone who learned/guessed
+   * another user's installationId trigger a push to that victim's device
+   * (security-review finding, 2026-09-23; fixed by db/migrations/008).
+   */
+  notifyToken?: string;
 }
 
 export interface SendMessageOutput {
@@ -140,7 +149,7 @@ interface ProceedContext {
   requestId: string;
   topConfidence: number | null;
   fallbackContent: string;
-  notifyInstallationId: string | null;
+  notifyToken: string | null;
 }
 
 /**
@@ -180,12 +189,20 @@ async function prepareChat(input: SendMessageInput): Promise<BlockedContext | Pr
 
   await insertMessage({ sessionId, role: "user", content: input.message });
 
-  const retrieval = await retrieveKnowledge(input.message);
-  const history = await loadHistory(sessionId);
+  // Language examples only matter for sheng/mixed_ke (buildPrompt only
+  // renders them there too) -- skip the query entirely for other modes
+  // rather than fetch-and-discard.
+  const isShengLike = languageMode === "sheng" || languageMode === "mixed_ke";
+  const [retrieval, languageExamples, history] = await Promise.all([
+    retrieveKnowledge(input.message),
+    isShengLike ? retrieveLanguageExamples(input.message) : Promise.resolve([]),
+    loadHistory(sessionId),
+  ]);
   const promptMessages = buildPrompt({
     languageMode,
     explanationLevel,
     retrieval,
+    languageExamples,
     conversationHistory: history.slice(0, -1), // exclude the message just inserted
     userMessage: input.message,
   });
@@ -202,14 +219,14 @@ async function prepareChat(input: SendMessageInput): Promise<BlockedContext | Pr
     fallbackContent:
       retrieval[0]?.authoritativeContent ??
       "I'm having trouble reaching the AI service right now, and I don't have a saved answer for this question. Please try again shortly.",
-    notifyInstallationId: input.notifyInstallationId ?? null,
+    notifyToken: input.notifyToken ?? null,
   };
 }
 
-async function notifyIfRequested(installationId: string | null): Promise<void> {
-  if (!installationId) return;
+async function notifyIfRequested(notifyToken: string | null): Promise<void> {
+  if (!notifyToken) return;
   try {
-    await sendPushToInstallation(installationId, {
+    await sendPushByToken(notifyToken, {
       title: "Afribit AI",
       body: "Nimejibu swali yako. Tap urudi kwa chat.",
       url: "/",
@@ -228,7 +245,7 @@ export async function sendMessage(gateway: AfribitAIGateway, input: SendMessageI
   const ctx = await prepareChat(input);
   if (ctx.kind === "blocked") return ctx.response;
 
-  const { sessionId, languageMode, explanationLevel, promptMessages, modelProfile, requestId, topConfidence, fallbackContent, notifyInstallationId } = ctx;
+  const { sessionId, languageMode, explanationLevel, promptMessages, modelProfile, requestId, topConfidence, fallbackContent, notifyToken } = ctx;
 
   try {
     const response = await gateway.chat({
@@ -265,7 +282,7 @@ export async function sendMessage(gateway: AfribitAIGateway, input: SendMessageI
       [requestId, messageId, modelProfile, response.provider, response.model, response.latencyMs, response.usage.promptTokens, response.usage.completionTokens],
     );
 
-    await notifyIfRequested(notifyInstallationId);
+    await notifyIfRequested(notifyToken);
 
     return {
       sessionId,
@@ -293,7 +310,7 @@ export async function sendMessage(gateway: AfribitAIGateway, input: SendMessageI
       safetyFlag: err instanceof GatewayError ? "provider_failure" : "unknown_error",
     });
 
-    await notifyIfRequested(notifyInstallationId);
+    await notifyIfRequested(notifyToken);
 
     return {
       sessionId,
@@ -334,7 +351,7 @@ export async function streamMessage(
     return;
   }
 
-  const { sessionId, languageMode, explanationLevel, promptMessages, modelProfile, requestId, topConfidence, fallbackContent, notifyInstallationId } = ctx;
+  const { sessionId, languageMode, explanationLevel, promptMessages, modelProfile, requestId, topConfidence, fallbackContent, notifyToken } = ctx;
   onEvent({ type: "meta", sessionId, safetyFlag: null });
 
   let content = "";
@@ -376,7 +393,7 @@ export async function streamMessage(
       [requestId, messageId, modelProfile, finalResponse.provider, finalResponse.model, finalResponse.latencyMs, finalResponse.usage.promptTokens, finalResponse.usage.completionTokens],
     );
 
-    await notifyIfRequested(notifyInstallationId);
+    await notifyIfRequested(notifyToken);
     onEvent({ type: "done", messageId, usedFallback: false });
   } catch (err) {
     await pool.query(
@@ -395,7 +412,7 @@ export async function streamMessage(
         safetyFlag: "stream_interrupted",
       });
       onEvent({ type: "error", message: "The response was interrupted. Please try again." });
-      await notifyIfRequested(notifyInstallationId);
+      await notifyIfRequested(notifyToken);
       onEvent({ type: "done", messageId, usedFallback: false });
       return;
     }
@@ -408,7 +425,7 @@ export async function streamMessage(
       safetyFlag: err instanceof GatewayError ? "provider_failure" : "unknown_error",
     });
     onEvent({ type: "delta", text: fallbackContent });
-    await notifyIfRequested(notifyInstallationId);
+    await notifyIfRequested(notifyToken);
     onEvent({ type: "done", messageId, usedFallback: true });
   }
 }

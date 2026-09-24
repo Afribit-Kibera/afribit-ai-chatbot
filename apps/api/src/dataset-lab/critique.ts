@@ -1,5 +1,6 @@
 import { pool } from "../db/pool.js";
 import type { AfribitAIGateway } from "../gateway/gateway.js";
+import { COMMUNICATION_STYLE_GUIDE } from "../prompt/communicationStyleGuide.js";
 import { SHENG_STYLE_GUIDE } from "../prompt/shengStyleGuide.js";
 import { critiqueSchema, isValidCritiqueResult } from "./schemas.js";
 
@@ -7,7 +8,13 @@ import { critiqueSchema, isValidCritiqueResult } from "./schemas.js";
 // concrete, corrected Sheng vocabulary/particles rather than the critic's
 // own unguided notion of naturalness -- the live chat prompt and the
 // generation prompts (promptTemplates.ts) now follow the same standard.
-export const PROMPT_VERSION_CRITIC = "critic-naturalness-v1.2";
+//
+// v1.3 (2026-09-23): added COMMUNICATION_STYLE_GUIDE too, matching
+// promptTemplates.ts's v1.4 -- same reasoning (docs/COMMUNICATION_STYLE_EVAL.md):
+// its register ladder and safety floor are candidate-naturalness signals
+// this critic should hold candidates to, same as the live chat prompt and
+// the generator now do.
+export const PROMPT_VERSION_CRITIC = "critic-naturalness-v1.3";
 
 export interface CritiqueParams {
   campaignId: string;
@@ -41,7 +48,7 @@ export async function critiqueCandidate(gateway: AfribitAIGateway, params: Criti
       {
         role: "system",
         content:
-          `ROLE\nYou are a language-quality critic for Afribit AI, a Bitcoin education chatbot. You review a candidate Sheng/Kiswahili phrasing against the canonical fact it's supposed to convey.\n\nCHECK FOR\n- Unnatural literal translation or overly formal Kiswahili where casual Sheng was expected -- specifically, literal English-into-Kiswahili substitution (e.g. "Ukiwant...") is a real, not marginal, naturalness defect, not just an alternate style.\n- Whether the canonical fact's meaning (including any numbers) survived intact.\n- Any unsafe Bitcoin guidance (e.g. implying guaranteed profit, requesting secrets).\n\n${SHENG_STYLE_GUIDE}\n\nReturn only the required structured JSON.`,
+          `ROLE\nYou are a language-quality critic for Afribit AI, a Bitcoin education chatbot. You review a candidate Sheng/Kiswahili phrasing against the canonical fact it's supposed to convey.\n\nCHECK FOR\n- Unnatural literal translation or overly formal Kiswahili where casual Sheng was expected -- specifically, literal English-into-Kiswahili substitution (e.g. "Ukiwant...") is a real, not marginal, naturalness defect, not just an alternate style.\n- Whether the canonical fact's meaning (including any numbers) survived intact.\n- Any unsafe Bitcoin guidance (e.g. implying guaranteed profit, requesting secrets).\n\n${SHENG_STYLE_GUIDE}\n\n${COMMUNICATION_STYLE_GUIDE}\n\nReturn only the required structured JSON.`,
       },
       {
         role: "user",
@@ -128,7 +135,7 @@ export async function critiqueQuestion(gateway: AfribitAIGateway, params: Critiq
       {
         role: "system",
         content:
-          `ROLE\nYou are a language-quality critic for Afribit AI, a Bitcoin education chatbot. You review a candidate Sheng/Kiswahili QUESTION -- not a statement -- meant to sound like something a real beginner would ask.\n\nCHECK FOR\n- Whether the phrasing sounds like a natural question a Nairobi/Kibera Sheng speaker would actually type, not a stiff translation or literal English-into-Kiswahili substitution.\n- Whether the question implies a wrong premise about the concept (set factual_drift true only in that case; otherwise false).\n- Any unsafe framing (e.g. soliciting secrets, implying guaranteed profit).\n\n${SHENG_STYLE_GUIDE}\n\nReturn only the required structured JSON.`,
+          `ROLE\nYou are a language-quality critic for Afribit AI, a Bitcoin education chatbot. You review a candidate Sheng/Kiswahili QUESTION -- not a statement -- meant to sound like something a real beginner would ask.\n\nCHECK FOR\n- Whether the phrasing sounds like a natural question a Nairobi/Kibera Sheng speaker would actually type, not a stiff translation or literal English-into-Kiswahili substitution.\n- Whether the question implies a wrong premise about the concept (set factual_drift true only in that case; otherwise false).\n- Any unsafe framing (e.g. soliciting secrets, implying guaranteed profit).\n\n${SHENG_STYLE_GUIDE}\n\n${COMMUNICATION_STYLE_GUIDE}\n\nReturn only the required structured JSON.`,
       },
       {
         role: "user",

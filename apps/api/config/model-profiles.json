@@ -11,9 +11,10 @@
       "privacyProfile": "strict"
     },
     {
+      "_comment": "2026-09-23: was meta-llama/llama-3.1-8b-instruct -- docs/COMMUNICATION_STYLE_EVAL.md Finding 5 caught it silently serving near-incoherent Kiswahili (called the user 'daktari wa Bitcoin' -- 'Bitcoin doctor') and a 3-line repetition loop under real load. runFallbackBakeoff.ts empirically tested 5 candidates (same prompts/pipeline, judged against the same communication rubric): gpt-4o-mini won clearly (1.75/2 avg score, 0/4 hard failures, 0 errors) vs. the old model's 1.00/2 with 2/4 hard failures and an outright error on one case. Full ranked results: chat_evaluations WHERE campaign_id='fallback_bakeoff_2026_09_23'. Still meaningfully cheaper than default_chat's Llama 3.3 70B, so the cost profile of 'fallback' vs 'primary' is preserved.",
       "profile": "fallback_chat",
       "provider": "openrouter",
-      "model": "meta-llama/llama-3.1-8b-instruct",
+      "model": "openai/gpt-4o-mini",
       "fallbackProfile": null,
       "maxOutputTokens": 400,
       "temperature": 0.3,
@@ -49,21 +50,21 @@
       "privacyProfile": "strict"
     },
     {
-      "_comment": "Dataset Lab critic — used selectively on uncertain/sampled candidates, not every row (doc §10). Verified: $2/$12 per 1M.",
+      "_comment": "Dataset Lab critic — used selectively on uncertain/sampled candidates, not every row (doc §10). Verified: $2/$12 per 1M. 2026-09-23: docs/COMMUNICATION_STYLE_EVAL.md's live eval hit this profile timing out 2-3x per 10-case run with no fallback configured -- runCommunicationEval.ts's judge call (this profile) is what scores every generated response, so a bare timeout meant losing that case's score entirely (crashing the whole run, before a separate try/catch fix). Added fallback_chat as a fallback -- same gpt-4o-mini already proven reliable+cheap in runFallbackBakeoff.ts's bake-off, and it supports the same OpenAI-style structured JSON output this profile's callers require. The fallback attempt runs at fallback_chat's own 400 tokens/temp 0.3 (Math.min-capped per gateway.ts's resolve()) rather than this profile's 800/0.2 -- fine for the small structured-JSON scoring payloads this profile is actually used for.",
       "profile": "dataset_critic",
       "provider": "openrouter",
       "model": "openai/gpt-5.6-terra",
-      "fallbackProfile": null,
+      "fallbackProfile": "fallback_chat",
       "maxOutputTokens": 800,
       "temperature": 0.2,
       "privacyProfile": "strict"
     },
     {
-      "_comment": "Dataset Lab judge — sparingly, only when generator/critic disagree or for difficult concepts (doc §3.2, §9). Verified: $2/$10 per 1M.",
+      "_comment": "Dataset Lab judge — sparingly, only when generator/critic disagree or for difficult concepts (doc §3.2, §9). Verified: $2/$10 per 1M. Same fallback reasoning as dataset_critic above, added same day for consistency -- this profile shares the same characteristics (gpt-5.6 family, structured JSON output, no prior fallback) even though it wasn't the one observed timing out in this specific eval.",
       "profile": "dataset_judge",
       "provider": "openrouter",
       "model": "openai/gpt-5.6-sol",
-      "fallbackProfile": null,
+      "fallbackProfile": "fallback_chat",
       "maxOutputTokens": 800,
       "temperature": 0.2,
       "privacyProfile": "strict"

@@ -90,10 +90,15 @@ this section before assuming anything below is production-ready.
   a real TLS cert. Verified with real end-to-end chat requests over public
   HTTPS after deploy, not just a health check. See
   [`infra/LUNANODE.md`](infra/LUNANODE.md) for the deployed state.
+- **The web PWA is live too**: `https://afribit-chat-gamma.vercel.app`
+  (Vercel, `afribit` team). Automated backups (daily, 14-day retention)
+  and a manual-trigger CI/CD deploy pipeline for the API are also in
+  place — see [`infra/LUNANODE.md`](infra/LUNANODE.md) for all three.
 
 **Not yet ready:**
-- **The web PWA (`apps/web`) still isn't deployed anywhere** — only the API
-  is live so far. See [Deploying](#deploying) for the plan (Vercel).
+- **The deployed web PWA hasn't been manually clicked through in a real
+  browser yet** — built and served correctly, but not yet verified beyond
+  automated checks. Do that before pointing real users at it.
 - **No admin console UI.** The admin API is now properly auth-gated, but
   there's no frontend for knowledge management yet — it's API-only.
 - **Microtasks has no promotion flow yet.** A review being recorded

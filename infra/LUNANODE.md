@@ -67,10 +67,19 @@ path) that a typecheck-only CI job would not have caught.
       -> `published`, 271 `language_entries` -> `approved`
       (`allowed_for_training` correctly left `false`).
 - [x] Embeddings backfilled (62/62) for semantic retrieval.
-- [ ] **No automated backup yet.** This is the biggest real gap versus a
-      "real" production database — `afribit_pgdata` has no scheduled
-      `pg_dump`/snapshot today. Do this before treating real user data as
-      safe.
+- [x] **Automated daily backups with retention** (added 2026-09-24):
+      `/srv/afribit-ai/backup.sh` runs as root via
+      `afribit-ai-backup.timer` (daily, `Persistent=true` so a missed run
+      catches up), `pg_dump -Fc` into `/srv/afribit-ai/backups/`
+      (`afribit-ai:afribit-ai`, mode `640`), then prunes dumps older than
+      14 days (`RETENTION_DAYS` in the script) so backups don't
+      accumulate forever. Runs as root rather than the `afribit-ai`
+      service account specifically so that account never needs
+      Docker-socket access — keeps the container isolation intact.
+      Verified: manual trigger produced a 567KB dump,
+      `pg_restore --list` confirmed it's valid (176 TOC entries).
+      **Not yet done: off-box replication** — this protects against
+      application-level mistakes, not losing the VM itself.
 
 ## 4. Secrets
 
@@ -110,8 +119,7 @@ path) that a typecheck-only CI job would not have caught.
 8. Two real end-to-end chat requests over public HTTPS, not just a health
    check, before calling this done.
 
-**apps/web is not part of this deploy.** It still targets Vercel — see the
-main [README's Deploying section](../README.md#deploying).
+**apps/web is not part of this deploy.** It's on Vercel — see below.
 
 ## 6. Observability
 
@@ -120,10 +128,60 @@ main [README's Deploying section](../README.md#deploying).
 - [ ] No uptime/alerting wired up yet, and no log shipping beyond
       `docker logs` — still a real gap for a production service.
 
-## Redeploying
+## Redeploying (CI/CD added 2026-09-24)
 
-There's no CI/CD wired to this server yet — a new release means repeating
-step 1-5 above by hand (build locally, test locally, tar, scp, extract,
-rebuild the image on the server, `docker compose up -d --build`, re-run any
-new migrations). Automating this is a reasonable next step once this
-deploy has been live for a while without incident.
+`.github/workflows/deploy.yml`, manual `workflow_dispatch` trigger —
+deliberately not on every push, since `insats-prod` also runs a separate
+business's live payment-adjacent services (see the top of this file) and
+auto-deploying to a shared box on every push is more blast radius than
+this project's current single-operator workflow needs. Flip the trigger
+to `push: branches: [master]` once this has run manually a few times
+without incident.
+
+Uses a dedicated SSH keypair (repo secret `LUNANODE_SSH_KEY`) added to
+`insats-prod`'s `authorized_keys` specifically for this pipeline —
+independently revocable from any personal interactive key. Repeats steps
+1-5 above (package, scp, extract, rebuild image on the server, compose
+up, migrate, verify `/health` both locally and over public HTTPS), then
+prunes `/srv/afribit-ai/releases/` down to the 5 most recent.
+
+Before this existed, a new release meant repeating those steps by hand —
+still true if you ever need to deploy without GitHub Actions.
+
+## apps/web on Vercel (added 2026-09-24)
+
+Live at `https://afribit-chat-gamma.vercel.app` under the `afribit`
+Vercel team, project `afribit-chat`. Deployed via `vercel --prod --scope
+afribit` from the repo root (not from inside `apps/web`) — `vercel.json`
+at the repo root defines the monorepo-aware build (`pnpm install
+--frozen-lockfile`, `pnpm --filter @afribit/web build`, output
+`apps/web/dist`) so `pnpm` can resolve the `@afribit/shared` workspace
+dependency, which a plain `apps/web`-scoped upload can't see.
+
+`VITE_API_URL=https://afribit-api.insats.org` set as a Vercel project env
+var (production + preview).
+
+**Real bug fixed while connecting the two halves**: `CORS_ORIGIN` in
+`/etc/afribit-ai/api.env` had been set to the API's own domain instead of
+the frontend's — Fastify's `cors` plugin takes one literal origin to
+allow, so every browser request from the deployed frontend would have
+been silently blocked. Corrected to
+`https://afribit-chat-gamma.vercel.app`; verified with a real CORS
+preflight request returning the right `Access-Control-Allow-Origin`.
+Remember: `docker restart` does **not** pick up an env file change (it
+just restarts the existing container with its already-baked-in
+environment) — use `docker compose up -d --force-recreate afribit-api`
+after editing `/etc/afribit-ai/api.env`, which is what actually applied
+this fix.
+
+**Vercel git integration is not connected.** `vercel git connect` fails
+even with correct GitHub repo access — most likely Vercel's GitHub App
+needs a one-time interactive authorization that can't be done from a
+non-interactive CLI session. Deploys are manual (`vercel --prod --scope
+afribit`) until that's clicked through in the Vercel dashboard. Also
+worth knowing if this recurs: the project briefly got stuck unbuildable
+(`UNKNOWN` status, deployments never assigned a build machine) right
+after the failed auto-git-connect during project creation — fixed by
+deleting and recreating the project, and deploying *without* an
+intervening `vercel link` call (running `link` again seemed to retrigger
+the same stuck state).

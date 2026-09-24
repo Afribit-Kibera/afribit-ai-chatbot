@@ -1,0 +1,77 @@
+name: Deploy API
+
+# Manual trigger only, deliberately not on every push to master. insats-prod
+# also runs a completely separate business's live BTCPay-adjacent payment
+# services (see infra/LUNANODE.md) -- auto-deploying to a shared production
+# box on every push is a bigger blast radius than this project's current
+# single-operator workflow needs. Flip to `on: push: branches: [master]`
+# once this pipeline has been used manually a few times without incident.
+on:
+  workflow_dispatch: {}
+
+concurrency:
+  group: deploy-api
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy apps/api to insats-prod
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Same exclusions as the manual release process this replaces --
+      # apps/web is Vercel's job, not this box's.
+      - name: Package release
+        run: |
+          tar --exclude='apps/web' --exclude='node_modules' --exclude='.git' \
+              --exclude='docs' --exclude='*.docx' --exclude='.env' \
+              -czf /tmp/afribit-ai-release.tgz \
+              apps/api packages/shared db package.json pnpm-lock.yaml \
+              pnpm-workspace.yaml tsconfig.base.json .dockerignore
+
+      - name: Set up SSH access
+        run: |
+          install -d -m 700 ~/.ssh
+          printf '%s\n' "${{ secrets.LUNANODE_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H "${{ vars.LUNANODE_HOST }}" >> ~/.ssh/known_hosts 2>/dev/null
+
+      - name: Upload release
+        run: |
+          scp -i ~/.ssh/deploy_key /tmp/afribit-ai-release.tgz \
+            "${{ vars.LUNANODE_USER }}@${{ vars.LUNANODE_HOST }}:/tmp/afribit-ai-release.tgz"
+
+      # Same sequence as the first manual deploy (2026-09-24): extract to a
+      # timestamped release dir, symlink current, rebuild the image on the
+      # server (matches Insats' own build-from-source-on-host convention),
+      # bring the compose stack up, run any new migrations, then verify.
+      # Existing /etc/afribit-ai/api.env and postgres.env are untouched --
+      # secrets never travel through this pipeline.
+      - name: Build and deploy on server
+        run: |
+          ssh -i ~/.ssh/deploy_key "${{ vars.LUNANODE_USER }}@${{ vars.LUNANODE_HOST }}" 'bash -s' <<'REMOTE'
+          set -euo pipefail
+          RID=$(date +%Y%m%d%H%M%S)
+          sudo mkdir -p /srv/afribit-ai/releases/$RID
+          sudo tar -xzf /tmp/afribit-ai-release.tgz -C /srv/afribit-ai/releases/$RID
+          sudo chown -R afribit-ai:afribit-ai /srv/afribit-ai/releases/$RID
+          sudo ln -sfnT /srv/afribit-ai/releases/$RID /srv/afribit-ai/current
+          rm -f /tmp/afribit-ai-release.tgz
+
+          sudo bash -c 'cd /srv/afribit-ai/current && docker build -f apps/api/Dockerfile -t afribit-api:latest .'
+          sudo bash -c 'cd /srv/afribit-ai && docker compose -f docker-compose.yml up -d'
+          sleep 3
+          sudo docker exec afribit-api node dist/db/migrate.js
+          curl -sf http://127.0.0.1:3001/health > /dev/null
+
+          # Release retention: keep the 5 most recent, matching the backup
+          # script's "don't accumulate stale artifacts forever" principle.
+          cd /srv/afribit-ai/releases
+          sudo ls -1 | sort | head -n -5 | xargs -r -I{} sudo rm -rf -- {}
+
+          echo "Deployed release $RID"
+          REMOTE
+
+      - name: Verify public health
+        run: curl -sf https://afribit-api.insats.org/health

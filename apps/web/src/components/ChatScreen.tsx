@@ -7,7 +7,7 @@ import { ThinkingIndicator } from "./ThinkingIndicator.js";
 import { BrandMark } from "./BrandMark.js";
 import { Button } from "./ui/button.js";
 import type { OnboardingProfile } from "./Onboarding.js";
-import { getInstallationId } from "../lib/pwa.js";
+import { getNotifyToken } from "../lib/pwa.js";
 
 interface ChatScreenProps {
   languageMode: LanguageMode;
@@ -104,12 +104,12 @@ export function ChatScreen({ languageMode, explanationLevel, profile, onUpdatePr
     let assistantAdded = false;
 
     try {
-      const notifyInstallationId =
+      const notifyToken =
         "Notification" in window && Notification.permission === "granted" && document.visibilityState !== "visible"
-          ? getInstallationId()
+          ? (getNotifyToken() ?? undefined)
           : undefined;
 
-      await streamChatMessage({ sessionId, message: trimmed, languageMode, explanationLevel, notifyInstallationId }, (event) => {
+      await streamChatMessage({ sessionId, message: trimmed, languageMode, explanationLevel, notifyToken }, (event) => {
         if (event.type === "meta") {
           setSessionId(event.sessionId);
         } else if (event.type === "delta") {

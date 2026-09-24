@@ -12,9 +12,12 @@ interface CreateKnowledgeBody {
 }
 
 /**
- * Minimal admin knowledge CRUD (PRD §23.2). No auth wired in yet — this is
- * intentionally unauthenticated scaffold and MUST get an admin-only guard
- * (role-based access, PRD §36) before this ever runs anywhere but localhost.
+ * Admin knowledge CRUD (PRD §23.2). Gated by requireAdmin (2026-09-24,
+ * production-readiness push) -- this was previously the exact
+ * unauthenticated scaffold PRD §36 warned had to be closed before running
+ * anywhere but localhost. /knowledge/search stays public: it's a
+ * read-only lookup over already-published/approved content (see
+ * retrieval.ts's own status filter), not a management action.
  */
 export function registerKnowledgeRoutes(app: FastifyInstance): void {
   app.get<{ Querystring: { q: string } }>("/api/v1/knowledge/search", async (request, reply) => {
@@ -24,7 +27,7 @@ export function registerKnowledgeRoutes(app: FastifyInstance): void {
     return reply.send({ results });
   });
 
-  app.post<{ Body: CreateKnowledgeBody }>("/api/v1/admin/knowledge", async (request, reply) => {
+  app.post<{ Body: CreateKnowledgeBody }>("/api/v1/admin/knowledge", { preHandler: app.requireAdmin }, async (request, reply) => {
     const b = request.body;
     await pool.query(
       `INSERT INTO knowledge_entries (id, topic_id, title, canonical_answer, beginner_answer, safety_notes, status)
@@ -36,6 +39,7 @@ export function registerKnowledgeRoutes(app: FastifyInstance): void {
 
   app.put<{ Params: { id: string }; Body: Partial<CreateKnowledgeBody> }>(
     "/api/v1/admin/knowledge/:id",
+    { preHandler: app.requireAdmin },
     async (request, reply) => {
       const b = request.body;
       await pool.query(
@@ -59,16 +63,21 @@ export function registerKnowledgeRoutes(app: FastifyInstance): void {
     },
   );
 
-  app.post<{ Params: { id: string }; Body: { reviewedBy: string } }>(
+  app.post<{ Params: { id: string } }>(
     "/api/v1/admin/knowledge/:id/publish",
+    { preHandler: app.requireAdmin },
     async (request, reply) => {
+      // reviewed_by/actor now come from the verified JWT, not a
+      // client-supplied body field -- previously any caller could claim
+      // to be any reviewer by name in the request body.
+      const reviewerId = request.user.id;
       await pool.query(
         `UPDATE knowledge_entries SET status = 'published', reviewed_by = $2, reviewed_at = now(), updated_at = now() WHERE id = $1`,
-        [request.params.id, request.body.reviewedBy],
+        [request.params.id, reviewerId],
       );
       await pool.query(
         `INSERT INTO audit_logs (actor, action, entity_type, entity_id) VALUES ($1, 'publish', 'knowledge_entry', $2)`,
-        [request.body.reviewedBy, request.params.id],
+        [reviewerId, request.params.id],
       );
       return reply.send({ ok: true });
     },

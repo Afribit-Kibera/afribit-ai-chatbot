@@ -2,7 +2,7 @@
   "name": "afribit-ai",
   "private": true,
   "version": "0.1.0",
-  "description": "Afribit AI — community-first Bitcoin education chatbot",
+  "description": "Afribit AI — community-first Bitcoin education assistant for Kibera and Nairobi, speaking Sheng, Kiswahili, and English the way people actually talk",
   "packageManager": "pnpm@11.25.0",
   "scripts": {
     "dev:api": "pnpm --filter @afribit/api dev",
@@ -13,7 +13,9 @@
     "db:up": "docker compose -f infra/docker-compose.yml up -d",
     "db:down": "docker compose -f infra/docker-compose.yml down",
     "db:migrate": "pnpm --filter @afribit/api db:migrate",
-    "db:seed": "pnpm --filter @afribit/api db:seed"
+    "db:seed": "pnpm --filter @afribit/api db:seed",
+    "db:seed:manuals": "pnpm --filter @afribit/api db:seed:manuals",
+    "test": "pnpm --filter @afribit/api test:prompt-golden"
   },
   "devDependencies": {
     "typescript": "^5.6.3"

@@ -43,7 +43,16 @@ async function disableSubscription(endpoint: string): Promise<void> {
   );
 }
 
-export async function sendPushToInstallation(installationId: string, payload: PushPayload): Promise<{ sent: number; failed: number }> {
+/**
+ * Looks up by notify_token, NOT installation_id -- installation_id is a
+ * non-secret client-generated UUID (see apps/web/src/lib/pwa.ts), so
+ * using it as the trigger credential let anyone who learned/guessed
+ * another user's installation_id push a notification to that victim's
+ * device on request (security-review finding, 2026-09-23). notify_token
+ * is a server-generated secret returned only to the subscribing client
+ * itself, in the PUT /api/v1/notifications/subscription response.
+ */
+export async function sendPushByToken(notifyToken: string, payload: PushPayload): Promise<{ sent: number; failed: number }> {
   if (!isPushConfigured()) {
     return { sent: 0, failed: 0 };
   }
@@ -53,8 +62,8 @@ export async function sendPushToInstallation(installationId: string, payload: Pu
   const { rows } = await pool.query<StoredSubscription>(
     `SELECT endpoint, p256dh, auth
      FROM notification_subscriptions
-     WHERE installation_id = $1 AND enabled = true`,
-    [installationId],
+     WHERE notify_token = $1 AND enabled = true`,
+    [notifyToken],
   );
 
   let sent = 0;

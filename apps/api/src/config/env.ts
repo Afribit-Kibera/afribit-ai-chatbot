@@ -34,11 +34,19 @@ export const env = {
   vapidPublicKey: process.env.VAPID_PUBLIC_KEY ?? "",
   vapidPrivateKey: process.env.VAPID_PRIVATE_KEY ?? "",
   vapidSubject: process.env.VAPID_SUBJECT ?? "mailto:hello@afribit.ai",
+  // 2026-09-24 — auth (production-readiness push, see README's former "No
+  // authentication anywhere" gap). A hardcoded dev-only fallback so local
+  // setup keeps working with zero config (matches every other env var's
+  // pattern here), but this MUST be a real secret in production --
+  // enforced below in assertProductionEnv(). Anyone who knows this default
+  // could forge admin JWTs against a server that still uses it.
+  jwtSecret: process.env.JWT_SECRET ?? "afribit-dev-only-insecure-secret-do-not-use-in-production",
 };
 
 export function assertProductionEnv(): void {
   if (env.nodeEnv === "production") {
     required("DATABASE_URL");
     required("OPENROUTER_API_KEY");
+    required("JWT_SECRET");
   }
 }

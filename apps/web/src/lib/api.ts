@@ -18,7 +18,7 @@ export async function sendChatMessage(params: {
   message: string;
   languageMode: LanguageMode;
   explanationLevel: ExplanationLevel;
-  notifyInstallationId?: string;
+  notifyToken?: string;
 }): Promise<SendMessageResponse> {
   const response = await fetch(`${API_BASE}/api/v1/chat`, {
     method: "POST",
@@ -49,7 +49,7 @@ export async function streamChatMessage(
     message: string;
     languageMode: LanguageMode;
     explanationLevel: ExplanationLevel;
-    notifyInstallationId?: string;
+    notifyToken?: string;
   },
   onEvent: (event: ChatStreamEvent) => void,
 ): Promise<void> {
@@ -101,7 +101,7 @@ export async function getVapidPublicKey(): Promise<{ enabled: boolean; publicKey
 export async function savePushSubscription(params: {
   installationId: string;
   subscription: PushSubscriptionJSON;
-}): Promise<void> {
+}): Promise<{ notifyToken: string | null }> {
   const response = await fetch(`${API_BASE}/api/v1/notifications/subscription`, {
     method: "PUT",
     headers: {
@@ -113,6 +113,7 @@ export async function savePushSubscription(params: {
   if (!response.ok) {
     throw new Error(`Push subscription save failed: ${response.status}`);
   }
+  return response.json();
 }
 
 export async function deletePushSubscription(endpoint: string): Promise<void> {
@@ -126,11 +127,11 @@ export async function deletePushSubscription(endpoint: string): Promise<void> {
   }
 }
 
-export async function sendTestNotification(installationId: string): Promise<void> {
+export async function sendTestNotification(notifyToken: string): Promise<void> {
   const response = await fetch(`${API_BASE}/api/v1/notifications/test`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ installationId }),
+    body: JSON.stringify({ notifyToken }),
   });
   if (!response.ok) {
     throw new Error(`Test notification failed: ${response.status}`);

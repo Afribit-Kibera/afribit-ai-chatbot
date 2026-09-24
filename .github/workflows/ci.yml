@@ -1,0 +1,88 @@
+name: CI
+
+# Runs on every push and PR. Deliberately does NOT run the live-model eval
+# scripts (pnpm dataset:communication-eval, dataset:fallback-bakeoff, etc.)
+# -- those call a real paid OpenRouter model and need a real API key; they
+# stay a manual/local check (see docs/COMMUNICATION_STYLE_EVAL.md), not a
+# CI gate that would either need a shared paid key in CI secrets or block
+# every PR on a flaky third-party API call.
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  typecheck-test-build:
+    name: Typecheck, test, build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck (all workspace packages)
+        run: pnpm typecheck
+
+      # apps/api/src/dataset-lab/promptGoldenCases.ts: pure prompt-construction
+      # regression check, no DB or OPENROUTER_API_KEY required (see its own
+      # doc comment) -- safe and fast to run on every push.
+      - name: Test (prompt-construction regression suite)
+        run: pnpm test
+
+      - name: Build (api + web)
+        run: pnpm build
+
+  migrations:
+    name: DB migrations apply cleanly
+    runs-on: ubuntu-latest
+    # Same image infra/docker-compose.yml uses locally -- pgvector is a real
+    # requirement (001_init.sql: CREATE EXTENSION vector), so plain
+    # postgres:16 would fail on the very first migration. Catches a broken
+    # migration file before it reaches anyone running `pnpm db:migrate`
+    # against a real database, local or production.
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: afribit
+          POSTGRES_PASSWORD: afribit
+          POSTGRES_DB: afribit
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      # Matches apps/api/src/config/env.ts's own default exactly, so no .env
+      # file is needed for this job -- the migrate script's DB pool just
+      # picks this up from the environment.
+      DATABASE_URL: postgres://afribit:afribit@localhost:5432/afribit
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run all migrations against a clean database
+        run: pnpm db:migrate

@@ -1,7 +1,7 @@
 import type { FastifyInstance } from "fastify";
 import { env } from "../config/env.js";
 import { pool } from "../db/pool.js";
-import { isPushConfigured, sendPushToInstallation } from "../notifications/pushService.js";
+import { isPushConfigured, sendPushByToken } from "../notifications/pushService.js";
 
 interface PushSubscriptionBody {
   installationId?: string;
@@ -14,6 +14,21 @@ interface PushSubscriptionBody {
   };
 }
 
+/**
+ * SECURITY (updated 2026-09-24, real auth now exists): this header is
+ * entirely client-supplied and unverified -- any caller can claim any
+ * external_auth_id (security-review finding, 2026-09-23). Real auth
+ * landing doesn't retroactively make this header trustworthy; it makes it
+ * OBSOLETE for anyone who actually has an account. registerNotificationRoutes()
+ * below now prefers `request.user.id` from a verified JWT (via
+ * app.optionalAuth) whenever one is present, and only falls back to this
+ * header's best-effort, unverified linking for genuinely anonymous
+ * callers -- matching the anonymous-chat product model this whole app
+ * uses elsewhere. Still never use this header's result to gate anything
+ * sensitive. Notification delivery itself is protected separately via
+ * notify_token (see pushService.ts's sendPushByToken()), which does NOT
+ * depend on either path.
+ */
 function getExternalUserId(headers: Record<string, unknown>): string | null {
   const value = headers["x-afribit-user-id"];
   return typeof value === "string" && value.trim() ? value.trim() : null;
@@ -38,7 +53,10 @@ export function registerNotificationRoutes(app: FastifyInstance): void {
     });
   });
 
-  app.put<{ Body: PushSubscriptionBody }>("/api/v1/notifications/subscription", async (request, reply) => {
+  app.put<{ Body: PushSubscriptionBody }>(
+    "/api/v1/notifications/subscription",
+    { preHandler: app.optionalAuth },
+    async (request, reply) => {
     const endpoint = request.body?.subscription?.endpoint;
     const p256dh = request.body?.subscription?.keys?.p256dh;
     const auth = request.body?.subscription?.keys?.auth;
@@ -51,10 +69,17 @@ export function registerNotificationRoutes(app: FastifyInstance): void {
       return reply.status(400).send({ error: "subscription endpoint must be https" });
     }
 
-    const userId = await resolveOptionalUserId(getExternalUserId(request.headers as Record<string, unknown>));
+    // Prefer the verified JWT user id; only fall back to the unverified
+    // header for callers with no account at all (see getExternalUserId's
+    // updated doc comment above).
+    const userId = request.user?.id ?? (await resolveOptionalUserId(getExternalUserId(request.headers as Record<string, unknown>)));
     const userAgent = request.headers["user-agent"];
 
-    await pool.query(
+    // RETURNING notify_token -- this is the only response that ever
+    // reveals this row's token, and only to the client that just proved
+    // it controls this exact push endpoint by registering it. Never log
+    // or echo it anywhere else.
+    const { rows } = await pool.query<{ notify_token: string }>(
       `INSERT INTO notification_subscriptions
         (user_id, installation_id, endpoint, p256dh, auth, user_agent, enabled)
        VALUES ($1, $2, $3, $4, $5, $6, true)
@@ -66,7 +91,8 @@ export function registerNotificationRoutes(app: FastifyInstance): void {
         user_agent = EXCLUDED.user_agent,
         enabled = true,
         updated_at = now(),
-        last_seen_at = now()`,
+        last_seen_at = now()
+       RETURNING notify_token`,
       [
         userId,
         request.body.installationId ?? null,
@@ -77,7 +103,7 @@ export function registerNotificationRoutes(app: FastifyInstance): void {
       ],
     );
 
-    return reply.send({ ok: true });
+    return reply.send({ ok: true, notifyToken: rows[0]?.notify_token ?? null });
   });
 
   app.delete<{ Body: { endpoint?: string } }>("/api/v1/notifications/subscription", async (request, reply) => {
@@ -95,18 +121,18 @@ export function registerNotificationRoutes(app: FastifyInstance): void {
     return reply.send({ ok: true });
   });
 
-  app.post<{ Body: { installationId?: string } }>("/api/v1/notifications/test", async (request, reply) => {
+  app.post<{ Body: { notifyToken?: string } }>("/api/v1/notifications/test", async (request, reply) => {
     if (env.nodeEnv === "production") {
       return reply.status(404).send({ error: "not found" });
     }
     if (!isPushConfigured()) {
       return reply.status(503).send({ error: "push notifications are not configured" });
     }
-    if (!request.body?.installationId) {
-      return reply.status(400).send({ error: "installationId is required" });
+    if (!request.body?.notifyToken) {
+      return reply.status(400).send({ error: "notifyToken is required" });
     }
 
-    const result = await sendPushToInstallation(request.body.installationId, {
+    const result = await sendPushByToken(request.body.notifyToken, {
       title: "Afribit AI",
       body: "Notifications ziko sawa. Afribit can reach this device.",
       url: "/",

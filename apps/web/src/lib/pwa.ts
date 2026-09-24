@@ -1,6 +1,12 @@
 import { deletePushSubscription, getVapidPublicKey, savePushSubscription, sendTestNotification } from "./api.js";
 
 const INSTALLATION_ID_KEY = "afribit.installationId";
+// SECURITY: this token, not installationId, is what actually authorizes a
+// push to this device (server-issued by PUT /notifications/subscription,
+// never derivable from installationId -- see db/migrations/008 and
+// pushService.ts's sendPushByToken()). installationId itself is not a
+// secret and must never be used to trigger a notification.
+const NOTIFY_TOKEN_KEY = "afribit.notifyToken";
 
 export type NotificationState = "unsupported" | "not_configured" | "default" | "granted" | "denied" | "enabled";
 
@@ -10,6 +16,11 @@ export function getInstallationId(): string {
   const next = crypto.randomUUID();
   localStorage.setItem(INSTALLATION_ID_KEY, next);
   return next;
+}
+
+/** Set only after a successful subscription save; absent until then or if push was never enabled. */
+export function getNotifyToken(): string | null {
+  return localStorage.getItem(NOTIFY_TOKEN_KEY);
 }
 
 export function getNotificationState(): NotificationState {
@@ -54,15 +65,19 @@ export async function enablePushNotifications(): Promise<NotificationState> {
       applicationServerKey: urlBase64ToArrayBuffer(vapid.publicKey),
     }));
 
-  await savePushSubscription({
+  const { notifyToken } = await savePushSubscription({
     installationId: getInstallationId(),
     subscription: subscription.toJSON(),
   });
+  if (notifyToken) {
+    localStorage.setItem(NOTIFY_TOKEN_KEY, notifyToken);
+  }
 
   return "enabled";
 }
 
 export async function disablePushNotifications(): Promise<void> {
+  localStorage.removeItem(NOTIFY_TOKEN_KEY);
   if (!("serviceWorker" in navigator)) return;
   const registration = await navigator.serviceWorker.ready;
   const subscription = await registration.pushManager.getSubscription();
@@ -72,5 +87,7 @@ export async function disablePushNotifications(): Promise<void> {
 }
 
 export async function sendPushNotificationTest(): Promise<void> {
-  await sendTestNotification(getInstallationId());
+  const token = getNotifyToken();
+  if (!token) throw new Error("Push notifications are not enabled on this device yet.");
+  await sendTestNotification(token);
 }

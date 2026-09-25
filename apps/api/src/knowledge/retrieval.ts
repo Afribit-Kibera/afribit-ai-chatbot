@@ -28,6 +28,20 @@ interface KnowledgeRow {
  * rather than needing to tune a blend weight with no real usage data yet.
  *
  * Only 'approved' and 'published' knowledge is ever eligible (PRD §11.3).
+ *
+ * Both queries also filter to domain = 'bitcoin' (added 2026-09-24, found
+ * by runRetrievalEval.ts). knowledge_entries also holds the Basic
+ * Communication Skills manual's general chapters (greetings, active
+ * listening, boundaries, apologies -- register/tone guidance, not Bitcoin
+ * facts, already served separately by COMMUNICATION_STYLE_GUIDE in the
+ * prompt layer). A seeding bug let those rows default to domain='bitcoin'
+ * alongside real Bitcoin content, and they were measurably winning
+ * retrieval for short/common-word Bitcoin questions -- "Bitcoin ni nini?"
+ * returned zero Bitcoin content in its top 5, all five results were
+ * communication-manual chapters. Fixed at both ends: seedCommunityManuals.ts
+ * now sets the correct domain per entry, and this filter is the actual
+ * enforcement so a future seeding mistake can't silently reintroduce the
+ * same cross-domain leakage.
  */
 
 /**
@@ -123,6 +137,7 @@ async function retrieveLexical(query: string, limit: number): Promise<KnowledgeR
       ) * 2) AS score
     FROM knowledge_entries
     WHERE status IN ('approved', 'published')
+      AND domain = 'bitcoin'
       AND to_tsvector('english', title || ' ' || canonical_answer) @@ to_tsquery('english', $1)
     ORDER BY score DESC
     LIMIT $2
@@ -162,6 +177,7 @@ async function retrieveSemantic(query: string, limit: number): Promise<Knowledge
     JOIN knowledge_chunks kc ON kc.id = kemb.chunk_id
     JOIN knowledge_entries ke ON ke.id = kc.knowledge_id
     WHERE ke.status IN ('approved', 'published')
+      AND ke.domain = 'bitcoin'
     ORDER BY kemb.embedding <=> $1::vector
     LIMIT $2
     `,

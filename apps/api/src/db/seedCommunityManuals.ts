@@ -345,17 +345,30 @@ async function seed(): Promise<void> {
     );
   }
 
+  // Bug found by runRetrievalEval.ts (2026-09-24): this insert never set
+  // knowledge_entries.domain, so every row silently took the column's
+  // 'bitcoin' default regardless of which topic it actually belonged to --
+  // the correctly-computed "communication" domain on knowledge_topics
+  // (above) never propagated here. That let the communication-skills
+  // manual's general chapters (greetings, active listening, boundaries --
+  // never meant to be retrieved as Bitcoin facts) into the same
+  // domain='bitcoin' pool retrieveKnowledge() searches, measurably
+  // polluting real Bitcoin-question retrieval. Fixed by looking up each
+  // entry's own topic domain instead of relying on the column default.
+  const topicDomainById = new Map(topics.map((t) => [t.id, t.domain]));
   for (const entry of entries) {
+    const domain = topicDomainById.get(entry.topicId) ?? "bitcoin";
     await pool.query(
-      `INSERT INTO knowledge_entries (id, topic_id, title, canonical_answer, beginner_answer, safety_notes, status)
-       VALUES ($1, $2, $3, $4, $5, $6, 'needs_language_review')
+      `INSERT INTO knowledge_entries (id, topic_id, title, canonical_answer, beginner_answer, safety_notes, status, domain)
+       VALUES ($1, $2, $3, $4, $5, $6, 'needs_language_review', $7)
        ON CONFLICT (id) DO UPDATE SET
          canonical_answer = EXCLUDED.canonical_answer,
          beginner_answer = EXCLUDED.beginner_answer,
          safety_notes = EXCLUDED.safety_notes,
+         domain = EXCLUDED.domain,
          version = knowledge_entries.version + 1,
          updated_at = now()`,
-      [entry.id, entry.topicId, entry.title, entry.canonicalAnswer, entry.beginnerAnswer, JSON.stringify(entry.safetyNotes)],
+      [entry.id, entry.topicId, entry.title, entry.canonicalAnswer, entry.beginnerAnswer, JSON.stringify(entry.safetyNotes), domain],
     );
   }
 

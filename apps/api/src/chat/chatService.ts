@@ -8,6 +8,8 @@ import { detectSecret, SECRET_WARNING_MESSAGE } from "../safety/secretDetector.j
 import { GatewayError } from "../gateway/gateway.js";
 import type { AfribitAIGateway } from "../gateway/gateway.js";
 import { sendPushByToken } from "../notifications/pushService.js";
+import { fixFormalConnectives } from "../prompt/postProcess.js";
+import { createSentenceBuffer } from "./sentenceBuffer.js";
 
 export interface SendMessageInput {
   sessionId: string | null;
@@ -264,10 +266,14 @@ export async function sendMessage(gateway: AfribitAIGateway, input: SendMessageI
       privacyProfile: "strict",
     });
 
+    // Deterministic cleanup for a persistent structural habit prompt-level
+    // fixes couldn't fully suppress -- see postProcess.ts's doc comment.
+    const cleanedContent = fixFormalConnectives(response.content);
+
     const messageId = await insertMessage({
       sessionId,
       role: "assistant",
-      content: response.content,
+      content: cleanedContent,
       retrievalConfidence: topConfidence,
       modelProfile,
       provider: response.provider,
@@ -287,7 +293,7 @@ export async function sendMessage(gateway: AfribitAIGateway, input: SendMessageI
     return {
       sessionId,
       messageId,
-      content: response.content,
+      content: cleanedContent,
       languageMode,
       explanationLevel,
       retrievalConfidence: topConfidence,
@@ -355,6 +361,12 @@ export async function streamMessage(
   onEvent({ type: "meta", sessionId, safetyFlag: null });
 
   let content = "";
+  // Buffers deltas to sentence boundaries so fixFormalConnectives (see
+  // postProcess.ts) can run on complete sentences rather than arbitrary
+  // token chunks that could split "Kwa hivyo" across two deltas and miss
+  // it -- costs a little latency (waiting for a sentence to finish), not
+  // the whole response, so streaming's UX benefit is mostly preserved.
+  const sentenceBuffer = createSentenceBuffer((text) => onEvent({ type: "delta", text }), fixFormalConnectives);
   try {
     const generator = gateway.chatStream({
       requestId,
@@ -370,10 +382,16 @@ export async function streamMessage(
     let response = await generator.next();
     while (!response.done) {
       content += response.value;
-      onEvent({ type: "delta", text: response.value });
+      sentenceBuffer.push(response.value);
       response = await generator.next();
     }
+    sentenceBuffer.flush();
     const finalResponse = response.value;
+    // Persisted content must match fixFormalConnectives applied per-sentence
+    // above exactly -- the transform is a plain global regex replace, so
+    // applying it once to the full accumulated text is equivalent and
+    // simpler than re-concatenating each already-transformed chunk.
+    content = fixFormalConnectives(content);
 
     const messageId = await insertMessage({
       sessionId,

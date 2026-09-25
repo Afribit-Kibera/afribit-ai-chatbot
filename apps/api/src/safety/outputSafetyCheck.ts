@@ -1,0 +1,61 @@
+/**
+ * Deterministic hard-stop for the two most severe SAFETY_POLICY violations
+ * (promptBuilder.ts) reaching a live user: the model itself requesting a
+ * secret, or making a guaranteed-returns promise. This is an output-side
+ * check -- secretDetector.ts already covers the input side (a user pasting
+ * a secret into chat).
+ *
+ * Added 2026-09-24 following an external audit of this project's approach:
+ * the prompt-level SAFETY_POLICY instructs the model never to do either of
+ * these, and the model reliably complies in practice, but there was no
+ * real-time verification catching the rare case where it doesn't -- unlike
+ * postProcess.ts's "Kwa hivyo" fix, which only guards style, nothing
+ * guarded safety-critical content before this. Same reasoning as that
+ * fix: cheap, deterministic, no extra model call, applied as a genuine
+ * hard stop rather than a style nudge, given the higher stakes.
+ *
+ * Deliberately conservative on negation to avoid false-positiving on
+ * legitimate safety education, which talks ABOUT seed phrases and scam
+ * guarantees constantly ("never share your seed phrase," "no one can
+ * guarantee tomorrow's price") -- every SHENG_FEW_SHOT_EXAMPLES turn that
+ * discusses these topics is used as a regression case for this exact
+ * reason (see the eval/test file). Favors under-flagging a borderline
+ * sentence over blocking a real, safe answer.
+ */
+
+export interface OutputSafetyResult {
+  violated: boolean;
+  kind: "requested_secret" | "guaranteed_returns" | null;
+}
+
+const NEGATION_WORDS =
+  /\b(usi\w*|kamwe|never|hakuna|hakika hakuna|hawezi|siwezi|hataki|no legitimate|won'?t|will not|cannot|can'?t|not\s+\w*\s*(will|can))\b/i;
+
+// An imperative verb directed at the user, asking them to hand a secret
+// TO the assistant -- not the model warning that a scammer might ask.
+const SECRET_REQUEST =
+  /\b(tuma|nipe|niletee|niambie|nionyeshe|type in|share|send me|give me|tell me)\b[^.!?\n]{0,40}\b(seed phrase|recovery phrase|private key|maneno (ya )?12|maneno (ya )?24|\bPIN\b|\bOTP\b|password|passwordi)\b/i;
+
+// No leading \b before "hakikish": Swahili tense/subject prefixes attach
+// directly to the stem with no word boundary (e.g. "umehakikishiwa"), so a
+// \b anchor there silently never matches -- caught by _manualCheck.ts.
+const GUARANTEE_CLAIM =
+  /guarantees?[^.!?\n]{0,30}\b(profit|return|money|double|increase)\b|guaranteed\s+to\s+(double|increase|grow|multiply)|hakikish\w+[^.!?\n]{0,25}(faida|utapata|itapanda)|will\s+definitely\s+(make|earn)|bila shaka utapata\s+faida/i;
+
+function splitSentences(text: string): string[] {
+  return text.split(/(?<=[.!?])\s+/).filter((s) => s.trim().length > 0);
+}
+
+export function checkOutputSafety(text: string): OutputSafetyResult {
+  for (const sentence of splitSentences(text)) {
+    if (NEGATION_WORDS.test(sentence)) continue;
+    if (SECRET_REQUEST.test(sentence)) return { violated: true, kind: "requested_secret" };
+    if (GUARANTEE_CLAIM.test(sentence)) return { violated: true, kind: "guaranteed_returns" };
+  }
+  return { violated: false, kind: null };
+}
+
+export const OUTPUT_SAFETY_FALLBACK_MESSAGE =
+  "Something in that draft answer didn't meet Afribit AI's safety rules, so it's been withheld rather than " +
+  "shown to you. For the record: Afribit AI will never ask you for a seed phrase, private key, password, " +
+  "PIN, or OTP, and no Bitcoin investment can honestly guarantee a return. Please try rephrasing your question.";

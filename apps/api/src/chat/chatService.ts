@@ -5,6 +5,7 @@ import { retrieveKnowledge } from "../knowledge/retrieval.js";
 import { retrieveLanguageExamples } from "../knowledge/retrieveLanguageExamples.js";
 import { buildPrompt } from "../prompt/promptBuilder.js";
 import { detectSecret, SECRET_WARNING_MESSAGE } from "../safety/secretDetector.js";
+import { checkOutputSafety, OUTPUT_SAFETY_FALLBACK_MESSAGE } from "../safety/outputSafetyCheck.js";
 import { GatewayError } from "../gateway/gateway.js";
 import type { AfribitAIGateway } from "../gateway/gateway.js";
 import { sendPushByToken } from "../notifications/pushService.js";
@@ -270,16 +271,24 @@ export async function sendMessage(gateway: AfribitAIGateway, input: SendMessageI
     // fixes couldn't fully suppress -- see postProcess.ts's doc comment.
     const cleanedContent = fixFormalConnectives(response.content);
 
+    // Hard stop for the two most severe SAFETY_POLICY violations, in case
+    // the model ever generates one despite the prompt -- see
+    // outputSafetyCheck.ts's doc comment for why this exists as a real-time
+    // check rather than prompt-only enforcement.
+    const safetyCheck = checkOutputSafety(cleanedContent);
+    const finalContent = safetyCheck.violated ? OUTPUT_SAFETY_FALLBACK_MESSAGE : cleanedContent;
+
     const messageId = await insertMessage({
       sessionId,
       role: "assistant",
-      content: cleanedContent,
+      content: finalContent,
       retrievalConfidence: topConfidence,
       modelProfile,
       provider: response.provider,
       latencyMs: response.latencyMs,
       promptTokens: response.usage.promptTokens,
       completionTokens: response.usage.completionTokens,
+      safetyFlag: safetyCheck.violated ? `output_safety_${safetyCheck.kind}` : undefined,
     });
 
     await pool.query(
@@ -293,12 +302,12 @@ export async function sendMessage(gateway: AfribitAIGateway, input: SendMessageI
     return {
       sessionId,
       messageId,
-      content: cleanedContent,
+      content: finalContent,
       languageMode,
       explanationLevel,
       retrievalConfidence: topConfidence,
       usedFallback: false,
-      safetyFlag: null,
+      safetyFlag: safetyCheck.violated ? `output_safety_${safetyCheck.kind}` : null,
     };
   } catch (err) {
     // PRD §17.3 — provider failure: fall back to a canonical knowledge-card
@@ -361,12 +370,27 @@ export async function streamMessage(
   onEvent({ type: "meta", sessionId, safetyFlag: null });
 
   let content = "";
-  // Buffers deltas to sentence boundaries so fixFormalConnectives (see
-  // postProcess.ts) can run on complete sentences rather than arbitrary
-  // token chunks that could split "Kwa hivyo" across two deltas and miss
-  // it -- costs a little latency (waiting for a sentence to finish), not
-  // the whole response, so streaming's UX benefit is mostly preserved.
-  const sentenceBuffer = createSentenceBuffer((text) => onEvent({ type: "delta", text }), fixFormalConnectives);
+  // Hard stop for the two most severe SAFETY_POLICY violations -- see
+  // outputSafetyCheck.ts's doc comment. Checked per completed sentence
+  // (same buffering the "Kwa hivyo" fix uses) so a violation is caught
+  // before that sentence ever reaches the client, not after the fact.
+  // Once tripped, no further deltas are forwarded -- the generator is
+  // still drained to completion (rather than aborted) purely so
+  // finalResponse below stays available for the model_runs record.
+  // Plain mutable object rather than a bare `let`: TypeScript's flow
+  // analysis narrows a `let` reassigned only inside a nested closure back
+  // to its initial value everywhere in the outer function, which isn't
+  // correct here since the closure runs synchronously during push()/flush().
+  const safetyState: { violation: ReturnType<typeof checkOutputSafety> | null } = { violation: null };
+  const sentenceBuffer = createSentenceBuffer((text) => {
+    if (safetyState.violation) return;
+    const check = checkOutputSafety(text);
+    if (check.violated) {
+      safetyState.violation = check;
+      return;
+    }
+    onEvent({ type: "delta", text });
+  }, fixFormalConnectives);
   try {
     const generator = gateway.chatStream({
       requestId,
@@ -392,6 +416,15 @@ export async function streamMessage(
     // applying it once to the full accumulated text is equivalent and
     // simpler than re-concatenating each already-transformed chunk.
     content = fixFormalConnectives(content);
+    const violation = safetyState.violation;
+    if (violation) {
+      // Discard the raw content entirely rather than persist a mix of
+      // already-streamed-safe-prefix + withheld-unsafe-tail -- keeps the
+      // chat history record unambiguous, at the cost of a small mismatch
+      // with whatever safe prefix already reached the client's screen
+      // before the violation was caught.
+      content = OUTPUT_SAFETY_FALLBACK_MESSAGE;
+    }
 
     const messageId = await insertMessage({
       sessionId,
@@ -403,6 +436,7 @@ export async function streamMessage(
       latencyMs: finalResponse.latencyMs,
       promptTokens: finalResponse.usage.promptTokens,
       completionTokens: finalResponse.usage.completionTokens,
+      safetyFlag: violation ? `output_safety_${violation.kind}` : undefined,
     });
 
     await pool.query(
@@ -412,6 +446,9 @@ export async function streamMessage(
     );
 
     await notifyIfRequested(notifyToken);
+    if (violation) {
+      onEvent({ type: "delta", text: OUTPUT_SAFETY_FALLBACK_MESSAGE });
+    }
     onEvent({ type: "done", messageId, usedFallback: false });
   } catch (err) {
     await pool.query(

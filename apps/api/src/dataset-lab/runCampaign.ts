@@ -18,10 +18,25 @@ import { judgeCandidate } from "./judge.js";
  * Batch 002's notes recorded heavy rate-limiting on the shared Luna tier
  * that a real generation run has to tolerate, not just log around.
  *
+ * Batch 004 (2026-09-24/25): new campaign ID, not a resume of Batch 003.
+ * Batch 003's candidates were generated under promptTemplates.ts's
+ * L04/L05 v1.1 -- several versions behind the composition-first
+ * SHENG_STYLE_GUIDE rewrite (v1.5) done today after a product-owner
+ * critique found the model translating to formal Kiswahili then
+ * decorating with Sheng words, rather than composing Sheng directly. Using
+ * Batch 003's output as fine-tuning training data would actively teach the
+ * model that already-diagnosed-broken pattern. A fresh campaign ID (rather
+ * than reusing Batch 003's, which still had budget left) keeps this
+ * genuinely current data cleanly separable by campaign_id alone --
+ * relevant since this data is destined for a possible LoRA fine-tuning
+ * experiment (external audit recommendation, same date), where training
+ * on stale-prompt-version examples would be actively counterproductive,
+ * not just redundant.
+ *
  * Run with: pnpm --filter @afribit/api exec tsx src/dataset-lab/runCampaign.ts
  */
 
-const CAMPAIGN_ID = "batch_2026_09_003";
+const CAMPAIGN_ID = "batch_2026_09_004";
 const CANDIDATES_PER_CALL = 8;
 const MAX_BUDGET_USD = 10.0;
 const RETRY_DELAYS_MS = [1000, 3000, 8000]; // 3 retries, exponential-ish backoff
@@ -100,8 +115,14 @@ async function runLayerCall(
 async function main() {
   const gateway = createGateway();
 
+  // domain = 'bitcoin' filter added for Batch 004 (2026-09-24): matches the
+  // same fix as retrieval.ts's cross-domain pollution fix, same day -- the
+  // goal here is training data for explaining Bitcoin in natural Sheng, not
+  // Sheng rewrites of the communication-skills manual's general chapters
+  // (greetings, active listening), which would waste budget generating
+  // candidates nobody wants.
   const { rows: concepts } = await pool.query<{ id: string; title: string; canonical_answer: string }>(
-    `SELECT id, title, canonical_answer FROM knowledge_entries WHERE status = 'published' ORDER BY id`,
+    `SELECT id, title, canonical_answer FROM knowledge_entries WHERE status = 'published' AND domain = 'bitcoin' ORDER BY id`,
   );
   if (concepts.length === 0) throw new Error("No published knowledge_entries found — run `pnpm db:seed` first.");
 
@@ -109,7 +130,7 @@ async function main() {
     `INSERT INTO dataset_campaigns (id, name, layer, language, model_role, model_profile, prompt_version, examples_per_concept, max_budget_usd, status)
      VALUES ($1, $2, 'L04_L05_BATCH', 'sheng', 'generator', 'dataset_generator', $3, $4, $5, 'running')
      ON CONFLICT (id) DO UPDATE SET status = 'running'`,
-    [CAMPAIGN_ID, `Batch 003 — L04 + L05, ${concepts.length} concepts, full critic + judge escalation`, PROMPT_VERSIONS.L04_SHENG_REWRITE, CANDIDATES_PER_CALL, MAX_BUDGET_USD],
+    [CAMPAIGN_ID, `Batch 004 — L04 + L05, ${concepts.length} concepts, v1.5 composition-first prompts, full critic + judge escalation`, PROMPT_VERSIONS.L04_SHENG_REWRITE, CANDIDATES_PER_CALL, MAX_BUDGET_USD],
   );
 
   let totalGenerated = 0;
@@ -215,7 +236,7 @@ async function main() {
   await pool.query(`UPDATE dataset_campaigns SET status = 'completed', completed_at = now() WHERE id = $1`, [CAMPAIGN_ID]);
 
   const runningCost = await getCampaignSpend(CAMPAIGN_ID);
-  console.log(`\n=== Batch 003 complete ===`);
+  console.log(`\n=== Batch 004 complete ===`);
   console.log(`Concepts processed: ${concepts.length}`);
   console.log(`Total candidates generated: ${totalGenerated}`);
   console.log(`Total accepted into language_entries: ${totalAccepted}`);

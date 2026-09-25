@@ -18,7 +18,8 @@
     "test:prompt-golden": "tsx src/dataset-lab/promptGoldenCases.ts",
     "dataset:communication-eval": "tsx src/dataset-lab/runCommunicationEval.ts",
     "dataset:fallback-bakeoff": "tsx src/dataset-lab/runFallbackBakeoff.ts",
-    "knowledge:embed": "tsx src/knowledge/embedBackfill.ts"
+    "knowledge:embed": "tsx src/knowledge/embedBackfill.ts",
+    "knowledge:eval-retrieval": "tsx src/knowledge/runRetrievalEval.ts"
   },
   "dependencies": {
     "@afribit/shared": "workspace:*",

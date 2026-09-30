@@ -21,6 +21,17 @@
  * discusses these topics is used as a regression case for this exact
  * reason (see the eval/test file). Favors under-flagging a borderline
  * sentence over blocking a real, safe answer.
+ *
+ * Negation window widened to 3 sentences (2026-09-30, found live during a
+ * local demo run): the natural, correct way to debunk a scam claim is
+ * often two separate sentences -- "Watu wanasema utapata guaranteed
+ * profit. Hiyo si kweli." -- and a same-sentence-only negation check
+ * blocked that real, safe refutation on every single run of the exact
+ * scam question this feature exists to handle safely (3/3 in a row, not
+ * stochastic noise). Checking the sentence before and after the match
+ * catches both "claim, then refutation" and "refutation, then claim"
+ * orderings without losing the original narrow-scope intent -- still
+ * bounded to nearby sentences, not the whole message.
  */
 
 export interface OutputSafetyResult {
@@ -29,7 +40,7 @@ export interface OutputSafetyResult {
 }
 
 const NEGATION_WORDS =
-  /\b(usi\w*|kamwe|never|hakuna|hakika hakuna|hawezi|siwezi|hataki|no legitimate|won'?t|will not|cannot|can'?t|not\s+\w*\s*(will|can))\b/i;
+  /\b(usi\w*|kamwe|never|hakuna|hakika hakuna|hawezi|siwezi|hataki|\bsi\b|si\s+kweli|no legitimate|won'?t|will not|cannot|can'?t|not\s+\w*\s*(will|can))\b/i;
 
 // An imperative verb directed at the user, asking them to hand a secret
 // TO the assistant -- not the model warning that a scammer might ask.
@@ -47,8 +58,18 @@ function splitSentences(text: string): string[] {
 }
 
 export function checkOutputSafety(text: string): OutputSafetyResult {
-  for (const sentence of splitSentences(text)) {
-    if (NEGATION_WORDS.test(sentence)) continue;
+  const sentences = splitSentences(text);
+  for (let i = 0; i < sentences.length; i++) {
+    const sentence = sentences[i];
+    if (sentence === undefined) continue;
+    if (!SECRET_REQUEST.test(sentence) && !GUARANTEE_CLAIM.test(sentence)) continue;
+
+    // Check this sentence plus its immediate neighbors -- a real claim
+    // restated for the purpose of debunking it is often negated in an
+    // adjacent sentence, not the same one.
+    const window = [sentences[i - 1], sentence, sentences[i + 1]].filter((s): s is string => Boolean(s)).join(" ");
+    if (NEGATION_WORDS.test(window)) continue;
+
     if (SECRET_REQUEST.test(sentence)) return { violated: true, kind: "requested_secret" };
     if (GUARANTEE_CLAIM.test(sentence)) return { violated: true, kind: "guaranteed_returns" };
   }

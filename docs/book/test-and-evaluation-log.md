@@ -72,6 +72,36 @@ Add new entries at the top of section 3. Copy this template:
 Entries before 8 October 2026 were backfilled on that date from the evaluation document and the model
 profile notes. Their raw outputs are in the maintainers' experiment folders.
 
+### 2026-10-08-j — Web app deployed to the public site (redesign, F-001–F-003, F-012)
+- **What:** production deploy of `apps/web` to Vercel (`afribit-chat`, team "afribit"), aliased to
+  `https://ai.afribit.africa`. Deployment `dpl_8rQatEesdZ2yGtZs4tYoGQL26xRa`. The previous production deployment
+  was `afribit-chat-jcz25t2y1` (rollback: `vercel rollback` to it, or promote it in the dashboard).
+- **Code:** `feat/frontend-rework` @ `473d657`, plus a new `.vercelignore`.
+- **Before:** a local build passed (12 routes prerendered; landing 72 KB, chat 110 KB gzip, within budgets).
+- **Result:**
+  - The uploaded source was listed through the Vercel API: 804 files, with **no `.env`, no `internal/`, and
+    no other private file**.
+  - Checked in headless Chromium:
+    - the landing page loads;
+    - `/app` shows the first-visit setup dialog, then the header chip "Outside service" and "Answered by an
+      outside AI service that promises not to keep your question. Chats are deleted from the server after
+      30 days." (from the API's `service` block);
+    - a test question streamed an answer in mixed Sheng (`GET /api/v1/pack` 200, `POST /api/v1/chat/stream`
+      200);
+    - Contribute → create account asks for an invitation code.
+- **Finding (security):**
+  - The CLI had no `.vercelignore`, and **it does not read `.gitignore`**. Three earlier production
+    deployments (`dpl_FmtugiXU…`, `dpl_8zzTXNon…`, `dpl_79RRJBqN…`, about 3 October) contain the repository's
+    root `.env`.
+  - Those three, and two more (`dpl_7Mhz88tv…`, `dpl_DE8StasK…`), contain files from `internal/`.
+  - Deployment source is visible to the Vercel team, not the public. Even so, treat every key that was in
+    that `.env` as exposed.
+  - The new `.vercelignore` stops it from happening again.
+- **Decision / follow-up (owner: Eddie):**
+  - Rotate the keys that were in `.env` then (at least the OpenRouter key) and update the production
+    server's `.env`.
+  - Delete the five old deployments that hold private files.
+
 ### 2026-10-08-i — F-006: a community box using a remote GPU (RunPod stand-in), end to end
 - **What:** the Afribit Local path (ADR 0016) with real parts. A box was built with the node kit on Eddie's
   laptop in Nairobi (Docker Desktop: Postgres + pgvector, Ollama with `bge-m3` on the CPU, the API, Caddy).

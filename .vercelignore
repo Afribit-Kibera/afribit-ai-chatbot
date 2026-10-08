@@ -1,0 +1,20 @@
+# What `vercel deploy` must never upload. The Vercel CLI does not read .gitignore, so secrets and private
+# material are listed here. The web build needs only the workspace, packs/ and a few docs/ files.
+.env
+.env.*
+!.env.example
+**/.env
+**/.env.*
+!**/.env.example
+internal/
+deploy/gpu-server/keys/
+deploy/gpu-server/usage/
+*.pem
+*.key
+Afribit_Chatbot_PRD.md
+*.docx
+infra/LUNANODE.md
+apps/api/src/db/data/extract/
+apps/web/.lighthouseci/
+apps/web/dist-ssr/
+**/*.tsbuildinfo

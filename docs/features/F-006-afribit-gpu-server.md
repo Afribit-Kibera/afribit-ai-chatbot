@@ -81,6 +81,35 @@ box (community)  ──WireGuard──▶  gate (key, limits, counts)  ──▶
 - **Usage reports** come from the gate's counts (tokens per community per day). That is what a monthly fee
   is based on. Learners never pay per question.
 
+#### The gate's contract (agreed 8 Oct 2026, before building)
+
+One file of plain JavaScript (`deploy/gpu-server/gate/gate.mjs`), Node's standard library only, no packages.
+
+| Request | Answer |
+|---|---|
+| No key, or a key that matches no community | `401` |
+| A key used from a WireGuard address that isn't that community's | `401` (a stolen key is useless from another box) |
+| `POST /api/chat`, `POST /v1/chat/completions` | Passed to Ollama and streamed back |
+| `GET /api/tags`, `GET /v1/models` | Passed to Ollama (the box's health check) |
+| A model not on the server's allowed list | `403` |
+| Anything else (`/api/pull`, `/api/delete`, `/api/copy`, `/api/create`, `/api/push`, `/api/embed`, `/api/generate`, …) | `403`; embeddings stay on the box |
+| More than the community's requests per minute, or its concurrent requests | `429` with `Retry-After` |
+| A request body over 512 KB | `413` |
+| Ollama unreachable | `502` |
+| `GET /healthz` | `200` when Ollama answers **and** every loaded model is fully on the GPU, else `503`. No key needed; it is reachable only on the tunnel |
+| `GET /usage` with the operator key | Counts per community per day; never text |
+
+- **Keys** live in `keys.json` as SHA-256 hashes, one entry per community. Each entry also holds that
+  community's WireGuard address and its limits. The key itself is shown once, by `add-community.sh`.
+- **Nothing from the box is passed on except the body.** The key and any other headers stop at the gate.
+- **One log line per request:** time, community, method, path, model, status, milliseconds, tokens in and out.
+  Never a body, a key or an address.
+- **Usage counts** (requests and tokens per community per day) are kept in memory and written once a minute
+  to `usage/<YYYY-MM>.json`. That file is the only thing the gate writes. It holds counts only.
+- **Tokens** are read from Ollama's own final counts (`prompt_eval_count`, `eval_count`, or OpenAI-style
+  `usage`). To find them, the gate keeps only the last few kilobytes of each answer, in memory, while it
+  streams.
+
 ### Interim: RunPod in place of the Kenyan server (agreed 8 Oct 2026)
 
 Until the GPU is bought or rented in Kenya, a RunPod pod stands in to confirm the path works:
@@ -169,14 +198,13 @@ pod in Romania and is repeated from the pilot box once the server is in Kenya. T
 - Confidential computing.
 - A second GPU for failover. It is a later decision, once one GPU is in use.
 
-## Decisions needed
+## Decisions
 
-1. **Our own small gate** (recommended): it is auditable, and it counts tokens per community. The other option
-   is Caddy with a rate-limit plugin.
-2. **WireGuard plus a key** (recommended), with HTTPS plus the key as the fallback. The alternative is HTTPS
-   plus a key only.
-3. **Where the GPU sits first:** Afribit's premises or a Kenyan provider. This follows the purchase/rental
-   decision ("for now, RunPod").
+1. **Our own small gate.** Agreed 8 Oct 2026. It is auditable and counts tokens per community. Caddy with a
+   rate-limit plugin was the alternative.
+2. **WireGuard plus a key per community,** with HTTPS plus the key as the fallback. Agreed 8 Oct 2026.
+3. **Still open: where the GPU sits first,** Afribit's premises or a Kenyan provider. This follows the
+   purchase/rental decision ("for now, RunPod").
 
 ## Depends on
 

@@ -8,7 +8,8 @@
 //   --url <base>        API base URL (default http://localhost:3001)
 //   --origin <origin>   also check that this web origin is allowed by CORS (chat and stream)
 //   --pack <id>         send x-pack: <id> (servers that host several packs)
-//   --auth              also register a throwaway account and log in (creates a user row)
+//   --auth              also register a throwaway account and log in (creates a user row; uses up the code)
+//   --invite <code>     the invitation code --auth signs up with (invite:create --role contributor)
 //   --ratelimit         also fire 20 quick requests and expect a polite 429 (spends ~15 model calls)
 //   --json <file>       write the full results (including every answer) to a file for review
 //
@@ -174,12 +175,17 @@ async function main() {
   r = await call("POST", "/api/v1/admin/knowledge", { id: "x", title: "x", canonicalAnswer: "x", beginnerAnswer: "x" });
   check("admin knowledge API refuses anonymous callers", r.status === 401, `HTTP ${r.status}`);
 
+  // F-012: accounts are by invitation (or closed). A server that lets anyone in fails here (and, if it really is
+  // open, this leaves one throwaway user row behind).
+  r = await call("POST", "/api/v1/auth/register", { email: `smoke-noinvite-${Date.now()}@example.invalid`, password: `Smoke-${Math.random().toString(36).slice(2)}-test-9` });
+  check("sign-up without an invitation code is refused", r.status === 409 || r.status === 403, `HTTP ${r.status}${r.status === 201 ? " (REGISTRATION=open?)" : ""}`);
+
   // ---- optional: accounts --------------------------------------------------------------------
   if (flag("auth")) {
     const email = `smoke-${Date.now()}@example.invalid`;
     const password = `Smoke-${Math.random().toString(36).slice(2)}-test-9`;
-    r = await call("POST", "/api/v1/auth/register", { email, password, displayName: "Smoke Test" });
-    check("registration works", r.status === 200 || r.status === 201, `HTTP ${r.status} ${r.json?.error ?? ""}`);
+    r = await call("POST", "/api/v1/auth/register", { email, password, displayName: "Smoke Test", invitationCode: opt("invite", undefined) });
+    check("registration with an invitation works", r.status === 200 || r.status === 201, `HTTP ${r.status} ${r.json?.error ?? ""}${opt("invite", "") ? "" : " (pass --invite <code>; create one with invite:create --role contributor)"}`);
     r = await call("POST", "/api/v1/auth/login", { email, password });
     const token = r.json?.token;
     check("login returns a token", r.status === 200 && !!token);

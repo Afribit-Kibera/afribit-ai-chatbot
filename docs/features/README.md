@@ -29,9 +29,9 @@ docs it changes are updated, and the result is logged in [the Book](../book/READ
 |---|---|---|---|---|
 | E-001 | Gemma 4 comparison and the GPU decision | 1 | **Done** 8 Oct 2026; GPU recommended; switch awaits the reviewers' blind comparison | [E-001](E-001-gemma4-and-gpu.md) |
 | E-002 | Community benchmark: raw open model vs Afribit, scored blind | 1 | **Draft**; writers' plan for review ([guide](../evaluation/community-benchmark-writers-guide.md)) | [E-002](E-002-community-benchmark.md) |
-| F-001 | Where the AI runs: an honest model-location label | 1 | **Built** 8 Oct 2026 (next release) | [F-001](F-001-model-location-label.md) |
-| F-002 | Privacy settings: no storage, retention, deletion | 1 | **Built** 8 Oct 2026 (next release; migration 016) | [F-002](F-002-privacy-settings.md) |
-| F-003 | "Say it your way": members suggest wording, reviewers decide | 2 | **Built** 8 Oct 2026 (next release; migration 017) | [F-003](F-003-say-it-your-way.md) |
+| F-001 | Where the AI runs: an honest model-location label | 1 | **Live** 8 Oct 2026 (API release 20261008134137) | [F-001](F-001-model-location-label.md) |
+| F-002 | Privacy settings: no storage, retention, deletion | 1 | **Live** 8 Oct 2026 (API release 20261008134137; migration 016) | [F-002](F-002-privacy-settings.md) |
+| F-003 | "Say it your way": members suggest wording, reviewers decide | 2 | **Live** 8 Oct 2026 (API release 20261008134137; migration 017) | [F-003](F-003-say-it-your-way.md) |
 | F-004 | Gap list: questions no card answered | 2 | Planned (spec to write) | — |
 | F-005 | Community console v1 | 2 | Planned (spec to write) | — |
 | F-006 | Afribit GPU server and tunnel (ADR 0016) | 2 | Planned (spec to write after E-001) | — |
@@ -40,7 +40,7 @@ docs it changes are updated, and the result is logged in [the Book](../book/READ
 | F-009 | Language readiness kit | 3 | Planned (grows out of E-002) | — |
 | F-010 | Shared Bitcoin core + community overlay packs | 3 | Planned (spec to write) | — |
 | F-011 | Opt-in learner memory | Later | Planned | — |
-| F-012 | Accounts by invitation only (authorized trainers) | 1 | **Draft** | [F-012](F-012-invitation-only-accounts.md) |
+| F-012 | Accounts by invitation only (authorized trainers) | 1 | **Built** 8 Oct 2026 (migration 018) | [F-012](F-012-invitation-only-accounts.md) |
 
 Specs are written just before their stage, so they use what the earlier stages taught us.
 

@@ -6,6 +6,7 @@ import {
   login,
   register,
   logout,
+  RegisterError,
   type AuthedProfile,
 } from "../lib/auth.js";
 import { deleteMyAccount } from "../lib/api.js";
@@ -30,6 +31,8 @@ export default function ContributorScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
+  // F-012: accounts are by invitation; the administrator gives the code.
+  const [invitationCode, setInvitationCode] = useState("");
   const [busy, setBusy] = useState(false);
   const [note, setNote] = useState("");
   // F-002: deleting your own account (contributions kept without your name, or deleted).
@@ -131,6 +134,7 @@ export default function ContributorScreen() {
                       email,
                       password,
                       displayName.trim() || undefined,
+                      invitationCode,
                     );
                   else await login(email, password);
                   const p = await fetchProfile();
@@ -138,9 +142,18 @@ export default function ContributorScreen() {
                   setProfile(p);
                   setEmail("");
                   setPassword("");
+                  setInvitationCode("");
                 } catch (err) {
                   setNote(
-                    err instanceof Error ? err.message : t("contribute.error"),
+                    err instanceof RegisterError
+                      ? t(
+                          err.reason === "closed"
+                            ? "contribute.inviteClosed"
+                            : "contribute.inviteRefused",
+                        )
+                      : err instanceof Error
+                        ? err.message
+                        : t("contribute.error"),
                   );
                 } finally {
                   setBusy(false);
@@ -180,6 +193,25 @@ export default function ContributorScreen() {
                     onChange={(e) => setDisplayName(e.target.value)}
                     maxLength={100}
                   />
+                </label>
+              )}
+              {mode === "register" && (
+                <label className="form-field">
+                  {t("contribute.inviteCode")}
+                  <input
+                    required
+                    autoComplete="off"
+                    autoCapitalize="characters"
+                    spellCheck={false}
+                    placeholder="AFB-XXXX-XXXX"
+                    value={invitationCode}
+                    onChange={(e) => setInvitationCode(e.target.value)}
+                    maxLength={20}
+                    aria-describedby="invite-code-help"
+                  />
+                  <span id="invite-code-help" className="field-help">
+                    {t("contribute.inviteHelp")}
+                  </span>
                 </label>
               )}
               <button className="button button-primary" disabled={busy}>

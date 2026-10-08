@@ -24,7 +24,7 @@ async function main(): Promise<void> {
   );
   const user = rows[0];
   if (!user) {
-    console.error(`No registered user found with email ${email}. They must register (POST /api/v1/auth/register) first.`);
+    console.error(`No registered user found with email ${email}. They must create an account first (with an invitation: invite:create).`);
     process.exit(1);
   }
 

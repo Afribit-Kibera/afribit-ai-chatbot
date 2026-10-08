@@ -75,12 +75,13 @@ To do:
   Afribit, scored blind by reviewers, with a go / no-go verdict before any grant uses the numbers
   ([spec](docs/features/E-002-community-benchmark.md)).
 - [x] **F-001 · Where the AI runs:** an honest label, true in every setup
-  ([spec](docs/features/F-001-model-location-label.md)). Built 8 October 2026; ships with the next release.
+  ([spec](docs/features/F-001-model-location-label.md)). Live since 8 October 2026.
 - [x] **F-002 · Privacy settings:** no storage, a retention period, and deleting a conversation or an account
   ([spec](docs/features/F-002-privacy-settings.md), [data stewardship](docs/governance/data-stewardship.md)).
-  Built 8 October 2026: 30 days by default, nothing stored on the pilot node. Ships with the next release.
-- [ ] **F-012 · Accounts by invitation only:** for authorized trainers; members chat and suggest without one
-  ([spec](docs/features/F-012-invitation-only-accounts.md)).
+  Live since 8 October 2026: 30 days by default, nothing stored on the pilot node.
+- [x] **F-012 · Accounts by invitation only:** for authorized trainers; members chat and suggest without one
+  ([spec](docs/features/F-012-invitation-only-accounts.md)). Built 8 October 2026: single-use codes from the
+  console's Team tab or an operator command; never an administrator by invitation.
 - [ ] **A reviewer model that lasts:** reviewers paid for their time, hours measured, spot checks; never paid per
   approval. Agreed before the pilot.
 - [ ] **Training-safe synthetic data:** our data-generation tools use only open-weight "teacher" models whose
@@ -107,7 +108,7 @@ hub's own GPU when it is funded. Moving it moves no data.
 - [ ] **F-005 · Community console v1:** the pilot console plus knowledge, team and data controls. Leaders see
   aggregates, not members' conversations.
 - [x] **F-003 · "Say it your way"** ([spec](docs/features/F-003-say-it-your-way.md)): built 8 October 2026,
-  reviewed in the pilot console's Suggestions tab; ships with the next release.
+  reviewed in the pilot console's Suggestions tab; live since 8 October 2026.
 - [ ] **F-004 · the gap list**: questions no card answered, for the reviewers. Completes the daily learning loop.
 - [ ] **Supervised pilot** of 20–50 learners ([pilot plan](docs/program/pilot-plan.md)), in Learn mode.
   Measure how people reach it: link, installed app, or an educator's phone.

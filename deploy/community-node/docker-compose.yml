@@ -81,6 +81,8 @@ services:
       MODEL_LOCATION: ${MODEL_LOCATION:-auto}
       # How long chat text is kept on this node (docs/features/F-002): none, <N>d (e.g. 30d) or keep.
       CHAT_RETENTION: ${CHAT_RETENTION:-none}
+      # Who may create an account (docs/features/F-012): invite (single-use codes from an administrator), closed or open.
+      REGISTRATION: ${REGISTRATION:-invite}
       # Only used when INFERENCE_MODE=hybrid.
       OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
       VAPID_PUBLIC_KEY: ${VAPID_PUBLIC_KEY:-}

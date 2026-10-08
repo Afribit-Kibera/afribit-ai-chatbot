@@ -253,7 +253,11 @@ Generated from the English UI dictionary. English placeholders are intentional. 
 | `contribute.email` | Email | TODO(reviewers) | TODO(reviewers) |
 | `contribute.password` | Password | TODO(reviewers) | TODO(reviewers) |
 | `contribute.displayName` | Display name (optional) | TODO(reviewers) | TODO(reviewers) |
-| `contribute.accountNote` | You need an account to contribute. Chat never needs one. Password reset and email verification are not available yet. | TODO(reviewers) | TODO(reviewers) |
+| `contribute.accountNote` | You need an account to contribute. Accounts are by invitation from your community's administrator. Chat never needs one. Password reset and email verification are not available yet. | TODO(reviewers) | TODO(reviewers) |
+| `contribute.inviteCode` | Invitation code | TODO(reviewers) | TODO(reviewers) |
+| `contribute.inviteHelp` | Your community's administrator gives you this code. It works once. | TODO(reviewers) | TODO(reviewers) |
+| `contribute.inviteRefused` | We couldn't create the account. Check the invitation code, or ask your administrator for a new one. | TODO(reviewers) | TODO(reviewers) |
+| `contribute.inviteClosed` | New accounts are not being created right now. Ask your administrator. | TODO(reviewers) | TODO(reviewers) |
 | `contribute.signOut` | Sign out | TODO(reviewers) | TODO(reviewers) |
 | `contribute.welcome` | Thank you for helping your community learn. | TODO(reviewers) | TODO(reviewers) |
 | `contribute.submitTab` | Contribute a phrase | TODO(reviewers) | TODO(reviewers) |

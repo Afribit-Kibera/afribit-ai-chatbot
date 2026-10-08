@@ -1,6 +1,6 @@
 # F-012 — Accounts by invitation only
 
-**Status:** Draft · **Roadmap stage:** 1 · **Related:** [governance](../governance/governance.md), [threat model](../security/threat-model.md)
+**Status:** Built (8 Oct 2026) · **Roadmap stage:** 1 · **Related:** [governance](../governance/governance.md), [threat model](../security/threat-model.md)
 
 ## Problem
 
@@ -71,12 +71,44 @@ Stores a hashed code, who created it and who used it. No personal data beyond wh
 - Email invitations (no email service exists yet). The administrator passes the code on themselves.
 - Self-service password reset (separately on the roadmap).
 
-## Decisions needed
+## Decisions (agreed 8 Oct 2026)
 
-1. **Default `invite` everywhere,** including the public demo. Recommended: yes.
-2. **What to do about accounts created by open sign-up so far.** Recommended: an administrator reviews the
-   list and downgrades or removes any they don't recognise. The team tools for this exist.
+1. **Default `invite` everywhere,** including the public service. Agreed.
+2. **Accounts created by open sign-up so far:** an administrator reviews the list in the console's Team tab and
+   downgrades or removes any they don't recognise. Agreed. On 8 Oct 2026 the public service had one
+   administrator and one contributor.
 
 ## Depends on
 
-Nothing external. Build it with F-002, which already touches the account routes.
+Nothing external.
+
+## As built
+
+| Part | Where |
+|---|---|
+| Table `invitations` | `db/migrations/018_invitations.sql` |
+| Codes, the setting, input checks | `apps/api/src/auth/invitations.ts` |
+| Storage (one transaction per sign-up, `SELECT … FOR UPDATE`) | `apps/api/src/auth/invitationStore.ts` |
+| Sign-up | `apps/api/src/routes/auth.ts` |
+| Administrator endpoints | `apps/api/src/routes/invitations.ts` |
+| Operator command | `apps/api/src/auth/inviteCli.ts` (`invite:create`) |
+| Console | Team tab → **Invitations** (`apps/api/public/pilot/app.js`) |
+| Web form | `apps/web/src/components/ContributorScreen.tsx`, `apps/web/src/lib/auth.ts` |
+| Node kit | `REGISTRATION` in `deploy/community-node/`; `first-run.sh` prints how to make the first administrator |
+
+Details worth knowing:
+
+- **Codes** look like `AFB-7K4M-Q9TX`: 8 characters from 31 that cannot be confused when read aloud (no 0/O,
+  1/I/L), about 2^39.6 possibilities. Case, spaces and dashes do not matter. Only a SHA-256 hash is stored.
+- **One answer for every refusal.** A missing, unknown, used, expired or revoked code, and an email that already
+  has an account, all get HTTP 409 with the same message. The password is hashed before any check, so the time
+  taken does not tell them apart either. An email that is taken does not use up the code.
+- **Sign-up is rate-limited** to 10 tries per 15 minutes per address.
+- **Administrators are never made by invitation.** Invite as a reviewer, then change the role in the Team list.
+  On a new node, `first-run.sh` prints the three steps for the first administrator.
+- **Admin checks** use the token **and** the database's current role, as the other admin routes do.
+- **The smoke test** now checks that sign-up without a code is refused; `--auth --invite <code>` tests a real
+  sign-up.
+
+Tests: `test:invitations` (13 checks, no database), `test:db` (5 more checks against real PostgreSQL), and
+`apps/web/src/lib/auth.test.ts` (4). See the [test log](../book/test-and-evaluation-log.md).

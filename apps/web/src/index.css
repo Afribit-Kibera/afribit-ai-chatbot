@@ -1403,6 +1403,10 @@ summary::-webkit-details-marker {
   min-height: 90px;
   resize: vertical;
 }
+.form-field .field-help {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
 .checkbox-field {
   display: flex;
   align-items: flex-start;

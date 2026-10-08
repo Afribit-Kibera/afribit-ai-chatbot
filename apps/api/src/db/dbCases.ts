@@ -8,9 +8,12 @@ import { pool } from "./pool.js";
 import { privacyStore, PrivacyError } from "../privacy/store.js";
 import { pilotStore } from "../pilot/store.js";
 import { teachStore, TeachError } from "../teach/store.js";
+import { invitationStore } from "../auth/invitationStore.js";
+import { hashCode, normaliseCode } from "../auth/invitations.js";
 
 /**
- * pnpm --filter @afribit/api test:db -- the SQL of F-002 (privacy) and F-003 ("say it your way") against a
+ * pnpm --filter @afribit/api test:db -- the SQL of F-002 (privacy), F-003 ("say it your way") and F-012
+ * (invitations) against a
  * real PostgreSQL, with no install and no Docker: PGlite is PostgreSQL compiled to WebAssembly. Every
  * migration in db/migrations is applied first, so a migration that does not apply fails here too.
  * PGlite has no pgvector, so vector columns become real[] for this check (nothing here touches embeddings).
@@ -180,6 +183,51 @@ await ok("deleting the conversation clears the text shared with its suggestions;
   await privacyStore.deleteSessions([S_T]);
   const s = await one(`SELECT session_id, question_text, answer_text, status FROM teach_suggestions WHERE id = $1`, [plain]);
   assert.deepEqual(s, { session_id: null, question_text: null, answer_text: null, status: "approved" });
+});
+
+// ── F-012: accounts by invitation only ──
+const reg = (code: string, email: string) => invitationStore.register({ code, email, passwordHash: "x", displayName: null });
+await ok("invitation: only the hash is stored; using it creates the account with its role, once", async () => {
+  const inv = await invitationStore.create({ role: "reviewer", note: "Amina", days: 7, createdBy: ADMIN });
+  const row = await one(`SELECT code_hash, role, created_by FROM invitations WHERE id = $1`, [inv.id]);
+  assert.equal(row.code_hash, hashCode(inv.code));
+  assert.equal((await one(`SELECT count(*)::int AS n FROM invitations WHERE code_hash LIKE '%' || $1 || '%'`, [normaliseCode(inv.code)])).n, 0);
+  const user = await reg(inv.code.toLowerCase(), "amina@x");
+  assert.equal(user?.role, "reviewer");
+  assert.equal((await one(`SELECT role, created_via FROM users WHERE email = 'amina@x'`)).role, "reviewer");
+  assert.equal(await reg(inv.code, "someone-else@x"), null);
+  assert.equal((await one(`SELECT count(*)::int AS n FROM users WHERE email = 'someone-else@x'`)).n, 0);
+  const listed = (await invitationStore.list(10)).find((i) => i.id === inv.id);
+  assert.deepEqual([listed?.state, listed?.usedBy, listed?.note], ["used", "amina@x", "Amina"]);
+});
+await ok("invitation: expired and revoked codes create nothing; only an unused one can be revoked", async () => {
+  const expired = await invitationStore.create({ role: "contributor", note: null, days: 1, createdBy: null });
+  await db.query(`UPDATE invitations SET expires_at = now() - interval '1 minute' WHERE id = $1`, [expired.id]);
+  assert.equal(await reg(expired.code, "late@x"), null);
+  assert.equal((await invitationStore.list(10)).find((i) => i.id === expired.id)?.state, "expired");
+  const revoked = await invitationStore.create({ role: "contributor", note: null, days: 7, createdBy: ADMIN });
+  assert.equal(await invitationStore.revoke(revoked.id, ADMIN), true);
+  assert.equal(await invitationStore.revoke(revoked.id, ADMIN), false);
+  assert.equal(await reg(revoked.code, "revoked@x"), null);
+  const used = (await invitationStore.list(10)).find((i) => i.state === "used")!;
+  assert.equal(await invitationStore.revoke(used.id, ADMIN), false);
+});
+await ok("invitation: an email that already has an account rolls back and leaves the code usable", async () => {
+  const inv = await invitationStore.create({ role: "contributor", note: null, days: 7, createdBy: ADMIN });
+  await assert.rejects(() => reg(inv.code, "amina@x"), (e: any) => e.code === "23505");
+  assert.equal((await one(`SELECT used_at FROM invitations WHERE id = $1`, [inv.id])).used_at, null);
+  assert.equal((await reg(inv.code, "fresh@x"))?.role, "contributor");
+});
+await ok("invitation: deleting the account that used or made one keeps the invitation row", async () => {
+  const fresh = await one(`SELECT id FROM users WHERE email = 'fresh@x'`);
+  await privacyStore.deleteAccount(fresh.id, "keep");
+  assert.equal((await one(`SELECT count(*)::int AS n FROM invitations WHERE used_by IS NULL AND used_at IS NOT NULL`)).n, 1);
+});
+await ok("invitation: creating, using and revoking are in the audit log, never with the code", async () => {
+  const a = (await db.query(`SELECT action, actor, details FROM audit_logs WHERE entity_type = 'invitation'`)).rows as any[];
+  for (const action of ["create_invitation", "use_invitation", "revoke_invitation"]) assert.ok(a.some((x) => x.action === action), action);
+  assert.ok(a.some((x) => x.action === "create_invitation" && x.actor === "operator"));
+  assert.ok(a.every((x) => !JSON.stringify(x.details ?? {}).includes("AFB")));
 });
 await db.close();
 console.log(`db: ${passed} checks passed against PostgreSQL (PGlite)`);

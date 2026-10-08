@@ -23,6 +23,10 @@ How decisions are made, who can approve what, and how a community takes part. **
 
 One person may hold several roles, but never both author and approver for the same change.
 
+**Accounts are by invitation** ([F-012](../features/F-012-invitation-only-accounts.md)). Members need none. A node's
+administrators invite contributors and reviewers with single-use codes; nobody can make themselves a contributor,
+and nobody becomes an administrator by invitation. Each invitation created, used or revoked is in the audit log.
+
 ## How content gets approved
 
 1. A contribution enters as a **draft**: not retrievable, not used.

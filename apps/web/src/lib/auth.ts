@@ -5,7 +5,7 @@ const TOKEN_KEY = "afribit.authToken";
 export interface AuthedProfile {
   id: string;
   email: string;
-  role: "contributor" | "admin";
+  role: "contributor" | "reviewer" | "admin";
   displayName: string | null;
 }
 
@@ -39,16 +39,43 @@ async function parseErrorOr<T>(response: Response): Promise<T> {
   return response.json();
 }
 
+/**
+ * F-012: why an account was not created, so the form can say it in the member's language. "refused" covers
+ * a missing, wrong, used, expired or revoked code and an email that already has an account (the server
+ * deliberately gives one answer for all of these).
+ */
+export class RegisterError extends Error {
+  constructor(
+    readonly reason: "refused" | "closed",
+    message: string,
+  ) {
+    super(message);
+  }
+}
+
 export async function register(
   email: string,
   password: string,
   displayName?: string,
+  invitationCode?: string,
 ): Promise<{ role: string }> {
   const response = await fetch(`${API_BASE}/api/v1/auth/register`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password, displayName }),
+    body: JSON.stringify({
+      email,
+      password,
+      displayName,
+      invitationCode: invitationCode?.trim() || undefined,
+    }),
   });
+  if (response.status === 409 || response.status === 403) {
+    const body = await response.json().catch(() => ({}));
+    throw new RegisterError(
+      response.status === 403 ? "closed" : "refused",
+      body.error ?? `Request failed: ${response.status}`,
+    );
+  }
   const data = await parseErrorOr<{ token: string; role: string }>(response);
   setAuthToken(data.token);
   return { role: data.role };

@@ -59,3 +59,9 @@ echo "==> Warming the model so the first question is not slow"
 docker compose exec ollama ollama run "$MODEL" "Habari" >/dev/null || true
 
 echo "Done. Open https://${NODE_HOSTNAME:-localhost}"
+echo
+echo "Accounts are by invitation (REGISTRATION=invite). To make the first administrator:"
+echo "  1. docker compose exec api node dist/auth/inviteCli.js --role reviewer --note 'first administrator'"
+echo "  2. In the app, open Contribute > Create contributor account and enter that code."
+echo "  3. docker compose exec api node dist/db/promoteToAdmin.js <that email> admin"
+echo "After that, create invitations in the console's Team tab (/pilot)."

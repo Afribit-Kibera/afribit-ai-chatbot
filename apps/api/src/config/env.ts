@@ -2,6 +2,7 @@ import { config as loadDotenv } from "dotenv";
 import { parseOrigins } from "./cors.js";
 import { parseModelLocationSetting } from "../privacy/location.js";
 import { parseRetention } from "../privacy/retention.js";
+import { parseRegistration } from "../auth/invitations.js";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 
@@ -145,6 +146,11 @@ export const env = {
    * the pilot node sets "none" (deploy/community-node/.env.example).
    */
   chatRetention: parseRetention(process.env.CHAT_RETENTION),
+  /**
+   * F-012 — who may create an account: "invite" (default; a single-use code from an administrator),
+   * "closed" or "open" (development only; the server warns elsewhere). Members need no account.
+   */
+  registration: parseRegistration(process.env.REGISTRATION),
 };
 
 export function assertProductionEnv(): void {

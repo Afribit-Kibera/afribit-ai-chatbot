@@ -17,6 +17,7 @@ import { registerReviewRoutes } from "./routes/review.js";
 import { registerVoiceRoutes } from "./routes/voice.js";
 import { registerPrivacyRoutes } from "./routes/privacy.js";
 import { registerTeachRoutes } from "./routes/teach.js";
+import { registerInvitationRoutes } from "./routes/invitations.js";
 import { privacyStore } from "./privacy/store.js";
 import { startRetentionSweep } from "./privacy/sweep.js";
 import { serviceInfo } from "./privacy/service.js";
@@ -101,6 +102,11 @@ registerPilotRoutes(app);
 registerVoiceRoutes(app, gateway);
 registerPrivacyRoutes(app);
 registerTeachRoutes(app);
+registerInvitationRoutes(app);
+
+// F-012: say who may create an account, and warn if anyone can.
+app.log.info(`accounts: registration "${env.registration}"`);
+if (env.registration === "open" && env.nodeEnv !== "development") app.log.warn("REGISTRATION=open: anyone can create a contributor account. Use \"invite\" (the default) outside development.");
 
 // F-002: empty expired chat text every hour; F-001: say in the log what the app will tell members.
 startRetentionSweep(privacyStore, env.chatRetention, { log: (m) => app.log.info(m) });

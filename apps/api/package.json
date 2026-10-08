@@ -16,6 +16,7 @@
     "db:seed:manuals": "tsx src/db/seedCommunityManuals.ts",
     "db:promote:manuals": "tsx src/db/promoteCommunityManuals.ts",
     "db:promote:admin": "tsx src/db/promoteToAdmin.ts",
+    "invite:create": "tsx src/auth/inviteCli.ts",
     "dataset:campaign": "tsx src/dataset-lab/runCampaign.ts",
     "dataset:eval": "tsx src/dataset-lab/runEval.ts",
     "test:prompt-golden": "tsx src/dataset-lab/promptGoldenCases.ts",
@@ -50,6 +51,7 @@
     "test:meter": "tsx src/usage/meterCases.ts",
     "test:privacy": "tsx src/privacy/privacyCases.ts",
     "test:teach": "tsx src/teach/teachCases.ts",
+    "test:invitations": "tsx src/auth/invitationCases.ts",
     "test:db": "tsx src/db/dbCases.ts"
   },
   "dependencies": {

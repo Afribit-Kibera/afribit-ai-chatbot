@@ -596,7 +596,8 @@
     clear(content);
     var search = el("input", { type: "search", id: "t-q", placeholder: "Search name or email", value: teamState.q, "aria-label": "Search team", onchange: function (ev) { teamState.q = ev.target.value.trim(); teamState.offset = 0; loadTeam(); } });
     content.appendChild(el("div", { class: "bar" }, [el("div", { class: "grow" }, [search])]));
-    content.appendChild(el("p", { class: "small", text: "Reviewers can edit cards, see this console and resolve reports. Administrators can also download the export and manage this list. People must first create an account themselves (Contribute in the app); then find them here and change their role. Changes take effect on their next request, and every change is logged." }));
+    content.appendChild(el("p", { class: "small", text: "Reviewers can edit cards, see this console and resolve reports. Administrators can also download the export and manage this list. Accounts are by invitation: create one below, pass the code on privately, and the person enters it under Contribute in the app. Changes take effect on their next request, and every change is logged." }));
+    content.appendChild(invitations());
     if (!res.users.length) content.appendChild(el("div", { class: "panel" }, [el("p", { text: teamState.q ? "Nobody matches that search." : "Nobody has registered yet." })]));
     res.users.forEach(function (u) {
       var sel = el("select", { "aria-label": "Role for " + u.email });
@@ -623,6 +624,62 @@
       el("button", { type: "button", text: "Next", disabled: res.offset + res.users.length >= res.total, onclick: function () { teamState.offset += TEAM_PAGE; loadTeam(); } }),
       el("span", { class: "small", text: from + "-" + to + " of " + res.total })
     ]));
+  }
+
+  // F-012: single-use invitation codes. The code is shown once, here, and is not stored.
+  function invitations() {
+    var d = el("details", { class: "panel" }, [el("summary", { text: "Invitations" })]);
+    var role = el("select", { id: "i-role", "aria-label": "Invitation role" });
+    ["contributor", "reviewer"].forEach(function (r) { role.appendChild(el("option", { value: r, text: r })); });
+    var note = el("input", { id: "i-note", placeholder: "Who it is for (optional)", maxlength: "200", autocomplete: "off", "aria-label": "Who it is for" });
+    var days = el("select", { id: "i-days", "aria-label": "Expires after" });
+    [["1", "1 day"], ["7", "7 days"], ["30", "30 days"]].forEach(function (p) { var o = el("option", { value: p[0], text: p[1] }); if (p[0] === "7") o.selected = true; days.appendChild(o); });
+    var msg = el("div", { "aria-live": "polite" });
+    var list = el("div");
+    var create = el("button", { type: "button", text: "Create invitation", onclick: function () {
+      clear(msg); create.disabled = true;
+      api("POST", "/api/v1/admin/invitations", { role: role.value, note: note.value.trim() || undefined, days: Number(days.value) }).then(function (r) {
+        create.disabled = false; note.value = "";
+        clear(msg);
+        msg.appendChild(el("div", { class: "notice ok" }, [
+          el("p", { text: "Invitation for a " + r.role + (r.note ? " (" + r.note + ")" : "") + ", single use, expires " + when(r.expiresAt) + ":" }),
+          el("p", null, [el("code", { class: "invite-code", text: r.code })]),
+          el("p", { class: "small", text: "Copy it now: it is shown only once and is not stored. Pass it on privately, not in a group chat." })
+        ]));
+        refresh();
+      }).catch(function (err) { create.disabled = false; clear(msg); msg.appendChild(notice(err.message, "err")); });
+    } });
+    d.appendChild(el("p", { class: "small", text: "Each code makes one account with the role you choose. Administrators are never made by invitation: invite as a reviewer, then change the role below." }));
+    d.appendChild(el("div", { class: "invite-row" }, [role, note, days, create]));
+    d.appendChild(msg);
+    d.appendChild(list);
+
+    function refresh() {
+      clear(list);
+      api("GET", "/api/v1/admin/invitations?limit=50").then(function (r) {
+        if (!r.invitations.length) { list.appendChild(el("p", { class: "small", text: "No invitations yet." })); return; }
+        r.invitations.forEach(function (i) {
+          var line = el("div", { class: "item" }, [
+            el("div", { class: "meta" }, [
+              el("span", { class: "tag", text: i.state }), el("span", { text: i.role }),
+              el("span", { text: i.note || "" }),
+              el("span", { text: i.state === "used" ? "used " + when(i.usedAt) + (i.usedBy ? " by " + i.usedBy : "") : "expires " + when(i.expiresAt) })
+            ])
+          ]);
+          if (i.state === "open") {
+            var out = el("span", { "aria-live": "polite" });
+            var revoke = el("button", { type: "button", text: "Revoke", onclick: function () {
+              revoke.disabled = true;
+              api("POST", "/api/v1/admin/invitations/" + encodeURIComponent(i.id) + "/revoke", {}).then(refresh).catch(function (err) { revoke.disabled = false; clear(out); out.appendChild(notice(err.message, "err")); });
+            } });
+            line.appendChild(el("div", { class: "row" }, [revoke, out]));
+          }
+          list.appendChild(line);
+        });
+      }).catch(function (err) { list.appendChild(notice(err.message, "err")); });
+    }
+    d.addEventListener("toggle", function () { if (d.open) refresh(); });
+    return d;
   }
 
   // ---- links ----------------------------------------------------------------------------------

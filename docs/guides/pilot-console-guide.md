@@ -12,7 +12,7 @@ Open `/pilot` on your service (for example `https://your-service/pilot`) and log
 | Administrator | All of that, plus download the daily CSV and manage the Team tab (make someone a reviewer or administrator) |
 | Anyone else | Nothing here. Learners never see the console |
 
-A person must first create an account themselves (Contribute in the app). Then an administrator finds them in **Team** and sets their role. The change applies on their next request (they may need to log in again to get a fresh session). Every role change is written to the audit log, and the last administrator cannot be demoted, so the service cannot be left without one.
+Accounts are by invitation ([F-012](../features/F-012-invitation-only-accounts.md)). An administrator creates a single-use code in **Team → Invitations** for a contributor or a reviewer; the person enters it under Contribute in the app. To change a role later, an administrator finds them in **Team** and sets it. The change applies on their next request (they may need to log in again to get a fresh session). Every role change is written to the audit log, and the last administrator cannot be demoted, so the service cannot be left without one.
 
 ## Privacy: what the console knows and does not know
 
@@ -68,7 +68,19 @@ Answers from before this feature was added have no record of which cards were us
 
 ## Team (administrators)
 
-Search by name or email, change a role, save. Roles: `contributor` (can do Microtasks), `reviewer` (can edit cards, use the console), `admin` (everything, including this tab and the export). Registration itself is unchanged. The command line `pnpm --filter @afribit/api db:promote:admin <email> reviewer|admin` still works if you ever need it.
+Search by name or email, change a role, save. Roles: `contributor` (can do Microtasks), `reviewer` (can edit cards, use the console), `admin` (everything, including this tab and the export). The command line `pnpm --filter @afribit/api db:promote:admin <email> reviewer|admin` still works if you ever need it.
+
+**Invitations** (open the panel at the top of the tab):
+
+1. Choose the role (contributor or reviewer), who it is for (optional, for your own records) and when it expires (1, 7 or 30 days).
+2. **Create invitation.** The code (like `AFB-7K4M-Q9TX`) is shown **once**. Copy it and pass it on privately, in person or in a direct message, never in a group chat. It is not stored, so it cannot be shown again; if it is lost, revoke it and make a new one.
+3. The list shows each invitation as open, used (by whom, when), expired or revoked. **Revoke** stops an open one.
+
+Administrators are never made by invitation: invite the person as a reviewer, then change their role here. Every invitation created, used or revoked is written to the audit log.
+
+Without the console (a new node, or a terminal on the server): `pnpm --filter @afribit/api invite:create --role reviewer --note "who it is for"`, or on a node, `docker compose exec api node dist/auth/inviteCli.js --role reviewer`.
+
+**Accounts made before invitations (before 8 Oct 2026)** could be created by anyone. Look through the list and change to `contributor`, or ask to remove, any account you don't recognise.
 
 ## Links: counting where learners come from
 

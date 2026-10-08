@@ -6,14 +6,15 @@ Every check we rely on, and a dated record of every time we measured something. 
 
 There are two kinds of check:
 
-- **Standing tests** need no network or paid model. They run on every push in CI (`pnpm test`, plus
-  build, browser journeys, accessibility and Lighthouse budgets in `.github/workflows/ci.yml`).
+- **Standing tests** need no network or paid model. They are `pnpm test`, which the release script runs
+  before every deploy. GitHub Actions (build, browser journeys, accessibility and Lighthouse budgets in
+  `.github/workflows/ci.yml`) is not running for this repository; see [where tests actually run](README.md).
 - **Live evaluations** call real models, cost money and vary from run to run. They are run by hand and
   logged below.
 
 ## 1. Standing test suites
 
-Counts are from the run on 8 October 2026 (entry 2026-10-08-c below). If a count drops between runs
+Counts are from the run on 8 October 2026 (entry 2026-10-08-g below). If a count drops between runs
 without an explanation, treat it as a defect.
 
 | Suite (`pnpm …`) | Checks | What it protects |
@@ -34,16 +35,19 @@ without an explanation, treat it as a defect.
 | `test:review` | 11 | Only approved or published cards are live; the two-person rule |
 | `test:pilot` | 36 | Pilot console: aggregates, blanking of small counts, roles, export contents, page security |
 | `test:grounding` | 13 | Flags invented names and figures in answers |
-| `test:privacy` | 22 | F-001/F-002: where the AI runs (never overstated), retention, the browser history the server accepts, the delete routes, `userId` only from a verified token |
+| `test:privacy` | 23 | F-001/F-002: where the AI runs (never overstated), retention, the browser history the server accepts, the delete routes, `userId` only from a verified token |
 | `test:teach` | 12 | F-003: suggestion validation, safety topics, consent mapping, self-approval and two-reviewer rules, who may call each route |
-| `@afribit/web test` (Vitest) | 57 (6 files) | Web app units, incl. the privacy wording rule, recent turns, deletion and suggestion requests |
-| **Total** | **513** | (468 on 8 Oct morning; +45 with F-001–F-003) |
+| `test:invitations` | 13 | F-012: the `REGISTRATION` setting, codes, one generic refusal, a code works once, `closed` and `open`, who may manage invitations |
+| `test:db` | 21 | The SQL of F-002, F-003 and F-012 against real PostgreSQL (PGlite); every migration must apply |
+| `@afribit/web test` (Vitest) | 61 (7 files) | Web app units, incl. the privacy wording rule, recent turns, deletion, suggestion and sign-up requests |
+| **Total** | **552** | (468 on 8 Oct morning; 529 at release 20261008133325; +23 with F-012) |
 
 CI also runs `test:voice-ui-assets` (the Voice Lab page's content security policy and assets), Playwright
 browser journeys with axe accessibility checks, and Lighthouse budgets.
 
 **What the standing tests don't cover:**
-- Nothing runs against a real Postgres database.
+- `test:db` runs real PostgreSQL, but without pgvector, so vector search is not exercised; most routes are
+  still tested with stand-in stores.
 - Nothing calls a real model.
 - Nothing checks answer quality.
 - Live evaluations reuse the same 15 cases to tune prompts and to test them.
@@ -67,6 +71,35 @@ Add new entries at the top of section 3. Copy this template:
 
 Entries before 8 October 2026 were backfilled on that date from the evaluation document and the model
 profile notes. Their raw outputs are in the maintainers' experiment folders.
+
+### 2026-10-08-g — F-012 accounts by invitation only: build and tests
+- **What:** standing tests for [F-012](../features/F-012-invitation-only-accounts.md), run locally with
+  `pnpm typecheck` and `pnpm test`.
+- **Code:** `feat/frontend-rework`, the commit "Accounts by invitation only (F-012)" (migration 018).
+- **Result:**
+  - Typecheck clean. **`pnpm test`: 552 checks, all passing** (529 before).
+  - `test:invitations` (13, new):
+    - the setting defaults to `invite`;
+    - codes are readable and unique, and are stored only as a hash;
+    - a missing, wrong, used or revoked code and a taken email all get the **same** 409 answer;
+    - a reviewer invitation makes a reviewer, once;
+    - `closed` refuses even a good code; `open` behaves as before;
+    - only an administrator whose **database role** is still admin can manage invitations.
+  - `test:db` (+5, real PostgreSQL):
+    - the stored hash matches, and the code itself appears nowhere;
+    - an invitation creates the account with its role, once;
+    - expired and revoked codes create nothing;
+    - a taken email rolls the transaction back and leaves the code usable;
+    - deleting the account keeps the invitation row;
+    - create, use and revoke are audited, never with the code.
+  - Web (+4): the form sends the code; a refusal and a closed server are told apart, so the message can be
+    shown in the member's language.
+- **Caveats:**
+  - No browser journey covers sign-up. The console's Invitations panel was not exercised in a browser.
+  - The smoke test now checks that sign-up without a code is refused. A full sign-up needs
+    `--auth --invite <code>`.
+- **Decision / follow-up:** release the API (migration 018), then an administrator reviews the existing
+  contributor account (decision 2 in the spec).
 
 ### 2026-10-08-f — Release 20261008134137 to production (migrate-first, sweep delay)
 - **What:** production release of commit `e6ed753`: migrations run with the new image before it starts, and

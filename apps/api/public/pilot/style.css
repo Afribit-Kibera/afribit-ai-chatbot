@@ -85,3 +85,7 @@ details > summary { cursor: pointer; font-weight: 600; margin: 8px 0; }
 .pager { display: flex; gap: 8px; align-items: center; margin-top: 12px; }
 .bar > .tabs { flex: 0 1 auto; margin: 0; overflow: visible; }
 .grid > .panel { margin-top: 0; }
+.invite-row { display: grid; grid-template-columns: 1fr; gap: 8px; margin: 10px 0; }
+@media (min-width: 700px) { .invite-row { grid-template-columns: 10em 1fr 8em auto; align-items: center; } }
+.invite-code { font-size: 1.4rem; letter-spacing: .08em; user-select: all; }
+details.panel { margin-bottom: 16px; }

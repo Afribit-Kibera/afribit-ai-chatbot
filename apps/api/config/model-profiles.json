@@ -8,7 +8,8 @@
       "fallbackProfile": "fallback_chat",
       "maxOutputTokens": 500,
       "temperature": 0.3,
-      "privacyProfile": "strict"
+      "privacyProfile": "strict",
+      "timeoutMs": 30000
     },
     {
       "_comment": "2026-09-23: was meta-llama/llama-3.1-8b-instruct -- docs/COMMUNICATION_STYLE_EVAL.md Finding 5 caught it silently serving near-incoherent Kiswahili (called the user 'daktari wa Bitcoin' -- 'Bitcoin doctor') and a 3-line repetition loop under real load. runFallbackBakeoff.ts empirically tested 5 candidates (same prompts/pipeline, judged against the same communication rubric): gpt-4o-mini won clearly (1.75/2 avg score, 0/4 hard failures, 0 errors) vs. the old model's 1.00/2 with 2/4 hard failures and an outright error on one case. Full ranked results: chat_evaluations WHERE campaign_id='fallback_bakeoff_2026_09_23'. Still meaningfully cheaper than default_chat's Llama 3.3 70B, so the cost profile of 'fallback' vs 'primary' is preserved.",
@@ -67,6 +68,92 @@
       "fallbackProfile": "fallback_chat",
       "maxOutputTokens": 800,
       "temperature": 0.2,
+      "privacyProfile": "strict"
+    },
+    {
+      "_comment": "Community node (see docs/program/community-node.md). Model name is the Ollama tag; override per node with LOCAL_LLM_MODEL. Default is Gemma 3 12B: it passed all 15 cases of our Sheng/Kiswahili rubric in the October 2026 model search, while Qwen3 8B passed 3 (docs/evaluation/methodology.md). No fallback: if the node is down the API answers straight from the reviewed knowledge cards, so nothing leaves the community. timeoutMs is generous because a modest node must read a multi-thousand-token prompt before it emits its first word (measured: tens of seconds to minutes on 2014-era hardware).",
+      "profile": "node_chat",
+      "provider": "local",
+      "model": "gemma3:12b",
+      "fallbackProfile": null,
+      "maxOutputTokens": 500,
+      "temperature": 0.3,
+      "privacyProfile": "strict",
+      "timeoutMs": 300000
+    },
+    {
+      "_comment": "INFERENCE_MODE=hybrid only: node first, then the hosted default_chat model if the node fails. This sends the user's question outside the community, so it is an explicit opt-in and must be disclosed to users.",
+      "profile": "node_chat_cloud_fallback",
+      "provider": "local",
+      "model": "gemma3:12b",
+      "fallbackProfile": "default_chat",
+      "maxOutputTokens": 500,
+      "temperature": 0.3,
+      "privacyProfile": "strict",
+      "timeoutMs": 300000
+    },
+    {
+      "_comment": "The waiter's ticket call (apps/api/src/waiter/ticket.ts): rewrites the customer's Sheng/Kiswahili/English message into a clean English search question. Small, fast, cheap. ZDR routing is enforced by privacyProfile strict (OPENROUTER_ZDR_ONLY). google/gemma-3-12b-it has one zero-retention provider on OpenRouter (DeepInfra) as of 2026-10-02 -- a resilience point; failure falls back to the user's own words.",
+      "profile": "waiter_cloud",
+      "provider": "openrouter",
+      "model": "google/gemma-3-12b-it",
+      "fallbackProfile": null,
+      "maxOutputTokens": 250,
+      "temperature": 0.1,
+      "privacyProfile": "strict",
+      "timeoutMs": 30000
+    },
+    {
+      "_comment": "The waiter on a community node: the local model, no cloud call.",
+      "profile": "waiter_local",
+      "provider": "local",
+      "model": "gemma3:12b",
+      "fallbackProfile": null,
+      "maxOutputTokens": 250,
+      "temperature": 0.1,
+      "privacyProfile": "strict",
+      "timeoutMs": 300000
+    },
+    {
+      "_comment": "Optional cloud chat model: Gemma 3 12B passed 15/15 of our language rubric with the full prompt and 13/15 (11 accurate) with the compact prompt, versus Llama 3.3 70B's 11/15 with the full prompt. Select with CLOUD_CHAT_PROFILE=compact_chat_cloud after community review; falls back to default_chat.",
+      "profile": "compact_chat_cloud",
+      "provider": "openrouter",
+      "model": "google/gemma-3-12b-it",
+      "fallbackProfile": "default_chat",
+      "maxOutputTokens": 500,
+      "temperature": 0.3,
+      "privacyProfile": "strict"
+    },
+    {
+      "_comment": "The chef in the restaurant pipeline (apps/api/src/restaurant/chef.ts): a larger hosted model that sees only the waiter's scrubbed English ticket and the public knowledge cards, never the customer's own words. Zero-data-retention routing is enforced by privacyProfile strict. Llama 3.3 70B has many ZDR providers on OpenRouter (checked 2026-10-02).",
+      "profile": "chef_cloud",
+      "provider": "openrouter",
+      "model": "meta-llama/llama-3.3-70b-instruct",
+      "fallbackProfile": null,
+      "maxOutputTokens": 700,
+      "temperature": 0.2,
+      "privacyProfile": "strict",
+      "timeoutMs": 45000
+    },
+    {
+      "_comment": "The waiter's serving step on a node (restaurant pipeline, hybrid mode): the local model writes the answer in the customer's language from the chef's fact sheet. No fallback: if it fails, chat answers from the knowledge cards.",
+      "profile": "serve_local",
+      "provider": "local",
+      "model": "gemma3:12b",
+      "fallbackProfile": null,
+      "maxOutputTokens": 500,
+      "temperature": 0.3,
+      "privacyProfile": "strict",
+      "timeoutMs": 300000
+    },
+    {
+      "_comment": "The waiter's serving step in cloud mode. NOTE: hosted, so it sees the customer's words -- in cloud mode the restaurant pipeline gives accuracy, not privacy. The privacy benefit needs a local waiter (hybrid mode).",
+      "profile": "serve_cloud",
+      "provider": "openrouter",
+      "model": "google/gemma-3-12b-it",
+      "fallbackProfile": "default_chat",
+      "maxOutputTokens": 500,
+      "temperature": 0.3,
       "privacyProfile": "strict"
     }
   ]

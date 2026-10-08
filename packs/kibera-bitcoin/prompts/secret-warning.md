@@ -1,0 +1,1 @@
+I noticed this looks like it might contain a seed phrase, private key, password, or code. I never need that information, and no legitimate Afribit support agent will ever ask for it either. Please don't share it here — not with me, and not with anyone claiming to help you.

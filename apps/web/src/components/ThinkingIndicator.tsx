@@ -1,14 +1,36 @@
-/**
- * Cheap CSS-only feedback for the short gap before the first streamed token.
- * Once text starts streaming, the response itself becomes the progress state.
- */
+import { useEffect, useRef } from "react";
+import { animate, stagger } from "animejs";
+import { useI18n } from "../lib/i18n.js";
 export function ThinkingIndicator() {
+  const { t } = useI18n();
+  const root = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches ||
+      !root.current
+    )
+      return;
+    const animation = animate(root.current.querySelectorAll(".thinking-node"), {
+      opacity: [0.25, 1],
+      scale: [0.8, 1.15],
+      delay: stagger(180),
+      duration: 650,
+      alternate: true,
+      loop: true,
+      ease: "inOutSine",
+    });
+    return () => {
+      animation.revert();
+    };
+  }, []);
   return (
-    <div className="flex items-center gap-3 py-1 pl-10" role="status" aria-label="Afribit AI is preparing a response">
-      <span className="relative h-1.5 w-16 overflow-hidden rounded-full bg-bg-muted">
-        <span className="absolute inset-y-0 left-0 w-7 rounded-full bg-bitcoin animate-thinking-line" />
-      </span>
-      <span className="text-xs text-text-muted">Afribit inaandika...</span>
+    <div ref={root} className="thinking" role="status">
+      <div className="thinking-nodes" aria-hidden="true">
+        <span className="thinking-node" />
+        <span className="thinking-node" />
+        <span className="thinking-node" />
+      </div>
+      <span>{t("chat.thinking")}</span>
     </div>
   );
 }

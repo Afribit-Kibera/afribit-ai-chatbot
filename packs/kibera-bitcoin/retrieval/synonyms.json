@@ -1,0 +1,79 @@
+{
+  "note": "Query expansion for the full-text search: a word people type (left) also searches for these words in the cards (right). Add pairs when a real question missed its card because of vocabulary.",
+  "synonyms": {
+    "potea": [
+      "lost"
+    ],
+    "imepotea": [
+      "lost"
+    ],
+    "zitapotea": [
+      "lost"
+    ],
+    "kupoteza": [
+      "lost"
+    ],
+    "nikipoteza": [
+      "lost"
+    ],
+    "poteza": [
+      "lost"
+    ],
+    "simu": [
+      "device",
+      "phone"
+    ],
+    "imefail": [
+      "fail",
+      "failed"
+    ],
+    "itafail": [
+      "fail"
+    ],
+    "kufail": [
+      "fail"
+    ],
+    "mbona": [
+      "why"
+    ],
+    "kwanini": [
+      "why"
+    ],
+    "rudisha": [
+      "reverse",
+      "refund"
+    ],
+    "kurudisha": [
+      "reverse",
+      "refund"
+    ],
+    "rudishwa": [
+      "reverse",
+      "refund"
+    ],
+    "thibitisha": [
+      "confirm"
+    ],
+    "kuthibitisha": [
+      "confirm"
+    ],
+    "imethibitishwa": [
+      "confirmed"
+    ],
+    "ibiwa": [
+      "stolen"
+    ],
+    "ikiibiwa": [
+      "stolen"
+    ],
+    "kuibiwa": [
+      "stolen"
+    ],
+    "haribika": [
+      "damaged"
+    ],
+    "imeharibika": [
+      "damaged"
+    ]
+  }
+}

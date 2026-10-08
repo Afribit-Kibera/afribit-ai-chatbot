@@ -1,6 +1,11 @@
+import { getPack } from "../pack/active.js";
+import type { CommunityPack } from "../pack/types.js";
+
 /**
  * Deterministic cleanup applied to every model-generated chat response,
- * regardless of language mode. Added 2026-09-24 after live eval
+ * regardless of language mode. WHAT it cleans is the community's: the rules live in the active
+ * pack (language/postprocess.json); this file only applies them. The history below is why the
+ * Kibera pack has its rule for "Kwa hivyo". Added 2026-09-24 after live eval
  * (docs/COMMUNICATION_STYLE_EVAL.md) found "Kwa hivyo"/"Kwa hiyo" -- banned
  * in SHENG_STYLE_GUIDE -- still surfacing in a meaningful, stable fraction
  * of live responses (~4/15 across two separate eval runs, both before and
@@ -24,10 +29,11 @@
  * live runs despite prompt-level fixes) -- not a first-line response to a
  * single bad sample.
  */
-export function fixFormalConnectives(text: string): string {
-  return text
-    .replace(/Kwa hivyo,?/g, "So,")
-    .replace(/Kwa hiyo,?/g, "So,")
-    .replace(/kwa hivyo,?/g, "so,")
-    .replace(/kwa hiyo,?/g, "so,");
+export function applyPostprocess(text: string, pack: CommunityPack = getPack()): string {
+  let out = text;
+  for (const rule of pack.postprocess) {
+    rule.find.lastIndex = 0;
+    out = out.replace(rule.find, rule.replace);
+  }
+  return out;
 }

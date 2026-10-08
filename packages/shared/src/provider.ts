@@ -1,4 +1,4 @@
-import type { ExplanationLevel, LanguageMode } from "./language.js";
+import type { ExplanationLevel, LanguageModeId } from "./language.js";
 
 /**
  * PRD §16.3 — the provider interface. Nothing outside the Afribit AI Gateway
@@ -25,7 +25,7 @@ export interface AfribitResponseFormat {
 export interface AfribitChatRequest {
   requestId: string;
   messages: AfribitChatMessage[];
-  languageMode: LanguageMode;
+  languageMode: LanguageModeId;
   explanationLevel: ExplanationLevel;
   modelProfile: string;
   maxOutputTokens: number;
@@ -95,4 +95,11 @@ export interface ModelProfile {
   maxOutputTokens: number;
   temperature: number;
   privacyProfile: "strict" | "standard";
+  /**
+   * Max time to wait for a response (for streaming: for the first chunk).
+   * Defaults to the gateway's 15s, which suits hosted APIs. A community node
+   * on modest hardware needs minutes -- it must read a multi-thousand-token
+   * prompt before it can emit anything -- so node profiles set this higher.
+   */
+  timeoutMs?: number;
 }

@@ -3,12 +3,12 @@ name: CI
 # Runs on every push and PR. Deliberately does NOT run the live-model eval
 # scripts (pnpm dataset:communication-eval, dataset:fallback-bakeoff, etc.)
 # -- those call a real paid OpenRouter model and need a real API key; they
-# stay a manual/local check (see docs/COMMUNICATION_STYLE_EVAL.md), not a
+# stay a manual/local check (see CONTRIBUTING.md), not a
 # CI gate that would either need a shared paid key in CI secrets or block
 # every PR on a flaky third-party API call.
 on:
   push:
-    branches: [master]
+    branches: [main, master]
   pull_request:
 
 concurrency:
@@ -43,6 +43,48 @@ jobs:
 
       - name: Build (api + web)
         run: pnpm build
+
+      - name: Voice Lab assets, CSP and path isolation
+        run: pnpm --filter @afribit/api test:voice-ui-assets
+
+  frontend-quality:
+    name: Frontend journeys, accessibility and performance
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @afribit/web exec playwright install --with-deps chromium
+      - run: pnpm --filter @afribit/web build
+      - name: Browser journeys and axe accessibility checks
+        run: pnpm --filter @afribit/web test:e2e
+      - name: Mobile startup and Lighthouse budgets
+        shell: bash
+        run: |
+          pnpm --filter @afribit/web preview --host 127.0.0.1 --port 4173 > /tmp/afribit-preview.log 2>&1 &
+          preview_pid=$!
+          trap 'kill "$preview_pid"' EXIT
+          for attempt in {1..30}; do
+            curl -fsS http://127.0.0.1:4173/ >/dev/null && break
+            sleep 1
+          done
+          pnpm --filter @afribit/web qa
+          pnpm --filter @afribit/web lighthouse
+      - name: Upload frontend QA evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-quality
+          path: |
+            internal/frontend/playwright-report
+            internal/frontend/test-results
+            internal/frontend/lighthouse
+            internal/frontend/qa
+            apps/web/dist/bundle-budgets.json
 
   migrations:
     name: DB migrations apply cleanly
@@ -86,3 +128,21 @@ jobs:
 
       - name: Run all migrations against a clean database
         run: pnpm db:migrate
+
+  node-kit:
+    name: Community node kit is valid
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Catches a broken compose file (including the GPU overlay) before an operator
+      # finds it. The kit's images are built on the operator's machine.
+      - name: Validate compose files
+        env:
+          POSTGRES_PASSWORD: ci
+          JWT_SECRET: ci
+        run: |
+          docker compose -f deploy/community-node/docker-compose.yml config -q
+          docker compose -f deploy/community-node/docker-compose.yml -f deploy/community-node/docker-compose.gpu.yml config -q
+      - name: Check first-run script syntax
+        run: bash -n deploy/community-node/first-run.sh

@@ -1,7 +1,30 @@
 import type { AfribitChatRequest, AfribitChatResponse, InferenceProvider } from "@afribit/shared";
 import { getModelProfile } from "../config/modelProfiles.js";
 
+/** Default for hosted APIs. A profile can override it with `timeoutMs` (community nodes need far longer). */
 const CHAT_TIMEOUT_MS = 15_000;
+
+function timeoutFor(profileName: string): number {
+  return getModelProfile(profileName).timeoutMs ?? CHAT_TIMEOUT_MS;
+}
+
+/** One model call, as the gateway saw it. Recorded by whatever meter the server installs (see usage/meter.ts). */
+export interface UsageEvent {
+  requestId: string;
+  /** The community pack the call was made for (see setScope); null when the gateway has no scope, as in scripts. */
+  packId: string | null;
+  profile: string;
+  provider: string;
+  model: string | null;
+  promptTokens: number | null;
+  completionTokens: number | null;
+  latencyMs: number | null;
+  estimatedCostUsd: number | null;
+  status: "ok" | "error" | "timeout";
+  errorMessage: string | null;
+}
+
+export type UsageMeter = (event: UsageEvent) => Promise<void>;
 
 export class GatewayError extends Error {
   constructor(
@@ -32,7 +55,45 @@ async function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
  * future provider directly — that is the whole point of the abstraction.
  */
 export class AfribitAIGateway {
+  private meter: UsageMeter | null = null;
+  private scope: (() => string | null) | null = null;
+
   constructor(private readonly providers: Map<string, InferenceProvider>) {}
+
+  /** Record every model call (answers, waiter, chef; successes and failures). A meter failure never affects the call. */
+  setMeter(meter: UsageMeter | null): void {
+    this.meter = meter;
+  }
+
+  /** Tell the gateway which community pack the running call belongs to (the server passes getPack().id), so each metered call carries it. */
+  setScope(scope: (() => string | null) | null): void {
+    this.scope = scope;
+  }
+
+  private async record(request: AfribitChatRequest, profileName: string, outcome: { response: AfribitChatResponse } | { error: unknown }): Promise<void> {
+    if (!this.meter) return;
+    const providerName = getModelProfile(profileName).provider;
+    try {
+      const packId = this.scope ? this.scope() : null;
+      if ("response" in outcome) {
+        const r = outcome.response;
+        await this.meter({
+          requestId: request.requestId, packId, profile: profileName, provider: r.provider, model: r.model,
+          promptTokens: r.usage.promptTokens, completionTokens: r.usage.completionTokens, latencyMs: r.latencyMs,
+          estimatedCostUsd: r.estimatedCostUsd, status: "ok", errorMessage: null,
+        });
+      } else {
+        const message = outcome.error instanceof Error ? outcome.error.message : String(outcome.error);
+        await this.meter({
+          requestId: request.requestId, packId, profile: profileName, provider: providerName, model: getModelProfile(profileName).model,
+          promptTokens: null, completionTokens: null, latencyMs: null, estimatedCostUsd: null,
+          status: /timed out/i.test(message) ? "timeout" : "error", errorMessage: message.slice(0, 300),
+        });
+      }
+    } catch (err) {
+      console.warn(`[gateway] usage meter failed: ${err instanceof Error ? err.message : String(err)}`);
+    }
+  }
 
   /**
    * Attempts the requested model profile, then its configured fallback
@@ -82,7 +143,14 @@ export class AfribitAIGateway {
 
   private async attempt(request: AfribitChatRequest, profileName: string): Promise<AfribitChatResponse> {
     const { provider, scopedRequest } = this.resolve(request, profileName);
-    return withTimeout(provider.chat(scopedRequest), CHAT_TIMEOUT_MS);
+    try {
+      const response = await withTimeout(provider.chat(scopedRequest), timeoutFor(profileName));
+      await this.record(request, profileName, { response });
+      return response;
+    } catch (error) {
+      await this.record(request, profileName, { error });
+      throw error;
+    }
   }
 
   /**
@@ -118,13 +186,31 @@ export class AfribitAIGateway {
 
     // Only the time-to-first-chunk is bounded — once tokens are flowing,
     // total response time depends on length, not a fixed idle timeout.
-    const first = await withTimeout(generator.next(), CHAT_TIMEOUT_MS);
-    if (first.done) return first.value;
+    let first: IteratorResult<string, AfribitChatResponse>;
+    try {
+      first = await withTimeout(generator.next(), timeoutFor(profileName));
+    } catch (error) {
+      await this.record(request, profileName, { error });
+      throw error;
+    }
+    if (first.done) {
+      await this.record(request, profileName, { response: first.value });
+      return first.value;
+    }
     yield first.value;
 
     while (true) {
-      const next = await generator.next();
-      if (next.done) return next.value;
+      let next: IteratorResult<string, AfribitChatResponse>;
+      try {
+        next = await generator.next();
+      } catch (error) {
+        await this.record(request, profileName, { error });
+        throw error;
+      }
+      if (next.done) {
+        await this.record(request, profileName, { response: next.value });
+        return next.value;
+      }
       yield next.value;
     }
   }

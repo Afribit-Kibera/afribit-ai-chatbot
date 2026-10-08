@@ -1,5 +1,5 @@
 import { pool } from "../db/pool.js";
-import { detectSecret } from "../safety/secretDetector.js";
+import { mentionsSecretTerms } from "../safety/secretDetector.js";
 import type { CandidateExample } from "./schemas.js";
 
 export interface QualityCheckResult {
@@ -19,11 +19,12 @@ export async function runQualityChecks(candidate: CandidateExample): Promise<Qua
   if (text.length === 0) return { accepted: false, reason: "empty" };
   if (text.length > 400) return { accepted: false, reason: "too_long" };
 
-  // Forbidden content (doc §17) — reuse the same secret detector the
-  // production chatbot uses, since "does this look like it's soliciting a
-  // seed phrase / secret" is the same question either way.
-  const secretCheck = detectSecret(text);
-  if (secretCheck.detected) return { accepted: false, reason: `forbidden_content:${secretCheck.kind}` };
+  // Forbidden content (doc §17): reject candidates that mention seed phrases,
+  // keys, PINs or passwords at all. This is intentionally the loose keyword
+  // match, NOT the live-chat detector -- live chat must answer questions about
+  // these topics, while the corpus policy here predates that fix and is a
+  // separate decision (see secretDetector.ts).
+  if (mentionsSecretTerms(text)) return { accepted: false, reason: "forbidden_content:secret_term" };
 
   // Exact duplicate against anything already in the corpus (doc §17).
   const { rows } = await pool.query<{ id: string }>(

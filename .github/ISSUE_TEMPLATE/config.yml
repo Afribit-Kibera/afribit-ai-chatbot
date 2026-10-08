@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Report a security vulnerability
+    url: https://github.com/afribit/afribit-ai/blob/main/SECURITY.md
+    about: Please do not open a public issue for security problems - email the address in SECURITY.md.
+  - name: Roadmap
+    url: https://github.com/afribit/afribit-ai/blob/main/ROADMAP.md
+    about: See where the project is heading before proposing a large change.

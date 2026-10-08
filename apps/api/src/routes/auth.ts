@@ -2,6 +2,9 @@ import type { FastifyInstance } from "fastify";
 import { pool } from "../db/pool.js";
 import { hashPassword, verifyPassword, isPasswordAcceptable } from "../auth/passwords.js";
 
+/** Sign-ins last 30 days. A role change (a demotion, for one) reaches the older pages when the token is renewed. */
+const TOKEN_LIFETIME = "30d";
+
 interface RegisterBody {
   email?: string;
   password?: string;
@@ -17,7 +20,7 @@ interface UserRow {
   id: string;
   email: string;
   password_hash: string;
-  role: "contributor" | "admin";
+  role: "contributor" | "reviewer" | "admin";
   display_name: string | null;
 }
 
@@ -61,7 +64,7 @@ export function registerAuthRoutes(app: FastifyInstance): void {
     const user = rows[0];
     if (!user) throw new Error("Failed to create user");
 
-    const token = app.jwt.sign({ id: user.id, role: user.role as "contributor" | "admin" });
+    const token = app.jwt.sign({ id: user.id, role: user.role as "contributor" | "admin" }, { expiresIn: TOKEN_LIFETIME });
     return reply.status(201).send({ token, role: user.role });
   });
 
@@ -83,7 +86,7 @@ export function registerAuthRoutes(app: FastifyInstance): void {
       return reply.status(401).send({ error: "Invalid email or password" });
     }
 
-    const token = app.jwt.sign({ id: user.id, role: user.role });
+    const token = app.jwt.sign({ id: user.id, role: user.role }, { expiresIn: TOKEN_LIFETIME });
     return reply.send({ token, role: user.role, displayName: user.display_name });
   });
 

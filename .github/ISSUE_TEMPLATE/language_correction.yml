@@ -1,0 +1,38 @@
+name: Language correction (Sheng / Kiswahili / English)
+description: Something sounds wrong, dated, too formal, or means something different where you live.
+labels: ["language-review"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you - this is the most useful way to improve Afribit AI. Please never include a real seed phrase, private key, password or other secret.
+  - type: textarea
+    id: original
+    attributes:
+      label: Original phrase or answer
+      description: Paste it exactly as it appears. Say where you saw it (app answer, a knowledge card, a chapter).
+    validations:
+      required: true
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: What you would actually say
+    validations:
+      required: true
+  - type: textarea
+    id: reason
+    attributes:
+      label: Why
+      description: Too formal? Dated? Wrong meaning in your area? Sounds translated?
+    validations:
+      required: true
+  - type: input
+    id: area
+    attributes:
+      label: Your area and age group
+      placeholder: "e.g. Kibera, 18-25"
+  - type: dropdown
+    id: confidence
+    attributes:
+      label: How confident are you?
+      options: ["Very - this is how people say it", "Fairly", "Not sure - worth checking with others"]

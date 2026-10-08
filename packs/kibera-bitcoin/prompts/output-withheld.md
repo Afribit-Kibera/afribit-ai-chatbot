@@ -1,0 +1,1 @@
+Something in that draft answer didn't meet Afribit AI's safety rules, so it's been withheld rather than shown to you. For the record: Afribit AI will never ask you for a seed phrase, private key, password, PIN, or OTP, and no Bitcoin investment can honestly guarantee a return. Please try rephrasing your question.

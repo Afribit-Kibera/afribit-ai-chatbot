@@ -1,0 +1,63 @@
+{
+  "schema": "afribit-community-pack/0.1",
+  "id": "example-library",
+  "name": "Community Library Guide",
+  "version": "0.1.0",
+  "description": "EXAMPLE PACK. Shows that the engine is not about Bitcoin: a small, fictional community library guide in plain English. Every fact in it is invented for demonstration.",
+  "license": "CC-BY-SA-4.0",
+  "maintainers": [
+    {
+      "name": "Afribit Africa (example)",
+      "contact": "eddie@afribit.africa"
+    }
+  ],
+  "community": {
+    "name": "Any community"
+  },
+  "domain": {
+    "id": "library",
+    "label": "library and reading help",
+    "retrievalDomains": [
+      "library"
+    ]
+  },
+  "defaultMode": "plain_en",
+  "modes": [
+    {
+      "id": "plain_en",
+      "label": "Plain English",
+      "description": "Short sentences, everyday words.",
+      "codeSwitched": false
+    },
+    {
+      "id": "formal_en",
+      "label": "Formal English",
+      "description": "Polite, complete sentences, suitable for letters and official settings.",
+      "codeSwitched": false
+    }
+  ],
+  "knowledge": {
+    "files": [
+      "knowledge/cards.json"
+    ]
+  },
+  "safety": {
+    "secretDetection": true
+  },
+  "knowledgeLabel": "library",
+  "disclaimers": [
+    "This is an example pack with invented facts."
+  ],
+  "branding": {
+    "shortName": "Reading Room",
+    "tagline": "Your neighbourhood library guide (an example)",
+    "accentColor": "#1f6f5c",
+    "logo": "brand/logo.svg",
+    "poweredBy": {
+      "show": true
+    },
+    "welcomeTitle": "Ask about the library.",
+    "welcomeText": "Opening times, borrowing, joining. Ask in your own words.",
+    "composerPlaceholder": "Ask the library guide…"
+  }
+}

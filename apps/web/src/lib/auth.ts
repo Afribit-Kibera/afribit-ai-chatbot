@@ -1,4 +1,5 @@
-const API_BASE = import.meta.env.VITE_API_URL ?? "http://localhost:3001";
+import { API_BASE } from "./api.js";
+import { writeStorage } from "./storage.js";
 const TOKEN_KEY = "afribit.authToken";
 
 export interface AuthedProfile {
@@ -9,15 +10,19 @@ export interface AuthedProfile {
 }
 
 export function getAuthToken(): string | null {
-  return localStorage.getItem(TOKEN_KEY);
+  try {
+    return localStorage.getItem(TOKEN_KEY)?.replace(/^"|"$/g, "") ?? null;
+  } catch {
+    return null;
+  }
 }
 
 function setAuthToken(token: string): void {
-  localStorage.setItem(TOKEN_KEY, token);
+  writeStorage(TOKEN_KEY, token);
 }
 
 export function clearAuthToken(): void {
-  localStorage.removeItem(TOKEN_KEY);
+  writeStorage(TOKEN_KEY, null);
 }
 
 /** For any authenticated request beyond auth.ts itself -- e.g. Microtasks calls. */
@@ -34,18 +39,25 @@ async function parseErrorOr<T>(response: Response): Promise<T> {
   return response.json();
 }
 
-export async function register(email: string, password: string): Promise<{ role: string }> {
+export async function register(
+  email: string,
+  password: string,
+  displayName?: string,
+): Promise<{ role: string }> {
   const response = await fetch(`${API_BASE}/api/v1/auth/register`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password }),
+    body: JSON.stringify({ email, password, displayName }),
   });
   const data = await parseErrorOr<{ token: string; role: string }>(response);
   setAuthToken(data.token);
   return { role: data.role };
 }
 
-export async function login(email: string, password: string): Promise<{ role: string }> {
+export async function login(
+  email: string,
+  password: string,
+): Promise<{ role: string }> {
   const response = await fetch(`${API_BASE}/api/v1/auth/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -63,9 +75,13 @@ export async function fetchProfile(): Promise<AuthedProfile | null> {
     headers: authHeaders(),
   });
   if (!response.ok) {
-    // Token expired/invalid -- clear it rather than keep retrying with a dead token.
-    clearAuthToken();
-    return null;
+    if (response.status === 401 || response.status === 403) {
+      clearAuthToken();
+      return null;
+    }
+    throw new Error(
+      "Couldn't load your contributor account. Please try again.",
+    );
   }
   return response.json();
 }

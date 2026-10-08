@@ -8,4 +8,4 @@
 
 **Consequence:** No code path exists (and none should ever be added) that writes a raw Microtask submission directly into a production table.
 
-See PRD §14, §25.1.
+**Implementation note (2026-10):** Microtasks v1 stores a contribution as a `language_entries` row (`corpus_layer = L2_community_collected`, `status = draft`, every `allowed_for_*` flag false) and records reviews and votes in `language_reviews` and `language_votes`; the dedicated `microtask_*` tables from the original schema are not used yet. The invariant this ADR protects is unchanged: no contribution becomes retrievable without an explicit human promotion step, and nobody — human or model — can promote their own output.

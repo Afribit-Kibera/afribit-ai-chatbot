@@ -1,11 +1,13 @@
 import type { FastifyInstance } from "fastify";
+import { getPack, getRegistry } from "../pack/active.js";
+import { isKnownMode, modeErrorMessage } from "../pack/modes.js";
 import { pool } from "../db/pool.js";
 
 interface SubmitBody {
   utterance?: string;
   meaning?: string;
   intent?: string;
-  style?: "simple_en" | "swahili" | "sheng" | "mixed_ke";
+  style?: string;
   sourceContext?: string;
 }
 
@@ -58,9 +60,10 @@ export function registerMicrotaskRoutes(app: FastifyInstance): void {
        WHERE status = 'draft'
          AND source_type = 'afribit_microtask'
          AND (contributor_key IS DISTINCT FROM $1)
+         AND COALESCE(pack_id, $2) = $3
        ORDER BY created_at ASC
        LIMIT 25`,
-      [request.user.id],
+      [request.user.id, getRegistry().default.id, getPack().id],
     );
     return reply.send({ queue: rows });
   });
@@ -70,9 +73,10 @@ export function registerMicrotaskRoutes(app: FastifyInstance): void {
       `SELECT id, utterance, meaning, intent, style, status, created_at
        FROM language_entries
        WHERE contributor_key = $1
+         AND COALESCE(pack_id, $2) = $3
        ORDER BY created_at DESC
        LIMIT 50`,
-      [request.user.id],
+      [request.user.id, getRegistry().default.id, getPack().id],
     );
     return reply.send({ submissions: rows });
   });
@@ -82,8 +86,8 @@ export function registerMicrotaskRoutes(app: FastifyInstance): void {
     if (!utterance?.trim() || !style) {
       return reply.status(400).send({ error: "utterance and style are required" });
     }
-    if (!["simple_en", "swahili", "sheng", "mixed_ke"].includes(style)) {
-      return reply.status(400).send({ error: "style must be one of simple_en, swahili, sheng, mixed_ke" });
+    if (!isKnownMode(style)) {
+      return reply.status(400).send({ error: modeErrorMessage("style") });
     }
 
     // Conservative-by-default on every provenance flag, matching
@@ -94,13 +98,13 @@ export function registerMicrotaskRoutes(app: FastifyInstance): void {
         (utterance, meaning, intent, style, source_context, status, freshness,
          corpus_layer, source, source_type, human_authored, synthetic,
          afribit_reviewed, quality_tier, allowed_for_rag, allowed_for_training,
-         allowed_for_evaluation, contributor_key)
+         allowed_for_evaluation, contributor_key, pack_id)
        VALUES ($1, $2, $3, $4, $5, 'draft', 'context_specific',
                'L2_community_collected', 'afribit_microtasks', 'afribit_microtask', true, false,
                false, 'unrated', false, false,
-               false, $6)
+               false, $6, $7)
        RETURNING id`,
-      [utterance.trim(), meaning?.trim() ?? null, intent?.trim() ?? null, style, sourceContext?.trim() ?? null, request.user.id],
+      [utterance.trim(), meaning?.trim() ?? null, intent?.trim() ?? null, style, sourceContext?.trim() ?? null, request.user.id, getPack().id],
     );
 
     return reply.status(201).send({ ok: true, id: rows[0]?.id });

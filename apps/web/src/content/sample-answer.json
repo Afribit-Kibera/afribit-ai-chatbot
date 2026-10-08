@@ -1,0 +1,5 @@
+{
+  "source": "apps/api/src/db/data/bitcoin_basics_manual.json",
+  "chapter": 1,
+  "answer": "Bitcoin is an open digital money system. People can send value to each other through a network of computers."
+}

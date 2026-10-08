@@ -1,11 +1,18 @@
-import type { AfribitChatMessage, ExplanationLevel, LanguageMode, LanguageExample, RetrievalResult } from "@afribit/shared";
-import { COMMUNICATION_STYLE_GUIDE } from "./communicationStyleGuide.js";
-import { SHENG_FEW_SHOT_EXAMPLES } from "./shengFewShotExamples.js";
+import type { AfribitChatMessage, ExplanationLevel, LanguageExample, RetrievalResult } from "@afribit/shared";
+import { getPack } from "../pack/active.js";
+import type { CommunityPack, PackMode } from "../pack/types.js";
 import { SHENG_STYLE_GUIDE } from "./shengStyleGuide.js";
 
-/** PRD §19.1 — prompts are assembled programmatically from controlled layers. */
+/**
+ * PRD §19.1 -- prompts are assembled programmatically from controlled layers.
+ *
+ * The engine owns the layers (identity, safety, style, mode, level, knowledge, examples, history);
+ * the community pack owns what goes in them (packs/<id>/prompts, packs/<id>/language). The constants
+ * below are the original Kibera wording, kept for the dataset lab; the live prompt reads the active
+ * pack, and src/pack/packCases.ts proves the Kibera pack reproduces these byte for byte.
+ */
 
-const LANGUAGE_POLICY: Record<LanguageMode, string> = {
+export const LANGUAGE_POLICY: Record<"simple_en" | "swahili" | "sheng" | "mixed_ke", string> = {
   simple_en:
     "Language mode: Simple English.\nUse short sentences and everyday words. Avoid financial or technical jargon unless you explain it immediately.",
   swahili:
@@ -14,7 +21,7 @@ const LANGUAGE_POLICY: Record<LanguageMode, string> = {
   mixed_ke: `Language mode: Natural mixed language (Sheng + English + Kiswahili as it naturally occurs).\nMirror how the user is code-switching. Do not force any single language.\n\n${SHENG_STYLE_GUIDE}`,
 };
 
-const LEVEL_POLICY: Record<ExplanationLevel, string> = {
+export const LEVEL_POLICY: Record<ExplanationLevel, string> = {
   simple:
     "Explanation level: Simple.\nGive the shortest useful explanation. One concept at a time. Prefer a concrete example over abstract description. End with at most one short follow-up offer.",
   normal:
@@ -23,7 +30,7 @@ const LEVEL_POLICY: Record<ExplanationLevel, string> = {
     "Explanation level: Deep dive.\nTechnical detail and stronger terminology are welcome. Connect related concepts. Still prioritize clarity over showing off vocabulary.",
 };
 
-const SAFETY_POLICY = `Use the supplied Afribit knowledge as the factual basis for the answer. Do not invent wallet procedures or financial claims that are not in the supplied knowledge.
+export const SAFETY_POLICY = `Use the supplied Afribit knowledge as the factual basis for the answer. Do not invent wallet procedures or financial claims that are not in the supplied knowledge.
 Never request seed phrases, private keys, wallet passwords, PINs, OTPs or authentication codes, under any circumstance.
 Do not guarantee investment returns, claim Bitcoin's price can only rise, or encourage borrowing to buy Bitcoin.
 If the supplied knowledge does not cover the question, say so plainly rather than inventing an answer -- this applies even when you feel confident about specific technical details (e.g. exact reasons a payment could fail, exact wallet steps): confidence is not the same as the supplied knowledge actually covering it, and a retrieval miss on a real topic is a real possibility, not a sign no answer exists.
@@ -38,27 +45,31 @@ COMMON MISCONCEPTIONS TO AVOID (2026-09-24, caught live in generated answers -- 
 - Never make blanket promises that Bitcoin is simply "easy, fast, and secure" (e.g. "ni rahisi, ni ya haraka, na ni ya usalama") as an unqualified claim -- each of those depends on context (which wallet, on-chain vs. Lightning, whether the user backs up correctly) and stating them as flat guarantees is an unsupported promise, not a fact.
 - Governments and custodial companies CAN still restrict, regulate, or freeze access in some situations (e.g. a custodial exchange account, or local rules on cashing out). The accurate claim is narrower: the Bitcoin network itself has no single administrator who can approve or block a specific transaction -- not "nobody can ever restrict your access to anything."`;
 
-const SYSTEM_IDENTITY = `You are Afribit Chatbot, a community Bitcoin education assistant built for Kibera, Nairobi and similar communities. Your job is to make Bitcoin understandable, not to sound impressive.`;
+export const SYSTEM_IDENTITY = `You are Afribit Chatbot, a community Bitcoin education assistant built for Kibera, Nairobi and similar communities. Your job is to make Bitcoin understandable, not to sound impressive.`;
 
 export interface BuildPromptInput {
-  languageMode: LanguageMode;
+  /** A mode id declared by the active pack (an unknown id falls back to the pack's default mode). */
+  languageMode: string;
   explanationLevel: ExplanationLevel;
   retrieval: RetrievalResult[];
   /**
    * Reviewed language_entries vocabulary matched to the question (see
    * apps/api/src/knowledge/retrieveLanguageExamples.ts) -- optional and
-   * additive. Absent/empty changes nothing; callers that don't fetch
-   * these (older code paths, most eval scripts) still work exactly as
-   * before. Only rendered for sheng/mixed_ke, same as SHENG_STYLE_GUIDE
-   * and the few-shot examples below -- this is vocabulary grounding for
-   * code-switched registers, not relevant to simple_en/swahili.
+   * additive. Absent/empty changes nothing. Only rendered for code-switched
+   * modes, where improvising slang is the risk; not relevant to plain modes.
    */
   languageExamples?: LanguageExample[];
   conversationHistory: AfribitChatMessage[];
   userMessage: string;
 }
 
-export function buildPrompt(input: BuildPromptInput): AfribitChatMessage[] {
+/** The pack's mode for an id; an id the pack does not declare gets its default mode rather than an error. */
+export function modeOf(pack: CommunityPack, id: string): PackMode {
+  return pack.modes.find((m) => m.id === id) ?? (pack.modes.find((m) => m.id === pack.defaultMode) as PackMode);
+}
+
+export function buildPrompt(input: BuildPromptInput, pack: CommunityPack = getPack()): AfribitChatMessage[] {
+  const mode = modeOf(pack, input.languageMode);
   const knowledgeBlock =
     input.retrieval.length > 0
       ? input.retrieval
@@ -69,42 +80,32 @@ export function buildPrompt(input: BuildPromptInput): AfribitChatMessage[] {
               }`,
           )
           .join("\n\n")
-      : "No approved Afribit knowledge matched this question. Say you're not certain rather than inventing an answer.";
+      : pack.prompts.noKnowledgeFull;
 
-  const isShengLike = input.languageMode === "sheng" || input.languageMode === "mixed_ke";
   const languageExamples = input.languageExamples ?? [];
-  // docs/COMMUNICATION_STYLE_EVAL.md Finding 3: without this, the model's
-  // only grounded Sheng vocabulary is SHENG_STYLE_GUIDE's small hardcoded
-  // list, so it improvises unreviewed slang under real questions ("dry"
-  // was caught live). This is optional grounding, not a knowledge
-  // source -- explicitly framed as preferred vocabulary, not required
-  // content, so the model isn't forced to use a phrase that doesn't fit.
+  // docs/COMMUNICATION_STYLE_EVAL.md Finding 3: without reviewed vocabulary the model improvises
+  // unreviewed slang under real questions. This is optional grounding, not a knowledge source --
+  // framed as preferred vocabulary, so the model is not forced to use a phrase that does not fit.
   const languageExamplesBlock =
-    isShengLike && languageExamples.length > 0
-      ? `\n\nReviewed Sheng/Kiswahili vocabulary relevant to this question (community-approved, from Afribit's own corpus -- prefer these over improvising unreviewed slang; don't force one in if it doesn't fit):\n${languageExamples
-          .map((e) => `- "${e.utterance}"${e.meaning ? ` — ${e.meaning}` : ""}`)
-          .join("\n")}`
+    mode.codeSwitched && languageExamples.length > 0
+      ? `\n\n${pack.prompts.vocabIntroFull}\n${languageExamples.map((e) => `- "${e.utterance}"${e.meaning ? ` — ${e.meaning}` : ""}`).join("\n")}`
       : "";
 
   const systemPrompt = [
-    SYSTEM_IDENTITY,
-    SAFETY_POLICY,
-    // Register/response-shape guidance -- applies in every language mode,
-    // unlike SHENG_STYLE_GUIDE below which is Sheng/mixed_ke-specific.
-    COMMUNICATION_STYLE_GUIDE,
-    LANGUAGE_POLICY[input.languageMode],
+    pack.prompts.identityFull,
+    pack.prompts.safetyFull,
+    // Register/response-shape guidance: applies in every language mode.
+    pack.prompts.communicationGuide,
+    mode.policyFull,
     LEVEL_POLICY[input.explanationLevel],
-    `Retrieved Afribit knowledge:\n${knowledgeBlock}${languageExamplesBlock}`,
-  ].join("\n\n");
+    `Retrieved ${pack.knowledgeLabel} knowledge:\n${knowledgeBlock}${languageExamplesBlock}`,
+  ]
+    .filter(Boolean)
+    .join("\n\n");
 
   const messages: AfribitChatMessage[] = [{ role: "system", content: systemPrompt }];
-  // Real demonstrated turns, not just described rules -- see
-  // shengFewShotExamples.ts for why this earns its token cost. Swahili/
-  // simple_en want a different register entirely, so this only applies
-  // to sheng/mixed_ke.
-  if (input.languageMode === "sheng" || input.languageMode === "mixed_ke") {
-    messages.push(...SHENG_FEW_SHOT_EXAMPLES);
-  }
+  // Real demonstrated turns, not just described rules, for code-switched modes only.
+  if (mode.codeSwitched) messages.push(...pack.prompts.fewShots);
   messages.push(...input.conversationHistory);
   messages.push({ role: "user", content: input.userMessage });
   return messages;

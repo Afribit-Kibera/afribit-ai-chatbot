@@ -1,3 +1,4 @@
+import { getPack } from "../pack/active.js";
 import type { FastifyInstance } from "fastify";
 import { env } from "../config/env.js";
 import { pool } from "../db/pool.js";
@@ -133,8 +134,8 @@ export function registerNotificationRoutes(app: FastifyInstance): void {
     }
 
     const result = await sendPushByToken(request.body.notifyToken, {
-      title: "Afribit AI",
-      body: "Notifications ziko sawa. Afribit can reach this device.",
+      title: getPack().prompts.notificationTitle,
+      body: `${getPack().name} can reach this device.`,
       url: "/",
       tag: "afribit-test",
     });

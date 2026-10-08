@@ -1,8 +1,6 @@
 node_modules/
 dist/
 build/
-.env
-.env.local
 *.log
 .DS_Store
 pgdata/
@@ -10,5 +8,25 @@ coverage/
 .turbo/
 *.tsbuildinfo
 
+# Local config and secrets -- only the example file is committed
+.env
+.env.*
+!.env.example
+
+# Tooling state
 .vercel
-.env*
+.claude/
+
+# Maintainers' internal working material (roadmap, funder pipeline, drafts,
+# experiment logs). Kept on disk, deliberately not part of the public repository.
+# Public documentation lives in docs/.
+/internal/
+/Afribit_Chatbot_PRD.md
+/*.docx
+/apps/api/src/db/data/extract/
+
+# Frontend build intermediates and locally generated QA results
+apps/web/dist-ssr/
+apps/web/.lighthouseci/
+# Written by `pnpm --filter @afribit/web brand` for a white-labelled build
+apps/web/brand.local.json

@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Afribit AI — answer review</title>
+<style>
+  :root {
+    --bg: #fafaf7; --card: #ffffff; --ink: #1c1b18; --muted: #6b675e; --line: #e4e0d6;
+    --accent: #1f6f43; --accent-ink: #ffffff; --warn: #b3261e; --soft: #eef5f0;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #151512; --card: #1e1e1a; --ink: #f1efe8; --muted: #a29e92; --line: #34332d; --accent: #5cc08a; --accent-ink: #0d1a12; --warn: #ff8a80; --soft: #1b2a21; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  main { max-width: 760px; margin: 0 auto; padding: 16px; }
+  h1 { font-size: 1.25rem; margin: 8px 0 4px; }
+  h2 { font-size: 1.05rem; margin: 0 0 6px; }
+  p { margin: 6px 0; }
+  .muted { color: var(--muted); font-size: .92rem; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px; margin: 12px 0; }
+  .question { background: var(--soft); border-left: 4px solid var(--accent); }
+  .answer { white-space: pre-wrap; word-wrap: break-word; }
+  .tag { display: inline-block; font-size: .8rem; padding: 2px 8px; border-radius: 999px; background: var(--soft); color: var(--accent); margin-bottom: 6px; }
+  label.field { display: block; margin: 10px 0 4px; font-weight: 600; font-size: .95rem; }
+  input[type=text], textarea { width: 100%; padding: 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--card); color: var(--ink); font: inherit; }
+  textarea { min-height: 72px; resize: vertical; }
+  .row { display: flex; flex-wrap: wrap; gap: 8px; }
+  .opt { position: relative; }
+  .opt input { position: absolute; opacity: 0; inset: 0; cursor: pointer; }
+  .opt span { display: inline-block; min-width: 44px; min-height: 44px; padding: 10px 14px; text-align: center; border: 1px solid var(--line); border-radius: 10px; background: var(--card); cursor: pointer; }
+  .opt input:checked + span { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 700; }
+  .opt input:focus-visible + span { outline: 3px solid var(--accent); outline-offset: 2px; }
+  .check { display: flex; gap: 8px; align-items: center; margin-top: 10px; }
+  .check input { width: 22px; height: 22px; }
+  button { min-height: 46px; padding: 10px 18px; border-radius: 10px; border: 1px solid var(--line); background: var(--card); color: var(--ink); font: inherit; cursor: pointer; }
+  button.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 700; }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+  .nav { display: flex; justify-content: space-between; gap: 8px; margin: 16px 0 40px; }
+  .bar { height: 8px; background: var(--line); border-radius: 999px; overflow: hidden; margin: 8px 0 2px; }
+  .bar > div { height: 100%; background: var(--accent); width: 0; transition: width .2s; }
+  .hidden { display: none; }
+  .warn { color: var(--warn); }
+  .small { font-size: .85rem; }
+</style>
+</head>
+<body>
+<main>
+  <h1 id="title">Answer review</h1>
+  <div id="app"></div>
+</main>
+
+<script>
+const PACK = /*__PACK__*/null;
+const STORE = "afribit-review-" + PACK.id;
+const state = (() => { try { return JSON.parse(localStorage.getItem(STORE)) || null; } catch (e) { return null; } })() ||
+  { reviewer: { name: "", area: "", age: "" }, startedAt: new Date().toISOString(), ratings: {}, index: -1 };
+function save() { try { localStorage.setItem(STORE, JSON.stringify(state)); } catch (e) { /* private mode: still works until the page closes */ } }
+const $ = (s, r = document) => r.querySelector(s);
+const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const MODE = { sheng: "Sheng", swahili: "Kiswahili", simple_en: "English", mixed_ke: "Mixed Sheng / Kiswahili / English" };
+document.getElementById("title").textContent = PACK.title;
+
+function done(item) {
+  const r = state.ratings[item.id]; if (!r) return false;
+  return item.answers.every((a) => r[a.letter] && r[a.letter].natural && r[a.letter].correct) && r.best;
+}
+function doneCount() { return PACK.items.filter(done).length; }
+
+function intro() {
+  $("#app").innerHTML = `
+    <div class="card">
+      <h2>Thank you for helping</h2>
+      <p>You will read ${PACK.items.length} questions a learner might ask Afribit AI. For each one you will see several answers written by different AI setups. <b>You will not be told which is which.</b> Tell us, honestly, which sound natural, which are correct, and which you would be happy to show a learner.</p>
+      <p class="muted">There are no right answers to guess. If you are unsure, say so in the notes. It takes about 30–40 minutes; you can stop and come back — your answers are saved on this phone.</p>
+      <p class="muted small">Do not type any real seed phrase, PIN, password or personal detail anywhere.</p>
+    </div>
+    <div class="card">
+      <label class="field" for="name">Your name or initials (required)</label>
+      <input id="name" type="text" autocomplete="off" value="${esc(state.reviewer.name)}">
+      <label class="field" for="area">Where do you live or grew up? (optional — helps us understand dialect)</label>
+      <input id="area" type="text" autocomplete="off" value="${esc(state.reviewer.area)}">
+      <label class="field" for="age">Age group (optional)</label>
+      <input id="age" type="text" autocomplete="off" placeholder="e.g. 18–25" value="${esc(state.reviewer.age)}">
+    </div>
+    <div class="nav"><span></span><button class="primary" id="start">${doneCount() ? "Continue" : "Start"}</button></div>`;
+  $("#start").onclick = () => {
+    state.reviewer.name = $("#name").value.trim(); state.reviewer.area = $("#area").value.trim(); state.reviewer.age = $("#age").value.trim();
+    if (!state.reviewer.name) { $("#name").focus(); $("#name").style.borderColor = "var(--warn)"; return; }
+    const first = PACK.items.findIndex((i) => !done(i));
+    state.index = first === -1 ? 0 : first; save(); render();
+  };
+}
+
+function opt(name, value, label, checked) {
+  return `<label class="opt"><input type="radio" name="${name}" value="${value}" ${checked ? "checked" : ""}><span>${label}</span></label>`;
+}
+
+function render() {
+  if (state.index < 0) return intro();
+  if (state.index >= PACK.items.length) return finish();
+  const item = PACK.items[state.index];
+  const r = (state.ratings[item.id] = state.ratings[item.id] || {});
+  const pct = Math.round((doneCount() / PACK.items.length) * 100);
+  const answers = item.answers.map((a) => {
+    const ar = (r[a.letter] = r[a.letter] || {});
+    return `<div class="card" data-letter="${a.letter}">
+      <span class="tag">Answer ${a.letter}</span>
+      <div class="answer">${esc(a.text)}</div>
+      <label class="field">How natural does it sound? <span class="muted">(1 = sounds translated or foreign · 5 = exactly how people talk)</span></label>
+      <div class="row">${[1, 2, 3, 4, 5].map((n) => opt(`nat-${a.letter}`, n, n, ar.natural === n)).join("")}</div>
+      <label class="field">Is what it says correct?</label>
+      <div class="row">${opt(`cor-${a.letter}`, "yes", "Yes", ar.correct === "yes")}${opt(`cor-${a.letter}`, "mostly", "Mostly", ar.correct === "mostly")}${opt(`cor-${a.letter}`, "no", "No", ar.correct === "no")}</div>
+      <label class="check"><input type="checkbox" name="uns-${a.letter}" ${ar.unsafe ? "checked" : ""}> <span>This could mislead or put a learner at risk</span></label>
+    </div>`;
+  }).join("");
+  $("#app").innerHTML = `
+    <div class="bar"><div style="width:${pct}%"></div></div>
+    <p class="muted small">Question ${state.index + 1} of ${PACK.items.length} · ${doneCount()} completed</p>
+    <div class="card question"><span class="tag">${esc(MODE[item.mode] || item.mode)}</span>
+      <h2>A learner asks:</h2><div class="answer">${esc(item.question)}</div></div>
+    ${answers}
+    <div class="card">
+      <label class="field">Which answer would you be happiest to show a learner?</label>
+      <div class="row">${item.answers.map((a) => opt("best", a.letter, a.letter, r.best === a.letter)).join("")}${opt("best", "none", "None of them", r.best === "none")}</div>
+      <label class="field" for="notes">Notes — what is wrong, or what would you say instead? <span class="muted">(any language; optional but very valuable)</span></label>
+      <textarea id="notes">${esc(r.notes || "")}</textarea>
+    </div>
+    <p id="msg" class="warn small hidden">Please rate every answer (naturalness and correctness) and pick the best one before moving on.</p>
+    <div class="nav"><button id="prev" ${state.index === 0 ? "disabled" : ""}>Back</button><button class="primary" id="next">${state.index === PACK.items.length - 1 ? "Finish" : "Next"}</button></div>`;
+
+  const collect = () => {
+    item.answers.forEach((a) => {
+      const ar = r[a.letter];
+      const nat = document.querySelector(`input[name="nat-${a.letter}"]:checked`); ar.natural = nat ? Number(nat.value) : undefined;
+      const cor = document.querySelector(`input[name="cor-${a.letter}"]:checked`); ar.correct = cor ? cor.value : undefined;
+      ar.unsafe = document.querySelector(`input[name="uns-${a.letter}"]`).checked;
+    });
+    const b = document.querySelector('input[name="best"]:checked'); r.best = b ? b.value : undefined;
+    r.notes = $("#notes").value.trim();
+    save();
+  };
+  document.querySelectorAll("input, textarea").forEach((el) => el.addEventListener("change", collect));
+  $("#notes").addEventListener("input", collect);
+  $("#prev").onclick = () => { collect(); state.index -= 1; save(); render(); window.scrollTo(0, 0); };
+  $("#next").onclick = () => {
+    collect();
+    if (!done(item)) { $("#msg").classList.remove("hidden"); return; }
+    state.index += 1; save(); render(); window.scrollTo(0, 0);
+  };
+}
+
+function finish() {
+  const missing = PACK.items.filter((i) => !done(i));
+  $("#app").innerHTML = `
+    <div class="card">
+      <h2>${missing.length ? "Almost there" : "All done — thank you!"}</h2>
+      ${missing.length ? `<p class="warn">${missing.length} question(s) are not finished: ${missing.map((m) => esc(m.id)).join(", ")}.</p><button id="fix">Go to the first unfinished question</button>` :
+      `<p>Tap the button to save your answers as a file, then send that file back to the person who sent you this page (WhatsApp, email, or Drive).</p>`}
+    </div>
+    <div class="nav"><button id="back">Back</button><button class="primary" id="dl" ${missing.length ? "disabled" : ""}>Save my answers</button></div>`;
+  $("#back").onclick = () => { state.index = PACK.items.length - 1; save(); render(); };
+  if ($("#fix")) $("#fix").onclick = () => { state.index = PACK.items.findIndex((i) => !done(i)); save(); render(); };
+  $("#dl").onclick = () => {
+    const out = { pack: PACK.id, reviewer: state.reviewer, startedAt: state.startedAt, finishedAt: new Date().toISOString(), ratings: state.ratings };
+    const blob = new Blob([JSON.stringify(out, null, 2)], { type: "application/json" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "review-" + (state.reviewer.name || "reviewer").replace(/[^a-z0-9]+/gi, "-").toLowerCase() + ".json";
+    document.body.appendChild(a); a.click(); a.remove();
+  };
+}
+render();
+</script>
+</body>
+</html>

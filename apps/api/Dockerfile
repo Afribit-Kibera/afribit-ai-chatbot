@@ -25,6 +25,9 @@ COPY apps/api/package.json apps/api/package.json
 RUN pnpm install --frozen-lockfile --filter "@afribit/api..." --prod
 COPY --from=build /app/apps/api/dist apps/api/dist
 COPY apps/api/config apps/api/config
+# The reviewer pages plus the compiled Voice Lab frontend, built in the first stage.
+COPY apps/api/public apps/api/public
+COPY --from=build /app/apps/api/public/voice/dist apps/api/public/voice/dist
 # seedCommunityManuals.ts resolves these relative to its own compiled
 # location (apps/api/dist/db/data) at runtime -- tsc doesn't copy non-.ts
 # assets, so they're placed manually to match.
@@ -32,6 +35,8 @@ COPY apps/api/src/db/data/bitcoin_basics_manual.json apps/api/dist/db/data/bitco
 COPY apps/api/src/db/data/communication_skills_manual.json apps/api/dist/db/data/communication_skills_manual.json
 # migrate.ts walks up from its compiled location to <repo root>/db/migrations.
 COPY db/migrations db/migrations
+# The community pack (prompts, language, knowledge). COMMUNITY_PACK_DIR overrides it; unset means this one.
+COPY packs packs
 
 WORKDIR /app/apps/api
 EXPOSE 3001

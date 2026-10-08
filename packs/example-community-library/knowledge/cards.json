@@ -1,0 +1,103 @@
+{
+  "topics": [
+    {
+      "id": "library.membership",
+      "title": "Membership",
+      "domain": "library"
+    },
+    {
+      "id": "library.borrowing",
+      "title": "Borrowing",
+      "domain": "library"
+    },
+    {
+      "id": "library.visiting",
+      "title": "Visiting",
+      "domain": "library"
+    }
+  ],
+  "entries": [
+    {
+      "id": "library.membership.join.001",
+      "topic": "library.membership",
+      "title": "How to join the library",
+      "domain": "library",
+      "canonical_answer": "Anyone who lives in the community can join the library for free. Bring one document with your name on it, such as an ID card or a school letter. A librarian writes your name in the members' book and gives you a member number.",
+      "beginner_answer": "Joining is free. Bring one paper with your name on it. The librarian gives you a member number.",
+      "safety_notes": [],
+      "status": "approved"
+    },
+    {
+      "id": "library.membership.child.001",
+      "topic": "library.membership",
+      "title": "Joining as a child",
+      "domain": "library",
+      "canonical_answer": "Children under 12 can join with a parent or guardian, who signs the members' book once. The child then gets their own member number.",
+      "beginner_answer": "If you are under 12, come with a parent or guardian. They sign once. You get your own number.",
+      "safety_notes": [],
+      "status": "approved"
+    },
+    {
+      "id": "library.borrowing.limit.001",
+      "topic": "library.borrowing",
+      "title": "How many books you can borrow",
+      "domain": "library",
+      "canonical_answer": "A member can borrow up to 3 books at a time. Children's picture books do not count toward the limit of 3.",
+      "beginner_answer": "You can take 3 books at one time. Picture books for children do not count.",
+      "safety_notes": [],
+      "status": "approved"
+    },
+    {
+      "id": "library.borrowing.period.001",
+      "topic": "library.borrowing",
+      "title": "How long you can keep a book",
+      "domain": "library",
+      "canonical_answer": "A book can be kept for 14 days. If nobody is waiting for it, the loan can be renewed once for another 14 days by asking the librarian.",
+      "beginner_answer": "You can keep a book for 14 days. You can ask to keep it 14 more days if nobody else wants it.",
+      "safety_notes": [],
+      "status": "approved"
+    },
+    {
+      "id": "library.borrowing.late.001",
+      "topic": "library.borrowing",
+      "title": "What happens if a book is late",
+      "domain": "library",
+      "canonical_answer": "The library does not charge money for late books. A member with a late book cannot borrow another until the late book is returned.",
+      "beginner_answer": "There is no fine. But you cannot take a new book until you bring the late one back.",
+      "safety_notes": [],
+      "status": "approved"
+    },
+    {
+      "id": "library.borrowing.lost.001",
+      "topic": "library.borrowing",
+      "title": "If you lose a book",
+      "domain": "library",
+      "canonical_answer": "Tell the librarian as soon as you know. The library may ask you to replace the book or to help with a reading session instead of paying. Never leave a lost book unreported.",
+      "beginner_answer": "Tell the librarian quickly. You may replace the book or help at a reading session.",
+      "safety_notes": [
+        "Do not hide a lost book; tell the librarian."
+      ],
+      "status": "approved"
+    },
+    {
+      "id": "library.visiting.hours.001",
+      "topic": "library.visiting",
+      "title": "Opening hours",
+      "domain": "library",
+      "canonical_answer": "The library is open Monday to Friday from 2 pm to 6 pm and on Saturday from 9 am to 1 pm. It is closed on Sunday and on public holidays.",
+      "beginner_answer": "Open Monday to Friday, 2 pm to 6 pm. Saturday, 9 am to 1 pm. Closed on Sunday.",
+      "safety_notes": [],
+      "status": "approved"
+    },
+    {
+      "id": "library.visiting.quiet.001",
+      "topic": "library.visiting",
+      "title": "Rules for the reading room",
+      "domain": "library",
+      "canonical_answer": "The reading room is for quiet reading and homework. Please speak softly, keep food and drink outside, and put books back on the trolley, not on the shelf.",
+      "beginner_answer": "Be quiet. No food or drink inside. Put your books on the trolley when you finish.",
+      "safety_notes": [],
+      "status": "approved"
+    }
+  ]
+}

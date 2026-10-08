@@ -1,8 +1,11 @@
 import type { RetrievalResult } from "@afribit/shared";
+import { getPack } from "../pack/active.js";
 import { pool } from "../db/pool.js";
-import { embedText } from "../providers/openRouterEmbeddings.js";
+import { env } from "../config/env.js";
+import { activeEmbeddingModel, embedQuery, semanticSearchEnabled } from "../providers/embeddings.js";
+import { CANDIDATE_POOL, fuseRankings } from "./fusion.js";
 
-interface KnowledgeRow {
+export interface KnowledgeRow {
   id: string;
   canonical_answer: string;
   beginner_answer: string;
@@ -29,7 +32,7 @@ interface KnowledgeRow {
  *
  * Only 'approved' and 'published' knowledge is ever eligible (PRD §11.3).
  *
- * Both queries also filter to domain = 'bitcoin' (added 2026-09-24, found
+ * Both queries also filter to the active pack's retrieval domains (the Kibera pack: 'bitcoin') (added 2026-09-24, found
  * by runRetrievalEval.ts). knowledge_entries also holds the Basic
  * Communication Skills manual's general chapters (greetings, active
  * listening, boundaries, apologies -- register/tone guidance, not Bitcoin
@@ -60,36 +63,12 @@ interface KnowledgeRow {
  * observed gaps until that lands. Expand this list as new misses like
  * these two are found; don't try to guess exhaustive coverage up front.
  */
-const SHENG_SYNONYMS: Record<string, string[]> = {
-  potea: ["lost"],
-  imepotea: ["lost"],
-  zitapotea: ["lost"],
-  kupoteza: ["lost"],
-  nikipoteza: ["lost"],
-  poteza: ["lost"],
-  simu: ["device", "phone"],
-  imefail: ["fail", "failed"],
-  itafail: ["fail"],
-  kufail: ["fail"],
-  mbona: ["why"],
-  kwanini: ["why"],
-  rudisha: ["reverse", "refund"],
-  kurudisha: ["reverse", "refund"],
-  rudishwa: ["reverse", "refund"],
-  thibitisha: ["confirm"],
-  kuthibitisha: ["confirm"],
-  imethibitishwa: ["confirmed"],
-  ibiwa: ["stolen"],
-  ikiibiwa: ["stolen"],
-  kuibiwa: ["stolen"],
-  haribika: ["damaged"],
-  imeharibika: ["damaged"],
-};
 
 function expandSynonyms(terms: string[]): string[] {
+  const synonyms = getPack().synonyms; // the community's own (retrieval/synonyms.json)
   const expanded = new Set(terms);
   for (const term of terms) {
-    for (const synonym of SHENG_SYNONYMS[term.toLowerCase()] ?? []) {
+    for (const synonym of synonyms[term.toLowerCase()] ?? []) {
       expanded.add(synonym);
     }
   }
@@ -116,7 +95,7 @@ export function buildOrQuery(query: string): string | null {
     .join(" | ");
 }
 
-async function retrieveLexical(query: string, limit: number): Promise<KnowledgeRow[]> {
+export async function retrieveLexical(query: string, limit: number): Promise<KnowledgeRow[]> {
   const tsQuery = buildOrQuery(query);
   if (!tsQuery) return [];
 
@@ -137,12 +116,12 @@ async function retrieveLexical(query: string, limit: number): Promise<KnowledgeR
       ) * 2) AS score
     FROM knowledge_entries
     WHERE status IN ('approved', 'published')
-      AND domain = 'bitcoin'
+      AND domain = ANY($3::text[])
       AND to_tsvector('english', title || ' ' || canonical_answer) @@ to_tsquery('english', $1)
     ORDER BY score DESC
     LIMIT $2
     `,
-    [tsQuery, limit],
+    [tsQuery, limit, getPack().domain.retrievalDomains],
   );
   return rows;
 }
@@ -153,16 +132,22 @@ async function retrieveLexical(query: string, limit: number): Promise<KnowledgeR
  * OPENROUTER_API_KEY missing, etc.) -- retrieval must degrade to
  * lexical-only, not take the whole chat request down with it.
  */
-async function retrieveSemantic(query: string, limit: number): Promise<KnowledgeRow[]> {
+export async function retrieveSemantic(query: string, limit: number): Promise<KnowledgeRow[]> {
+  // Embedding the customer's question uses the configured embedding provider. A hosted one sends the
+  // question to a third party, so on a community node it is off unless explicitly allowed
+  // (semanticSearchEnabled); a local one (bge-m3 on the node) always runs. With semantic search off,
+  // retrieval falls back to full-text search only.
+  if (!semanticSearchEnabled()) return [];
   let queryEmbedding: number[];
   try {
-    queryEmbedding = await embedText(query);
+    queryEmbedding = await embedQuery(query);
   } catch (err) {
     console.error("Semantic retrieval skipped (embedding failed):", err instanceof Error ? err.message : err);
     return [];
   }
   const vectorLiteral = `[${queryEmbedding.join(",")}]`;
 
+  // Vectors are stored per embedding model (migration 010); only compare against ones made by the active model.
   const { rows } = await pool.query<KnowledgeRow>(
     `
     SELECT
@@ -173,46 +158,33 @@ async function retrieveSemantic(query: string, limit: number): Promise<Knowledge
       ke.version,
       ke.updated_at,
       1 - (kemb.embedding <=> $1::vector) AS score
-    FROM knowledge_embeddings kemb
+    FROM knowledge_embeddings_v2 kemb
     JOIN knowledge_chunks kc ON kc.id = kemb.chunk_id
     JOIN knowledge_entries ke ON ke.id = kc.knowledge_id
-    WHERE ke.status IN ('approved', 'published')
-      AND ke.domain = 'bitcoin'
+    WHERE kemb.embedding_model = $3
+      AND ke.status IN ('approved', 'published')
+      AND ke.domain = ANY($4::text[])
     ORDER BY kemb.embedding <=> $1::vector
     LIMIT $2
     `,
-    [vectorLiteral, limit],
+    [vectorLiteral, limit, activeEmbeddingModel(), getPack().domain.retrievalDomains],
   );
   return rows;
 }
 
+
 export async function retrieveKnowledge(query: string, limit = 3): Promise<RetrievalResult[]> {
-  // Pool a wider candidate set from each method before merging/truncating
-  // to `limit` -- confirmed live that the right entry can rank outside
-  // each method's own top-`limit` individually (e.g. tied lexical scores
-  // with no secondary sort, or an embedding model with uneven Sheng/
-  // Swahili alignment) while still deserving to win once both signals are
-  // considered together. Limiting each method to exactly `limit` before
-  // the merge would silently throw those cases away before they get a
-  // chance.
-  const candidatePoolSize = Math.max(limit * 3, 8);
+  // Both retrievers contribute a fixed-size candidate pool (independent of `limit`),
+  // then reciprocal rank fusion orders them. See fusion.ts for why the earlier
+  // "keep the larger raw score" merge was replaced.
   const [lexicalRows, semanticRows] = await Promise.all([
-    retrieveLexical(query, candidatePoolSize),
-    retrieveSemantic(query, candidatePoolSize),
+    retrieveLexical(query, CANDIDATE_POOL),
+    retrieveSemantic(query, CANDIDATE_POOL),
   ]);
 
-  const byId = new Map<string, KnowledgeRow>();
-  for (const row of [...lexicalRows, ...semanticRows]) {
-    const existing = byId.get(row.id);
-    if (!existing || Number(row.score) > Number(existing.score)) {
-      byId.set(row.id, row);
-    }
-  }
-
-  return [...byId.values()]
-    .sort((a, b) => Number(b.score) - Number(a.score))
+  return fuseRankings(lexicalRows, semanticRows)
     .slice(0, limit)
-    .map((row) => ({
+    .map(({ row, bestRawScore }) => ({
       conceptId: row.id,
       authoritativeContent: row.canonical_answer,
       approvedExamples: [row.beginner_answer],
@@ -221,6 +193,6 @@ export async function retrieveKnowledge(query: string, limit = 3): Promise<Retri
       sourceVersion: row.version,
       freshnessDate: row.updated_at,
       relatedConcepts: [],
-      confidence: Math.min(1, Number(row.score)),
+      confidence: Math.min(1, bestRawScore),
     }));
 }

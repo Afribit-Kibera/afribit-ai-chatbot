@@ -1,10 +1,10 @@
 {
-  "name": "Afribit AI",
+  "name": "Afribit AI — Bitcoin learning",
   "short_name": "Afribit AI",
-  "description": "A simple Bitcoin education assistant for local communities.",
-  "id": "/",
-  "start_url": "/",
-  "scope": "/",
+  "description": "Learn Bitcoin in Sheng, Kiswahili and English. AI can be wrong.",
+  "id": "/app",
+  "start_url": "/app",
+  "scope": "/app",
   "display": "standalone",
   "display_override": ["window-controls-overlay", "standalone", "browser"],
   "orientation": "portrait",
@@ -36,8 +36,14 @@
       "name": "Ask Afribit",
       "short_name": "Ask",
       "description": "Open Afribit AI chat",
-      "url": "/?source=shortcut-chat",
-      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+      "url": "/app?source=shortcut-chat",
+      "icons": [
+        {
+          "src": "/icons/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
     }
   ]
 }

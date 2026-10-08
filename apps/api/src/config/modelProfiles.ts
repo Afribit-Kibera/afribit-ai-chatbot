@@ -14,6 +14,7 @@ interface RawProfile {
   maxOutputTokens: number;
   temperature: number;
   privacyProfile: "strict" | "standard";
+  timeoutMs?: number;
 }
 
 const raw = JSON.parse(readFileSync(configPath, "utf-8")) as { profiles: RawProfile[] };

@@ -8,7 +8,7 @@ Everything needed to run Afribit AI on one machine and serve a local network, wi
 
 ## What you need
 
-- A Linux machine (or a VM) with Docker and Docker Compose. A modern desktop is enough to start; a GPU helps a lot. Measured numbers for modest hardware are in the [specification](../../docs/program/community-node.md#pilot-results-so-far).
+- A Linux machine (or a VM) with Docker and Docker Compose. A modern desktop is enough to start; a GPU helps a lot. Measured numbers for modest hardware are in the [specification](../../docs/program/community-node.md#what-we-measured).
 - Enough disk for the model (several GB) and the database.
 - A way for phones to reach it: community Wi-Fi, a router, or a mesh.
 

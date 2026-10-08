@@ -42,7 +42,7 @@ Be precise about the gap between policy and code:
 | Feature | What is kept | Consent | Who sees it |
 |---|---|---|---|
 | **"Say it your way"** (built 8 Oct 2026, F-003) | The member's rewrite, the answer it rewrites, and their question if they leave "include my question" ticked. Deleting the conversation clears the shared text; the suggestion stays | The member chooses, per suggestion, whether it may be used for answers (ticked by default), testing and training (never by default). An approved suggestion's `allowed_for_*` flags are that choice AND the reviewer's approval | Reviewers (pilot console, Suggestions tab) |
-| **Gap list** | Counts of questions no approved card answered, by topic; never shown below 5 | None needed: aggregate only | Reviewers, leaders |
+| **Gap list** (built 8 Oct 2026, F-004) | Per unanswered question: a short general topic label (written by the waiter model, checked for names, numbers and secrets), the day, the language mode, the nearest card and a rounded score. **No question text; no link to a conversation, message or user.** Shown only at 5 or more per topic | None needed: aggregate only. On the public service the labeller is one more hosted model call (zero-data-retention routing); `GAP_LABELS=off` avoids it | Reviewers, administrators |
 | **Learner memory** | A person's language, level and topics covered | Opt-in, per person; deletable by them at any time | Only that person's assistant |
 | **"Ask anything" mode** | The same as any conversation under the node's retention setting; never added to knowledge, never used for training | Off unless the community switches it on | As for any conversation |
 
@@ -86,4 +86,4 @@ The [pilot console](../guides/pilot-console-guide.md) is for reviewers and admin
 - Legal review against Kenya's Data Protection Act, 2019, including whether and how the program and each node must register, Afribit's role as a processor on Afribit Local, a data processing agreement template, and the Data Commissioner's cross-border transfer guidance for the `cloud` and `hybrid` modes.
 - A plain-language privacy notice in English, Kiswahili and Sheng, reviewed by community members.
 - The training-consent policy and its approval by reviewers.
-- ~~Implementation of the no-storage / short-retention and deletion settings.~~ Built 8 October 2026 (F-002); ships with the next release.
+- ~~Implementation of the no-storage / short-retention and deletion settings.~~ Built 8 October 2026 (F-002); live since API release 20261008133325.

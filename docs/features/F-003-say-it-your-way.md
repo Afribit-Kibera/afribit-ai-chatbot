@@ -1,6 +1,6 @@
 # F-003 — "Say it your way": members suggest wording, reviewers decide
 
-**Status:** Built (8 Oct 2026; ships with the next release, which applies migration 017) · **Roadmap stage:** 2 · **Decision records:** [ADR 0015](../adr/0015-how-the-assistant-learns.md) (the "same day, for everyone" speed)
+**Status:** Live since 8 Oct 2026 (API release 20261008133325) · **Roadmap stage:** 2 · **Decision records:** [ADR 0015](../adr/0015-how-the-assistant-learns.md) (the "same day, for everyone" speed)
 
 ## Problem
 

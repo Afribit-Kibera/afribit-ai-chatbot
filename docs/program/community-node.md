@@ -141,7 +141,6 @@ These are short runs. Capacity under real use, power draw and the mesh are what 
 
 - **Blind review** by community Sheng speakers of the compact prompt and the restaurant pipeline before either is switched on.
 - **A GPU-sized capacity test** with real people, and power draw.
-- A **no-storage mode** and per-person deletion ([data stewardship](../governance/data-stewardship.md)).
 - Prefix caching for the shared part of the prompt; offline cards on the phone.
 - Per-device rate limits; a node status page for operators.
 - The mesh (needs hardware).

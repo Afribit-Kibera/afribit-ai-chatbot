@@ -9,11 +9,10 @@
 </p>
 
 <p align="center">
-  <a href="https://afribit-chat-gamma.vercel.app"><strong>Try the live demo</strong></a> ·
+  <a href="https://ai.afribit.africa"><strong>Try it live</strong></a> ·
   <a href="docs/program/overview.md">The program</a> ·
   <a href="ROADMAP.md">Roadmap</a> ·
   <a href="CONTRIBUTING.md">Contribute</a> ·
-  <a href="https://github.com/afribit/afribit-ai/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/afribit/afribit-ai/actions/workflows/ci.yml/badge.svg"></a>
   <a href="LICENSE"><img alt="License: Apache-2.0" src="https://img.shields.io/badge/code-Apache--2.0-blue.svg"></a>
   <a href="LICENSE-CONTENT"><img alt="Content: CC BY-SA 4.0" src="https://img.shields.io/badge/content-CC%20BY--SA%204.0-lightgrey.svg"></a>
 </p>
@@ -62,7 +61,7 @@ Phones don't run the model — we measured, and small models that fit on a phone
 | Setup | Data lives | Model runs | Status |
 |---|---|---|---|
 | **Community node** (self-hosted, free) | The community's machine | The community's GPU (10–16 GB) | **Built; measured** — answers in 10–19 s on a 16 GB card; mesh untested |
-| **Afribit Local** (community box + Afribit GPU) | A small box at the community | Afribit's GPU server in Kenya; nothing stored there | **Decided**; the node already supports a remote model server; tunnel and hardened server planned |
+| **Afribit Local** (community box + Afribit GPU) | A small box at the community | Afribit's GPU server in Kenya; nothing stored there | **Built and tested** (8 Oct 2026, with a rented GPU standing in, test questions only); not yet running for any community: launches when our GPU server in Kenya is ready |
 | **Local-first, hosted brain** | A small local server | A hosted zero-retention model sees only a scrubbed English ticket | Built; off pending community review |
 | **Cloud** | Our server | Hosted models | Live demo |
 | **Cards** | Your phone | Nothing | Planned |

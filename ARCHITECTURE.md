@@ -65,7 +65,7 @@ PWA (apps/web)
 
 The waiter, the compact prompt and the restaurant pipeline are switches, off by default, because they change the public voice of the product and wait for community reviewers to compare them blind ([ADR 0010](docs/adr/0010-compact-prompt-and-the-waiter.md), [ADR 0012](docs/adr/0012-the-restaurant-pipeline.md)).
 
-**Planned additions to this flow.** "Ask anything" mode (ADR 0017) will use a general prompt at step 4, keep steps 1, 3 and 6, and mark its answers as unreviewed. Teach mode and the gap list (ADR 0015) sit after step 6: a member's "say it your way" rewrite, or a question no card answered, becomes a suggestion in the reviewers' queue, never a change to what others hear until a reviewer approves it.
+**Additions to this flow.** "Say it your way" (F-003, live since 8 Oct 2026) and the gap list (F-004) sit after step 6: a member's rewrite goes to the reviewers' queue, and a question no card answered is counted under a short topic (no question text is kept), never a change to what others hear until a reviewer approves it. "Ask anything" mode (ADR 0017, planned) will use a general prompt at step 4, keep steps 1, 3 and 6, and mark its answers as unreviewed.
 
 ## Where inference runs
 
@@ -79,7 +79,7 @@ The same API runs in the cloud or on a community node; `INFERENCE_MODE` chooses 
 
 Model profiles (`apps/api/config/model-profiles.json`) carry per-profile timeouts: a hosted API answers in seconds; a modest node needs minutes to read the prompt. The node deployment kit is in [`deploy/community-node/`](deploy/community-node); the program around it is in [`docs/program/`](docs/program).
 
-**Afribit Local** ([ADR 0016](docs/adr/0016-afribit-local-community-box.md)) is `node` mode with the model server somewhere else: a small box at the community runs the unchanged node kit (app, database, local embeddings, backups) and points `LOCAL_LLM_BASE_URL` at Afribit's GPU server in Kenya over an encrypted tunnel, with a per-community `LOCAL_LLM_API_KEY`. The community's data stays on its box; each question and its cards cross the tunnel and are not stored on the GPU server. The code path exists today; the tunnel, the hardened GPU server and a model-location setting (so the app can tell members where the model runs) are planned.
+**Afribit Local** ([ADR 0016](docs/adr/0016-afribit-local-community-box.md)) is `node` mode with the model server somewhere else: a small box at the community runs the unchanged node kit (app, database, local embeddings, backups) and points `LOCAL_LLM_BASE_URL` at Afribit's GPU server in Kenya over an encrypted tunnel, with a per-community `LOCAL_LLM_API_KEY`. The community's data stays on its box; each question and its cards cross the tunnel and are not stored on the GPU server. Built and tested on 8 Oct 2026 (F-006): the model-location label, the box keeping its embeddings at home, the gate in front of the GPU, the WireGuard tunnel and the host checklist (`deploy/gpu-server/`). Not yet running for any community: it launches when Afribit's GPU server is in Kenya.
 
 ## Repository layout
 

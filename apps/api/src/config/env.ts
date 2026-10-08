@@ -160,6 +160,13 @@ export const env = {
    * "closed" or "open" (development only; the server warns elsewhere). Members need no account.
    */
   registration: parseRegistration(process.env.REGISTRATION),
+  /**
+   * F-004 — the gap list. A question is a gap when the best card's MEANING-match score (embedding cosine) is under
+   * this. Default 0.65, calibrated for bge-m3 on 8 Oct 2026 (uncovered questions 0.42–0.65, covered 0.67–0.79);
+   * re-calibrate if the embedding model changes. GAP_LABELS=off keeps unlabelled counts and makes no labelling call.
+   */
+  gapThreshold: Number.isFinite(Number(process.env.GAP_THRESHOLD)) && process.env.GAP_THRESHOLD ? Number(process.env.GAP_THRESHOLD) : 0.65,
+  gapLabels: (process.env.GAP_LABELS ?? "on").toLowerCase() !== "off",
 };
 
 export function assertProductionEnv(): void {

@@ -1,6 +1,6 @@
 # F-002 — Privacy settings: no storage, retention, deletion
 
-**Status:** Built (8 Oct 2026; ships with the next release, which applies migration 016) · **Roadmap stage:** 1 · **Policy:** [data stewardship](../governance/data-stewardship.md)
+**Status:** Live since 8 Oct 2026 (API release 20261008133325) · **Roadmap stage:** 1 · **Policy:** [data stewardship](../governance/data-stewardship.md)
 
 ## Problem
 

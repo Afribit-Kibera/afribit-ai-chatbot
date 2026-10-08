@@ -1,6 +1,6 @@
 # F-001 — Where the AI runs: an honest model-location label
 
-**Status:** Built (8 Oct 2026; ships with the next release) · **Roadmap stage:** 1 · **Decision records:** [ADR 0009](../adr/0009-inference-modes-and-privacy.md), [ADR 0016](../adr/0016-afribit-local-community-box.md)
+**Status:** Live since 8 Oct 2026 (API release 20261008133325) · **Roadmap stage:** 1 · **Decision records:** [ADR 0009](../adr/0009-inference-modes-and-privacy.md), [ADR 0016](../adr/0016-afribit-local-community-box.md)
 
 ## Problem
 

@@ -3,8 +3,8 @@
 **Status:** Accepted, 8 October 2026, by the maintainers. The community's reviewers ratify it with the
 governance document before the pilot. It amends the conditions of
 [ADR 0003](0003-no-fine-tuning-initially.md) under which fine-tuning may begin. The second speed
-(reviewed community memory) is partly built; Teach mode, the gap list, learner memory and the release
-pipeline are planned.
+(reviewed community memory) is built: "say it your way" is live and the gap list is built (8 Oct 2026). Learner
+memory and the release pipeline are planned.
 
 **Context:**
 

@@ -23,7 +23,8 @@ the details. **Last updated 8 October 2026.**
 | The community decides what it learns | Members suggest wording; reviewers approve; safety topics need two reviewers | Live since 8 Oct 2026 | 2026-10-08-c, -e |
 | Accounts only for invited trainers | Sign-up without an invitation is refused on the live service | Live since 8 Oct 2026 | 2026-10-08-g, -h |
 | A community box using a remote GPU (Afribit Local) | The whole path works. Answers in **2.4–4.0 s**; four people at once in **7.8 s**; nothing stored and no text in the server's logs | Built and tested, with a rented GPU in Europe and test questions only | 2026-10-08-i, -k, -l |
-| Engineering discipline | **570** automated checks, run before every release; every release logged with its smoke test | Live practice | §1, 2026-10-08-e, -f, -h |
+| What people ask that no card answers (gap list) | Real model: **19/19** uncovered test questions counted, **0/8** covered ones; grouped under general topics with no personal detail; no question text kept | Built and tested, not yet released | 2026-10-08-m |
+| Engineering discipline | **585** automated checks, run before every release; every release logged with its smoke test | Live practice | §1, 2026-10-08-e, -f, -h |
 
 ## 2. Language quality and accuracy
 
@@ -78,7 +79,7 @@ Caveat: our own benchmark.
 
 ## 5. Hardware, speed and cost
 
-All GPU rentals below were on RunPod, timed from Nairobi, with test questions only.
+All rented GPUs ran test questions only. The 8 October rentals were on RunPod, timed from Nairobi; the log does not record the provider for the 2 October runs.
 
 | Machine | Model | One answer | Four people at once | Date |
 |---|---|---|---|---|
@@ -115,12 +116,13 @@ in for development and tests only, never for a learner's question.
 
 ## 7. How the software is kept working
 
-- **570 automated checks** (`pnpm test`) cover:
+- **585 automated checks** (`pnpm test`) cover:
   - prompts, language and safety rules;
   - retrieval;
   - privacy and deletion;
   - suggestions and reviews;
   - invitations;
+  - the gap list;
   - the GPU gate;
   - the web app;
   - a real PostgreSQL database (in WebAssembly, no install needed).

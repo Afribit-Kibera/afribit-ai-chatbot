@@ -184,7 +184,7 @@ export async function retrieveKnowledge(query: string, limit = 3): Promise<Retri
 
   return fuseRankings(lexicalRows, semanticRows)
     .slice(0, limit)
-    .map(({ row, bestRawScore }) => ({
+    .map(({ row, bestRawScore, semanticScore }) => ({
       conceptId: row.id,
       authoritativeContent: row.canonical_answer,
       approvedExamples: [row.beginner_answer],
@@ -194,5 +194,6 @@ export async function retrieveKnowledge(query: string, limit = 3): Promise<Retri
       freshnessDate: row.updated_at,
       relatedConcepts: [],
       confidence: Math.min(1, bestRawScore),
+      semanticScore: semanticScore === null ? null : Number(semanticScore),
     }));
 }

@@ -10,6 +10,8 @@ import { pilotStore } from "../pilot/store.js";
 import { teachStore, TeachError } from "../teach/store.js";
 import { invitationStore } from "../auth/invitationStore.js";
 import { hashCode, normaliseCode } from "../auth/invitations.js";
+import { gapStore, GapError } from "../gaps/store.js";
+import { summarise } from "../gaps/rules.js";
 
 /**
  * pnpm --filter @afribit/api test:db -- the SQL of F-002 (privacy), F-003 ("say it your way") and F-012
@@ -228,6 +230,41 @@ await ok("invitation: creating, using and revoking are in the audit log, never w
   for (const action of ["create_invitation", "use_invitation", "revoke_invitation"]) assert.ok(a.some((x) => x.action === action), action);
   assert.ok(a.some((x) => x.action === "create_invitation" && x.actor === "operator"));
   assert.ok(a.every((x) => !JSON.stringify(x.details ?? {}).includes("AFB")));
+});
+// ── F-004: the gap list ──
+await db.query(`INSERT INTO knowledge_entries (id, title, canonical_answer, beginner_answer, status) VALUES ('btc.buy.001', 'Buying Bitcoin', 'x', 'x', 'published'), ('btc.buy.002', 'Buying Bitcoin with M-Pesa', 'x', 'x', 'published')`);
+await ok("gaps: the event table has no column for question text or a link to a chat, message or user", async () => {
+  const cols = ((await db.query(`SELECT column_name FROM information_schema.columns WHERE table_name = 'gap_events' ORDER BY column_name`)).rows as any[]).map((r) => r.column_name);
+  assert.deepEqual(cols, ["confidence", "day", "id", "language_mode", "nearest_card", "pack_id", "topic_id"]);
+});
+await ok("gaps: labels that differ only in case or spacing share a topic; an unknown nearest card is stored as unknown", async () => {
+  const rec = (label: string | null, lang = "sheng", card: string | null = "btc.buy.001") =>
+    gapStore.record({ packId: "kibera-bitcoin", label, languageMode: lang, nearestCard: card, confidence: 0.1 });
+  for (let i = 0; i < 4; i++) await rec("Buying Bitcoin with M-Pesa");
+  await rec("buying bitcoin with m-pesa", "simple_en");
+  await rec("Football results", "sheng", "no.such.card");
+  await rec(null);
+  await gapStore.record({ packId: "other-pack", label: "Buying Bitcoin with M-Pesa", languageMode: "sheng", nearestCard: null, confidence: 0.2 });
+  assert.equal((await one(`SELECT count(*)::int AS n FROM gap_topics WHERE pack_id = 'kibera-bitcoin'`)).n, 2);
+  assert.equal((await one(`SELECT count(*)::int AS n FROM gap_events WHERE nearest_card IS NULL AND pack_id = 'kibera-bitcoin'`)).n, 1);
+  assert.deepEqual(await gapStore.openTopics("kibera-bitcoin", 10), ["Buying Bitcoin with M-Pesa", "Football results"]);
+});
+await ok("gaps: the list groups by topic for this community only, and shows a topic only at 5 or more", async () => {
+  const s = summarise(await gapStore.rows({ packId: "kibera-bitcoin", days: 30 }));
+  assert.equal(s.total, 7);
+  assert.deepEqual(s.topics.map((t) => [t.label, t.count]), [["Buying Bitcoin with M-Pesa", 5]]);
+  assert.deepEqual(s.topics[0]!.nearestCards, [{ id: "btc.buy.001", title: "Buying Bitcoin", count: 5 }]);
+  assert.deepEqual(s.hidden, { topics: 2, questions: 2 });
+});
+await ok("gaps: a decision names a real card, is scoped to the community, and is audited", async () => {
+  const id = (await one(`SELECT id FROM gap_topics WHERE pack_id = 'kibera-bitcoin' AND label = 'Buying Bitcoin with M-Pesa'`)).id as string;
+  await assert.rejects(() => gapStore.decide({ id, packId: "kibera-bitcoin", actor: ADMIN, status: "card_written", cardId: "no.such.card", note: null }), (e: any) => e instanceof GapError && e.status === 400);
+  await assert.rejects(() => gapStore.decide({ id, packId: "other-pack", actor: ADMIN, status: "out_of_scope", cardId: null, note: null }), (e: any) => e instanceof GapError && e.status === 404);
+  assert.deepEqual(await gapStore.decide({ id, packId: "kibera-bitcoin", actor: ADMIN, status: "card_written", cardId: "btc.buy.002", note: "steps added" }), { id, status: "card_written" });
+  const t = summarise(await gapStore.rows({ packId: "kibera-bitcoin", days: 30 })).topics[0]!;
+  assert.deepEqual([t.status, t.cardId, t.cardTitle, t.note], ["card_written", "btc.buy.002", "Buying Bitcoin with M-Pesa", "steps added"]);
+  assert.deepEqual(await gapStore.openTopics("kibera-bitcoin", 10), ["Football results"]); // decided topics are not offered to the labeller
+  assert.equal((await one(`SELECT count(*)::int AS n FROM audit_logs WHERE action = 'decide_gap' AND entity_id = $1`, [id])).n, 1);
 });
 await db.close();
 console.log(`db: ${passed} checks passed against PostgreSQL (PGlite)`);

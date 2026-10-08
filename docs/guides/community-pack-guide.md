@@ -7,7 +7,7 @@ Read [the concept](../concept/README.md) first if you want the "why". This page 
 ## What you need
 
 - **People:** at least two reviewers who speak the language and know the subject, and one person comfortable with a command line. Reviewers matter more than hardware.
-- **A machine:** for a real model with no cloud, a computer with an NVIDIA GPU with 10–16 GB of memory (we measured a 2014 desktop with no GPU: it cannot do it). Without a GPU, use `INFERENCE_MODE=hybrid` or `cloud` with an OpenRouter key; questions then leave your network, and your users should be told.
+- **A machine:** for a real model with no cloud, a computer with an NVIDIA GPU with 10–16 GB of memory (we measured a 2014 desktop with a 4 GB GPU: far too slow for chat). Without a GPU, use `INFERENCE_MODE=hybrid` or `cloud` with an OpenRouter key; questions then leave your network, and your users should be told.
 - **Software:** Docker, Node 22 and pnpm for development; Docker alone for running a node ([the node kit](../../deploy/community-node/README.md)).
 
 ## Five-minute start

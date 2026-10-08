@@ -38,7 +38,7 @@ The assistant learns at three speeds, each with its own gate ([ADR 0015](../adr/
 |---|---|---|---|---|
 | **Knowledge (the pantry)** | Reviewed answers, one card per idea, each with a safety note and a review status. In Learn mode the assistant answers *only* from approved cards | Reviewers | **Built** | The node's own Postgres database, loaded from the pack |
 | **Language corpus** | Community-approved words and phrases with provenance, used to ground slang instead of improvising it | Reviewers | **Built** (Kibera pack) | The node's database |
-| **Teaching signals** | "Say it your way" rewrites from members, and a list of questions no card answered (shown only at 5 or more) | Reviewers, before anything changes for others | **Planned** | The node's database |
+| **Teaching signals** | "Say it your way" rewrites from members, and a list of questions no card answered (shown only at 5 or more) | Reviewers, before anything changes for others | **"Say it your way" live** (8 Oct 2026); the gap list built | The node's database |
 | **Conversation memory** | The current chat, so a follow-up makes sense | — | **Built** (a recent window) | The node's database |
 | **Learner memory** | What a person has learned, so the assistant can build on it | The person (opt-in, deletable) | **Planned**; needs a privacy design first | Per person, on the node |
 | **The model's own weights** | A community adapter trained on consented, approved examples | A human test set, a safety suite, and a reviewer vote | **Research** | Public adapters are published; private ones stay on the community's node |
@@ -103,8 +103,8 @@ Short answer to "can a developer in another community run their own local model 
 | A community can run it on its own machine with no internet and no cloud | True (node mode, needs a 10–16 GB GPU for a good model; a small 2014 PC measured and does not work) |
 | Packs: another community can define its own languages, voice and knowledge | True, with the limits above |
 | Hosted entirely by communities | **Not yet.** The live service runs on Afribit's server. The pilot node is the first community-hosted one |
-| Afribit Local (community box + Afribit GPU in Kenya) | **Decided, not yet running** ([ADR 0016](../adr/0016-afribit-local-community-box.md)) |
-| Learns from the community | **Through review only:** approved cards and phrases are live at once; Teach mode and learner memory are planned; no model has been trained |
+| Afribit Local (community box + Afribit GPU in Kenya) | **Built and tested, not yet running** ([ADR 0016](../adr/0016-afribit-local-community-box.md), [F-006](../features/F-006-afribit-gpu-server.md)): launches when the GPU server is in Kenya |
+| Learns from the community | **Through review only:** approved cards and phrases are live at once; members suggest wording that reviewers approve ("say it your way", live); learner memory is planned; no model has been trained |
 | A normal AI chat for anything | **Planned** as the labelled "Ask anything" mode, off by default |
 | A network of nodes sharing compute | **Not built** (the mesh is a later phase) |
 | A "protocol" | **Not yet.** A pack *format* and an engine. A protocol needs a second community using it |

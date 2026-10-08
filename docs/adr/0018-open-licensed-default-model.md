@@ -12,7 +12,7 @@ evaluation below passes; until then the node default stays `gemma3:12b`.
   mixture-of-experts with about 4B active parameters, and a 31B dense model.
 - In our hosted model search, Gemma 4 26B-A4B also passed 15 of 15
   ([evaluation](../evaluation/methodology.md)).
-- The sizes differ in what hardware they need. The 26B mixture-of-experts likely needs about 16 GB at 4-bit,
+- The sizes differ in what hardware they need. The 26B mixture-of-experts needs about 18 GB at 4-bit (measured 8 Oct 2026, E-001; a 24 GB card),
   where Gemma 3 12B needs about 8 GB. That is an estimate to measure.
 
 **Decision:** Switch the default model to the Gemma 4 model that **matches Gemma 3 12B on our tests and

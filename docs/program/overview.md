@@ -24,7 +24,7 @@ Ways to run it, so every community can start where it is ([ADR 0007](../adr/0007
 | Setup | Hardware | Where questions go | Status |
 |---|---|---|---|
 | **Community node** (self-hosted, `node`) | A machine with a 10–16 GB GPU, on the local network | Nowhere. Nothing leaves the network. | Built; 16 GB GPU measured ([results](community-node.md#what-we-measured)) |
-| **Afribit Local** (community box + Afribit GPU) | A small box at the community, no GPU | To Afribit's GPU server in Kenya over an encrypted tunnel, answered and not stored; all data stays on the box | Decided; the node already supports a remote model server; tunnel and hardened server planned |
+| **Afribit Local** (community box + Afribit GPU) | A small box at the community, no GPU | To Afribit's GPU server in Kenya over an encrypted tunnel, answered and not stored; all data stays on the box | Built and tested (8 Oct 2026); launches when the GPU server is in Kenya |
 | **Local-first, hosted brain** (`hybrid` + restaurant) | Any small server, no GPU needed for the chef; a modest GPU for the waiter | The hosted chef sees only a scrubbed English ticket; everything is stored locally | Built, off pending review |
 | **Cloud demo** (`cloud`) | None (we host it) | Hosted models with zero-data-retention routing | Live |
 | **Cards on the phone** | Any phone, no network | Nowhere | Planned |
@@ -55,8 +55,10 @@ Honesty matters more than polish. Status as of October 2026:
 | Local semantic search (embeddings) on a node | **Built and measured**: `bge-m3` on the node's CPU finds the right card in the top 3 for 97.5% of benchmark questions with no cloud call |
 | Contributor accounts; submit / review / vote on phrases | **Built** (no promotion step or review UI yet) |
 | Several community packs on one server; the redesigned web app configures itself from the pack | **Built** (web app in the current development branch) |
-| Afribit Local: community box + Afribit GPU in Kenya | **Decided**; the remote model server path works in code; tunnel, hardened GPU server and provisioning planned |
-| Teach mode ("say it your way"), the gap list, opt-in learner memory | **Planned** |
+| Afribit Local: community box + Afribit GPU in Kenya | **Built and tested** (8 Oct 2026, rented GPU standing in, test questions only); not running for any community; provisioning and billing planned |
+| "Say it your way" | **Live** (8 Oct 2026) |
+| The gap list | **Built** (8 Oct 2026) |
+| Opt-in learner memory | **Planned** |
 | "Ask anything" mode | **Planned** (off by default) |
 | Open-licensed default model (Gemma 4) | **Decided, conditional on our tests** |
 | Offline cards on the phone; sats rewards for contributors | **Planned** |

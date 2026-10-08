@@ -20,7 +20,7 @@ docs it changes are updated, and the result is logged in [the Book](../book/READ
 2. **Agreed.** The maintainers accept the spec (and reviewers, where it changes what learners see or what
    data is kept). Its status changes here and on the roadmap.
 3. **Building.** Code, tests and docs are written together.
-4. **Done.** The acceptance tests pass in CI; the [test and evaluation log](../book/test-and-evaluation-log.md)
+4. **Done.** The acceptance tests pass (in `pnpm test`, run before every release); the [test and evaluation log](../book/test-and-evaluation-log.md)
    has an entry; the roadmap item is ticked.
 
 ## Register
@@ -29,10 +29,10 @@ docs it changes are updated, and the result is logged in [the Book](../book/READ
 |---|---|---|---|---|
 | E-001 | Gemma 4 comparison and the GPU decision | 1 | **Done** 8 Oct 2026; GPU recommended; switch awaits the reviewers' blind comparison | [E-001](E-001-gemma4-and-gpu.md) |
 | E-002 | Community benchmark: raw open model vs Afribit, scored blind | 1 | **Draft**; writers' plan for review ([guide](../evaluation/community-benchmark-writers-guide.md)) | [E-002](E-002-community-benchmark.md) |
-| F-001 | Where the AI runs: an honest model-location label | 1 | **Live** 8 Oct 2026 (API release 20261008134137) | [F-001](F-001-model-location-label.md) |
-| F-002 | Privacy settings: no storage, retention, deletion | 1 | **Live** 8 Oct 2026 (API release 20261008134137; migration 016) | [F-002](F-002-privacy-settings.md) |
-| F-003 | "Say it your way": members suggest wording, reviewers decide | 2 | **Live** 8 Oct 2026 (API release 20261008134137; migration 017) | [F-003](F-003-say-it-your-way.md) |
-| F-004 | Gap list: questions no card answered | 2 | Planned (spec to write) | — |
+| F-001 | Where the AI runs: an honest model-location label | 1 | **Live** 8 Oct 2026 (API release 20261008133325) | [F-001](F-001-model-location-label.md) |
+| F-002 | Privacy settings: no storage, retention, deletion | 1 | **Live** 8 Oct 2026 (API release 20261008133325; migration 016) | [F-002](F-002-privacy-settings.md) |
+| F-003 | "Say it your way": members suggest wording, reviewers decide | 2 | **Live** 8 Oct 2026 (API release 20261008133325; migration 017) | [F-003](F-003-say-it-your-way.md) |
+| F-004 | Gap list: questions no card answered | 2 | **Built and tested** 8 Oct 2026 (migration 019); not yet released | [F-004](F-004-gap-list.md) |
 | F-005 | Community console v1 | 2 | Planned (spec to write) | — |
 | F-006 | Afribit GPU server and the box → GPU path (ADR 0016) | 2 | **Built and tested** 8 Oct 2026 (box, gate, tunnel, host checklist); goes live with the GPU in Kenya | [F-006](F-006-afribit-gpu-server.md) |
 | F-007 | A chat channel where people already are (Telegram first), labelled honestly | 2 (experiment) | Planned (spec to write) | — |

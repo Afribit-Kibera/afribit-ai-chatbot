@@ -14,7 +14,7 @@ There are two kinds of check:
 
 ## 1. Standing test suites
 
-Counts are from the run on 8 October 2026 after entry 2026-10-08-i below (all passing). If a count drops between runs
+Counts are from the run on 8 October 2026 for entry 2026-10-08-m below (all passing). If a count drops between runs
 without an explanation, treat it as a defect.
 
 | Suite (`pnpm …`) | Checks | What it protects |
@@ -38,10 +38,11 @@ without an explanation, treat it as a defect.
 | `test:privacy` | 23 | F-001/F-002: where the AI runs (never overstated), retention, the browser history the server accepts, the delete routes, `userId` only from a verified token |
 | `test:teach` | 12 | F-003: suggestion validation, safety topics, consent mapping, self-approval and two-reviewer rules, who may call each route |
 | `test:invitations` | 13 | F-012: the `REGISTRATION` setting, codes, one generic refusal, a code works once, `closed` and `open`, who may manage invitations |
-| `test:db` | 21 | The SQL of F-002, F-003 and F-012 against real PostgreSQL (PGlite); every migration must apply |
+| `test:gaps` | 11 | F-004: what counts as a gap, the labeller's prompt and label checks, the 5-or-more rule, the recorder never in the answer's way, who may read and decide |
+| `test:db` | 25 | The SQL of F-002, F-003, F-012 and F-004 against real PostgreSQL (PGlite); every migration must apply |
 | `test:gate` | 14 | F-006: the GPU server's gate: keys and peer binding, only chat and model lists pass, model allow-list, limits, streaming, token counts, GPU-placement health, usage counts, no text in logs |
 | `@afribit/web test` (Vitest) | 61 (7 files) | Web app units, incl. the privacy wording rule, recent turns, deletion, suggestion and sign-up requests |
-| **Total** | **570** | (468 on 8 Oct morning; 529 at release 20261008133325; +23 with F-012; +4 with F-006 part 1; +14 with the gate) |
+| **Total** | **585** | (468 on 8 Oct morning; 529 at release 20261008133325; +23 with F-012; +4 with F-006 part 1; +14 with the gate; +15 with F-004) |
 
 CI also runs `test:voice-ui-assets` (the Voice Lab page's content security policy and assets), Playwright
 browser journeys with axe accessibility checks, and Lighthouse budgets.
@@ -72,6 +73,57 @@ Add new entries at the top of section 3. Copy this template:
 
 Entries before 8 October 2026 were backfilled on that date from the evaluation document and the model
 profile notes. Their raw outputs are in the maintainers' experiment folders.
+
+### 2026-10-08-m — F-004 gap list: build, tests, and a real-model check
+- **What:**
+  - The standing tests for [F-004](../features/F-004-gap-list.md).
+  - A real-model check: a community box built with the node kit on Eddie's laptop, with Gemma 4 26B-A4B on a
+    rented RunPod GPU (Romania, secure cloud, $0.74/h, CUDA 13 host). `CHAT_RETENTION=none`. **Test questions
+    only.** Scripts and output: `internal/experiments/2026-10-08-box-gpu/` (`gap-questions.mjs`,
+    `semantic-scores.*`, `gap-topics*.txt`, `gaps-console.mjs`, `console-gaps*.png`).
+- **Code:** `feat/frontend-rework` after `c8508e0`, with the F-004 changes (committed with this entry).
+- **Standing tests:**
+  - `test:gaps`: **11**, new.
+  - `test:db`: **25** (+4: no text columns; case-insensitive topics; the 5-or-more list; audited decisions).
+  - `pnpm test`: **585**, all passing.
+- **Finding: the old "confidence" can't detect gaps.**
+  - The first run recorded **no** gaps. Questions no card covers (Kenyan tax, Bitcoin ATMs) had a confidence
+    of **1.0**, because that value takes the word-match score, which reaches 1 whenever words like "bitcoin"
+    match.
+  - We measured the meaning-match score (bge-m3 cosine) for 27 test questions: uncovered **0.42–0.65**,
+    covered **0.67–0.79**.
+  - The gap signal is now the meaning-match score, default threshold **0.65**.
+  - The console's "search found little" figure (old measure) undercounts; the Gaps tab replaces it.
+- **Result (meaning-match signal):**
+  - **19/19** uncovered questions recorded as gaps; **0/8** covered ones.
+  - Labels after one prompt revision:
+
+    | Topic | Questions | Languages |
+    |---|---|---|
+    | Bitcoin taxation in Kenya | 6 | 4 |
+    | Bitcoin ATMs in Kenya | 5 | 3 |
+    | Bitcoin mining | 5 | 4 |
+
+    Before the revision, the tax questions split 3 + 3.
+  - **Three questions full of personal details** (names, a phone number, amounts, a street, a landlord)
+    became "Withdrawing Bitcoin", "Paying rent with Bitcoin" and "Buying Bitcoin". No detail reached a label.
+  - Console, in headless Chromium:
+    - the three topics with 5+ questions show, and the three single-question topics appear only as a sum;
+    - "Out of scope" with a note works and is audited;
+    - no browser errors.
+  - **0 of 132** chat messages kept text.
+- **Also found:** four rented hosts with CUDA 12.x drivers ran the current Ollama image on the **CPU**. The
+  pod script's GPU check refused them; requiring CUDA 13 hosts fixed it. Now noted in the GPU server's README.
+- **Caveats:**
+  - The 27 calibration questions are ours, and the margin between uncovered and covered is thin.
+  - Labels were written by Gemma 4 26B; the public service would use hosted Gemma 3 12B, which is untested
+    for this.
+  - One run.
+- **Cost:** about US$0.30 of GPU time, including the two refused CPU-only pods. No pods remain; the test box
+  was removed.
+- **Decision / follow-up:**
+  - Release needs Eddie's approval, because on the public service the labeller is one more hosted model call.
+  - Review the threshold and the labels after the pilot's first month.
 
 ### 2026-10-08-l — F-006 part 2 with a real GPU: box → gate → Gemma 4 (RunPod stand-in)
 - **What:** the full Afribit Local path with the real gate in front of the model. The box was built with the

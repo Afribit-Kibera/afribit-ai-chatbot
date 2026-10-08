@@ -52,6 +52,7 @@
     "test:privacy": "tsx src/privacy/privacyCases.ts",
     "test:teach": "tsx src/teach/teachCases.ts",
     "test:invitations": "tsx src/auth/invitationCases.ts",
+    "test:gaps": "tsx src/gaps/gapCases.ts",
     "test:db": "tsx src/db/dbCases.ts"
   },
   "dependencies": {

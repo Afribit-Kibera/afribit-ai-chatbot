@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import type { AfribitChatMessage, ExplanationLevel, LanguageModeId } from "@afribit/shared";
+import type { AfribitChatMessage, ExplanationLevel, LanguageModeId, RetrievalResult } from "@afribit/shared";
 import { env } from "../config/env.js";
 import { pool } from "../db/pool.js";
 import { retrieveKnowledge } from "../knowledge/retrieval.js";
@@ -20,6 +20,8 @@ import { applyPostprocess } from "../prompt/postProcess.js";
 import { createSentenceBuffer } from "./sentenceBuffer.js";
 import { answeredBy } from "../privacy/location.js";
 import { storedContent } from "../privacy/retention.js";
+import { noteGap } from "../gaps/recorder.js";
+import { semanticSearchEnabled } from "../providers/embeddings.js";
 
 export interface SendMessageInput {
   sessionId: string | null;
@@ -212,6 +214,8 @@ interface BlockedContext {
 
 interface ProceedContext {
   kind: "proceed";
+  /** F-004: the best meaning-match among the cards found, and whether meaning search ran at all. */
+  gapSignal: { meaningScore: number | null; nearestCard: string | null; judged: boolean };
   sessionId: string;
   languageMode: LanguageModeId;
   explanationLevel: ExplanationLevel;
@@ -320,6 +324,7 @@ async function prepareChat(gateway: AfribitAIGateway, input: SendMessageInput): 
     modelProfile,
     requestId: randomUUID(),
     topConfidence: retrieval[0]?.confidence ?? null,
+    gapSignal: gapSignalOf(retrieval),
     retrievedIds: retrieval.map((r) => r.conceptId),
     fallbackContent:
       retrieval[0]?.authoritativeContent ??
@@ -351,6 +356,7 @@ export async function sendMessage(gateway: AfribitAIGateway, input: SendMessageI
   if (ctx.kind === "blocked") return ctx.response;
 
   const { sessionId, languageMode, explanationLevel, promptMessages, modelProfile, requestId, topConfidence, retrievedIds, fallbackContent, notifyToken } = ctx;
+  const gapAfterAnswer = gapNoter(gateway, input.message, ctx);
 
   try {
     const response = await gateway.chat({
@@ -399,6 +405,7 @@ export async function sendMessage(gateway: AfribitAIGateway, input: SendMessageI
     await linkUsage(requestId, messageId);
 
     await notifyIfRequested(notifyToken);
+    gapAfterAnswer();
 
     return {
       sessionId,
@@ -429,6 +436,7 @@ export async function sendMessage(gateway: AfribitAIGateway, input: SendMessageI
     });
 
     await notifyIfRequested(notifyToken);
+    gapAfterAnswer();
 
     return {
       sessionId,
@@ -471,6 +479,7 @@ export async function streamMessage(
   }
 
   const { sessionId, languageMode, explanationLevel, promptMessages, modelProfile, requestId, topConfidence, retrievedIds, fallbackContent, notifyToken } = ctx;
+  const gapAfterAnswer = gapNoter(gateway, input.message, ctx);
   onEvent({ type: "meta", sessionId, safetyFlag: null });
 
   let content = "";
@@ -559,6 +568,7 @@ export async function streamMessage(
       onEvent({ type: "delta", text: ungroundedNote });
     }
     onEvent({ type: "done", messageId, usedFallback: false, answeredBy: answeredBy(finalResponse.provider) });
+    gapAfterAnswer();
   } catch (err) {
     await pool.query(
       `INSERT INTO model_runs (request_id, profile, status, error_message, pack_id) VALUES ($1, $2, 'error', $3, $4)`,
@@ -579,6 +589,7 @@ export async function streamMessage(
       onEvent({ type: "error", message: "The response was interrupted. Please try again." });
       await notifyIfRequested(notifyToken);
       onEvent({ type: "done", messageId, usedFallback: false });
+      gapAfterAnswer();
       return;
     }
 
@@ -593,5 +604,35 @@ export async function streamMessage(
     onEvent({ type: "delta", text: fallbackContent });
     await notifyIfRequested(notifyToken);
     onEvent({ type: "done", messageId, usedFallback: true, answeredBy: "local" });
+    gapAfterAnswer();
   }
+}
+
+/**
+ * F-004: once the answer is out (whichever way it ended), note a gap if search found little. Fire and
+ * forget: noteGap never throws, and the member never waits for it. Calling it twice does nothing more.
+ */
+function gapNoter(gateway: AfribitAIGateway, message: string, ctx: ProceedContext): () => void {
+  let done = false;
+  const packId = getPack().id;
+  return () => {
+    if (done) return;
+    done = true;
+    void noteGap(gateway, { packId, message, languageMode: ctx.languageMode, ...ctx.gapSignal });
+  };
+}
+
+/**
+ * F-004: the gap signal. The legacy `confidence` saturates whenever a question shares common words with a card, so
+ * the gap list uses the meaning-match score instead. If meaning search did not run (off, or the embedding call
+ * failed), nothing can be judged and no gap is recorded. No card at all, with meaning search on, is a gap.
+ */
+function gapSignalOf(retrieval: RetrievalResult[]): { meaningScore: number | null; nearestCard: string | null; judged: boolean } {
+  const scored = retrieval.filter((r) => typeof r.semanticScore === "number").sort((a, b) => (b.semanticScore as number) - (a.semanticScore as number));
+  const best = scored[0];
+  return {
+    meaningScore: best ? (best.semanticScore as number) : null,
+    nearestCard: best?.conceptId ?? retrieval[0]?.conceptId ?? null,
+    judged: scored.length > 0 || (retrieval.length === 0 && semanticSearchEnabled()),
+  };
 }

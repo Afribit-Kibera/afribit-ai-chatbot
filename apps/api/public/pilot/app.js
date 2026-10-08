@@ -15,6 +15,7 @@
   var overviewState = { days: 7, source: "" };
   var queueState = { state: "open" };
   var suggestionState = { state: "pending" };
+  var gapState = { days: 30 };
   var teamState = { q: "", offset: 0 };
   var lastRefresh = 0;
   var stampNode = null;
@@ -133,7 +134,7 @@
   function showShell() {
     clear(app);
     var tabs = el("div", { class: "tabs", role: "group", "aria-label": "Sections" });
-    var defs = [["overview", "Overview"], ["queue", "Queue"], ["suggestions", "Suggestions"]];
+    var defs = [["overview", "Overview"], ["queue", "Queue"], ["suggestions", "Suggestions"], ["gaps", "Gaps"]];
     if (user.role === "admin") defs.push(["team", "Team"]);
     defs.push(["links", "Links"]);
     defs.forEach(function (d) {
@@ -152,6 +153,7 @@
     if (tab === "overview") loadOverview();
     else if (tab === "queue") loadQueue();
     else if (tab === "suggestions") loadSuggestions();
+    else if (tab === "gaps") loadGaps();
     else if (tab === "team" && user.role === "admin") loadTeam();
     else showLinks();
   }
@@ -164,6 +166,7 @@
       if (tab === "overview") loadOverview(true);
       else if (tab === "queue") loadQueue(true);
       else if (tab === "suggestions") loadSuggestions(true);
+      else if (tab === "gaps") loadGaps(true);
     }, 60000);
   }
   function stopTimer() { if (timer) { window.clearInterval(timer); timer = null; } }
@@ -173,6 +176,7 @@
       if (tab === "overview") loadOverview(true);
       else if (tab === "queue") loadQueue(true);
       else if (tab === "suggestions") loadSuggestions(true);
+      else if (tab === "gaps") loadGaps(true);
     }
   });
   function stamp() {
@@ -522,6 +526,79 @@
       return;
     }
     q.items.forEach(function (it) { content.appendChild(suggestionItem(it)); });
+  }
+
+  // ---- gaps (F-004): topics people asked about that no card answered --------------------------
+  var GAP_STATUS = { open: "Open", card_written: "Card written", out_of_scope: "Out of scope" };
+  function loadGaps(quiet) {
+    if (quiet && busyEditing()) return;
+    if (!quiet) { clear(content); content.appendChild(el("p", { class: "small", text: "Loading..." })); }
+    api("GET", "/api/v1/gaps?days=" + gapState.days).then(function (g) {
+      if (tab !== "gaps") return;
+      renderGaps(g);
+      stamp();
+    }).catch(function (err) {
+      if (tab !== "gaps" || !token) return;
+      if (quiet && stampNode) { stampNode.textContent = "Could not refresh (" + err.message + ")."; return; }
+      clear(content); content.appendChild(notice(err.message, "err"));
+    });
+  }
+
+  function renderGaps(g) {
+    clear(content);
+    stampNode = el("span", { class: "small stamp", role: "status" });
+    var toggle = el("div", { class: "tabs", role: "group", "aria-label": "Period" }, [7, 30, 90].map(function (d) {
+      return el("button", { class: "tab", type: "button", "aria-pressed": gapState.days === d ? "true" : "false", text: "Last " + d + " days", onclick: function () { gapState.days = d; loadGaps(); } });
+    }));
+    content.appendChild(el("div", { class: "bar" }, [toggle, stampNode]));
+    content.appendChild(el("p", { class: "small", text: "Topics people asked about that no reviewed card answered well (search found little). Write a card, or mark the topic out of scope. No question is kept: only a short topic, the day, the language and the nearest card. A topic appears here once " + g.minShown + " or more people have asked about it." }));
+    content.appendChild(el("p", { class: "small", text: g.total + " unanswered question" + (g.total === 1 ? "" : "s") + " in the period" + (g.hidden.questions ? "; " + g.hidden.questions + " of them in " + g.hidden.topics + " topic" + (g.hidden.topics === 1 ? "" : "s") + " with fewer than " + g.minShown + " (not shown)." : ".") }));
+    if (!g.topics.length) {
+      content.appendChild(el("div", { class: "panel" }, [el("h2", { text: "No topic has reached " + g.minShown + " questions yet" })]));
+      return;
+    }
+    g.topics.forEach(function (t) { content.appendChild(gapItem(t)); });
+  }
+
+  function gapItem(t) {
+    var meta = [
+      el("span", { class: "tag" + (t.status === "open" ? " bad" : ""), text: GAP_STATUS[t.status] || t.status }),
+      el("span", { text: t.count + " question" + (t.count === 1 ? "" : "s") }),
+      el("span", { text: t.firstDay === t.lastDay ? t.firstDay : t.firstDay + " to " + t.lastDay })
+    ];
+    t.languages.forEach(function (l) { meta.push(el("span", { text: (MODE_NAMES[l.mode] || l.mode) + ": " + l.count })); });
+    var box = el("div", { class: "item" }, [el("div", { class: "meta" }, meta), el("h3", { text: t.label })]);
+    var near = el("div", { class: "linkout" });
+    if (!t.nearestCards.length) near.appendChild(el("span", { class: "small", text: "No card came close." }));
+    else {
+      near.appendChild(el("span", { class: "small", text: "Nearest cards:" }));
+      t.nearestCards.forEach(function (c) { near.appendChild(el("a", { href: reviewLink(c.id), text: (c.title || c.id) + " (" + c.count + ")", title: "Open " + c.id + " in the review page" })); });
+    }
+    box.appendChild(near);
+    if (t.status === "card_written" && t.cardId) box.appendChild(el("p", { class: "small" }, ["Card written: ", el("a", { href: reviewLink(t.cardId), text: t.cardTitle || t.cardId }), t.status === "card_written" ? ". If questions keep arriving here, the new card is not being found." : ""]));
+    if (t.note) box.appendChild(el("p", { class: "small", text: "Note: " + t.note }));
+    if (t.id === null) {
+      box.appendChild(el("p", { class: "small", text: "Questions the labeller could not give a safe, general topic. They are counted so nothing is hidden." }));
+      return box;
+    }
+    var cardId = el("input", { placeholder: "Card id, e.g. btc.buy.002", autocomplete: "off", spellcheck: "false", "aria-label": "Card id for " + t.label, value: t.cardId || "" });
+    var note = el("input", { placeholder: "Note (optional)", maxlength: "500", autocomplete: "off", "aria-label": "Note for " + t.label });
+    var msg = el("div", { "aria-live": "polite" });
+    function decide(status) {
+      return function () {
+        clear(msg);
+        if (status === "card_written" && !cardId.value.trim()) { msg.appendChild(notice("Enter the id of the card you wrote (from the review page).", "err")); return; }
+        api("POST", "/api/v1/gaps/" + encodeURIComponent(t.id) + "/decide", { status: status, cardId: cardId.value.trim() || undefined, note: note.value.trim() || undefined }).then(function () {
+          loadGaps();
+        }).catch(function (err) { clear(msg); msg.appendChild(notice(err.message, "err")); });
+      };
+    }
+    var buttons = t.status === "open"
+      ? [el("button", { type: "button", text: "Card written", onclick: decide("card_written") }), el("button", { type: "button", text: "Out of scope", onclick: decide("out_of_scope") })]
+      : [el("button", { type: "button", text: "Reopen", onclick: decide("open") })];
+    box.appendChild(el("div", { class: "invite-row" }, [cardId, note].concat(buttons)));
+    box.appendChild(msg);
+    return box;
   }
 
   function suggestionItem(it) {

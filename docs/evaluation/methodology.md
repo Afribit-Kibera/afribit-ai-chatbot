@@ -59,7 +59,7 @@ Run through a hosted API to find which open-weight models are worth putting on a
 
 ### On the pilot node (4-bit, real hardware, October 2026)
 
-The same prompts through the shipped `LocalProvider` on a 2014-era desktop with a 4 GB GPU: **Gemma 3 12B passed 4 of 4 cases** run (Sheng scam, Kiswahili, English, Sheng) with no unsafe-content flags; **Qwen3 8B failed all 8** it completed. Speed was 1.5 tokens/s with 32–85 s to the first word on 2,000–5,400-token prompts. Details and what they imply: [community node specification](../program/community-node.md#pilot-results-so-far).
+The same prompts through the shipped `LocalProvider` on a 2014-era desktop with a 4 GB GPU: **Gemma 3 12B passed 4 of 4 cases** run (Sheng scam, Kiswahili, English, Sheng) with no unsafe-content flags; **Qwen3 8B failed all 8** it completed. Speed was 1.5 tokens/s with 32–85 s to the first word on 2,000–5,400-token prompts. Details and what they imply: [community node specification](../program/community-node.md#what-we-measured).
 
 ### What this says
 
@@ -194,7 +194,7 @@ All runs are hosted precision, one run each. Full table and caveats:
 | Gemma 4 31B (Apache-2.0) | 15 / 14 | 15 / 13 | 1 / 3 |
 
 - **An open-licensed model matches the current one.** Gemma 4 26B-A4B with the compact prompt is the best
-  result we have recorded. It needs a 24 GB GPU at 4-bit (about 18 GB), which is still to be measured.
+  result we have recorded. It needs a 24 GB GPU at 4-bit (about 18 GB, measured 8 Oct 2026; see E-001).
 - **The engine does most of the work.** Without it the same models passed 1–2 cases. Their errors included
   advising against writing a recovery phrase on paper, and explaining mobile money instead of a Bitcoin
   wallet. The bare setup wasn't told it was a Bitcoin assistant, so the community benchmark

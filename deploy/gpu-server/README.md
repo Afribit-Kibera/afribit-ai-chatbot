@@ -31,8 +31,9 @@ questions only.
 - NVIDIA driver, Docker, the NVIDIA container toolkit, WireGuard:
   `apt install wireguard nvidia-driver-570 docker.io docker-compose-v2` and the
   [NVIDIA container toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html).
-- Ollama's image needs a recent driver. On 8 Oct 2026 a host with an older driver ran the model on the CPU
-  without any error. `check-host.sh` catches this.
+- Ollama's image needs a recent driver. On 8 Oct 2026, rented hosts with CUDA 12.x drivers ran the current
+  `ollama/ollama` image on the CPU without any error (four times); hosts with CUDA 13 drivers ran it on the GPU.
+  Install a CUDA 13-capable driver, pin `OLLAMA_VERSION`, and let `check-host.sh` confirm the model is on the GPU.
 
 ## Setting it up
 

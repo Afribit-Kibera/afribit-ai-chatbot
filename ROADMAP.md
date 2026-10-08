@@ -86,8 +86,9 @@ To do:
   approval. Agreed before the pilot.
 - [ ] **Training-safe synthetic data:** our data-generation tools use only open-weight "teacher" models whose
   licences allow it; earlier synthetic batches stay evaluation-only.
-- [ ] **Test coverage:** API route tests against a real database (unit tests and browser journeys already run
-  in CI).
+- [ ] **Test coverage:** more API route tests against a real database. Unit tests, a real-PostgreSQL check
+  (PGlite) and the GPU gate run in `pnpm test` before every release; browser journeys run by hand, because
+  GitHub Actions is not running for this repository.
 - [ ] **Contributor tooling:** a review-and-vote screen, and a promotion step with a reviewer quorum.
 - [ ] **Operations:** uptime alerting, off-site backups, pinned image versions, password reset, a hard spend
   cap on the hosted-model key.
@@ -115,7 +116,9 @@ hub's own GPU when it is funded. Moving it moves no data.
   aggregates, not members' conversations.
 - [x] **F-003 · "Say it your way"** ([spec](docs/features/F-003-say-it-your-way.md)): built 8 October 2026,
   reviewed in the pilot console's Suggestions tab; live since 8 October 2026.
-- [ ] **F-004 · the gap list**: questions no card answered, for the reviewers. Completes the daily learning loop.
+- [x] **F-004 · the gap list** ([spec](docs/features/F-004-gap-list.md)): questions no card answered, counted
+  under short topics (no question text kept), shown to reviewers at 5 or more. Built and tested 8 October 2026
+  with a real model; not yet released. Completes the daily learning loop.
 - [ ] **Supervised pilot** of 20–50 learners ([pilot plan](docs/program/pilot-plan.md)), in Learn mode.
   Measure how people reach it: link, installed app, or an educator's phone.
 - [ ] **F-007 · A channel where people already are**, as an experiment: Telegram first, if the pilot shows the

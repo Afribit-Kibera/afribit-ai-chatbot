@@ -1,6 +1,6 @@
 # F-012 — Accounts by invitation only
 
-**Status:** Built (8 Oct 2026) · **Roadmap stage:** 1 · **Related:** [governance](../governance/governance.md), [threat model](../security/threat-model.md)
+**Status:** Live since 8 Oct 2026 (API release 20261008143525) · **Roadmap stage:** 1 · **Related:** [governance](../governance/governance.md), [threat model](../security/threat-model.md)
 
 ## Problem
 

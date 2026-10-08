@@ -47,6 +47,25 @@ Pick a period (today up to a year) and optionally one channel. Days are Nairobi 
 
 When there is no data the page says so ("No data yet") instead of showing zeros that look like results.
 
+## Gaps: what people ask that no card answers
+
+([F-004](../features/F-004-gap-list.md)) After each answer, if no reviewed card was close in meaning, the
+question is counted under a short topic such as "Bitcoin taxation in Kenya". **No question is kept:** only the
+topic, the day, the language and the nearest card. A topic appears once 5 or more people have asked about it;
+smaller ones are only summed in the line above the list.
+
+For each topic:
+
+| Action | Use when |
+|---|---|
+| **Card written** (enter the card's id from the review page) | You wrote or extended a card for it. If questions keep arriving under the topic, the new card isn't being found: check its wording |
+| **Out of scope** (add a note) | It isn't something this assistant should answer, for example where to find an ATM, or advice on a particular person's situation |
+| **Reopen** | You change your mind |
+
+"Nearest cards" show which card came closest: often the one to extend. Choose 7, 30 or 90 days. Every decision
+is audited. The Overview's "search found little" figure uses an older measure that undercounts; use this tab
+instead.
+
 ## Queue: closing the loop on bad answers
 
 A learner can tap thumbs-down and say why. Each report appears here with the question, the answer, the reason and comment, the language and channel, and the reviewed cards the assistant was given (links open the review page). The notice **"No card was found"** means the assistant had nothing reviewed to answer from: write a card.

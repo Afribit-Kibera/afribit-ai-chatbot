@@ -18,6 +18,7 @@ import { registerVoiceRoutes } from "./routes/voice.js";
 import { registerPrivacyRoutes } from "./routes/privacy.js";
 import { registerTeachRoutes } from "./routes/teach.js";
 import { registerInvitationRoutes } from "./routes/invitations.js";
+import { registerGapRoutes } from "./routes/gaps.js";
 import { privacyStore } from "./privacy/store.js";
 import { startRetentionSweep } from "./privacy/sweep.js";
 import { serviceInfo } from "./privacy/service.js";
@@ -103,6 +104,7 @@ registerVoiceRoutes(app, gateway);
 registerPrivacyRoutes(app);
 registerTeachRoutes(app);
 registerInvitationRoutes(app);
+registerGapRoutes(app);
 
 // F-012: say who may create an account, and warn if anyone can.
 app.log.info(`accounts: registration "${env.registration}"`);

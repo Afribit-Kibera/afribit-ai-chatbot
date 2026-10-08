@@ -133,11 +133,11 @@ Risks:
 - **New database migrations:** `016_privacy_settings.sql`, `017_teach_suggestions.sql`.
 - **New settings:** `MODEL_LOCATION` (auto | community | afribit) and `CHAT_RETENTION` (none | Nd | keep;
   default 30d; the node kit defaults to none).
-- **Checked, not added:** PGlite (`@electric-sql/pglite` 0.5.8, Apache-2.0), a real PostgreSQL compiled to
-  WebAssembly. It ran the SQL check of F-002/F-003 in the maintainers' experiments with no Docker. It has no
-  pgvector, so vector columns were swapped for arrays in that check. **Recommended:** add it as an API
-  devDependency, so CI tests every query against real PostgreSQL ("API route tests against a real database"
-  on the roadmap).
+- **Added (dev only):** PGlite (`@electric-sql/pglite` **0.5.8**, pinned, Apache-2.0), PostgreSQL compiled to
+  WebAssembly. `pnpm --filter @afribit/api test:db` applies every migration to an empty database and runs the
+  F-002/F-003 SQL against it (16 checks), with no Docker. It has no pgvector, so vector columns become arrays
+  in that check. It is part of `pnpm test`, and so of every release. It is not shipped: the runtime uses `pg`
+  against the real server.
 
 ## 6. Open actions from this register
 

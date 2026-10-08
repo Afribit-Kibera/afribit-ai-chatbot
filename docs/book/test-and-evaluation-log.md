@@ -68,6 +68,35 @@ Add new entries at the top of section 3. Copy this template:
 Entries before 8 October 2026 were backfilled on that date from the evaluation document and the model
 profile notes. Their raw outputs are in the maintainers' experiment folders.
 
+### 2026-10-08-e — Release 20261008133325 to production (F-001, F-002, F-003)
+- **What:** production release of the API with `internal/launch/release.sh`, then the external smoke test.
+- **Code:** commit `ae99e81` on `feat/frontend-rework`. The release packages the working tree's API,
+  shared package, migrations and packs, which were identical to `ae99e81`.
+- **Before:**
+  - Production had migrations up to 015.
+  - 248 chat messages, the oldest from 24 September, so **none older than 30 days**: turning on 30-day
+    retention emptied nothing.
+  - Accounts: 1 admin and 1 contributor.
+- **Result:**
+  - The script's checks passed: typecheck, `pnpm test` (529 checks) and the build.
+  - A database backup was taken, and the previous image was tagged `afribit-api:prev-20261008133325` for
+    rollback.
+  - **Migrations 016 and 017 applied.** Health is OK.
+  - `GET /api/v1/pack` → `service: {modelLocation: "cloud", retention: {mode: "days", days: 30}}`.
+  - Delete routes answer `204`; the suggestion and account routes answer `400`/`401` without valid input or
+    sign-in.
+  - **Smoke test: 37 of 37 automatic checks passed**, including scam, secret, off-topic and rate-limit checks.
+- **Finding:** the release started the new container before migrating, so the first retention sweep ran
+  seconds too early and logged "column content_deleted_at does not exist". It was harmless: logged, not
+  thrown, retried hourly, and the column existed moments later. **Fixed** in the next release: migrations
+  now run with the new image *before* it starts (`deploy_remote.sh`, `.github/workflows/deploy.yml`), and the
+  first sweep waits a minute.
+- **Not deployed:** the web app. The redesigned frontend has not been approved for the public site
+  (production-setup gate 3), so the new privacy, delete and "say it your way" screens are not public yet. The
+  API is backward compatible with the current web app.
+- **Rollback:**
+  `ln -sfnT /srv/afribit-ai/releases/20261003135841 /srv/afribit-ai/current && docker tag afribit-api:prev-20261008133325 afribit-api:latest && compose up -d`.
+
 ### 2026-10-08-d — Gemma 4 at 4-bit on rented GPUs (E-001, part 2)
 - **What:**
   - Speed, concurrency and quality at 4-bit, on a rented RTX 3090 (24 GB, community cloud, $0.22/hour) and an

@@ -72,6 +72,16 @@ when approving a pull request.
 | change what users see or are told | The matching guide and the privacy notice |
 | meet a roadmap exit test | Log the evidence here, then tick it in [ROADMAP.md](../../ROADMAP.md) |
 
+## Where tests actually run
+
+**GitHub Actions is not running for this repository**: the GitHub billing is not accepted. The workflow in
+`.github/workflows/ci.yml` stays correct for when it runs again. Until then:
+
+- **The release script is the gate.** It runs `pnpm typecheck`, `pnpm test` (every suite, including the
+  real-database check) and the build, and refuses to ship if any of them fail.
+- **Run `pnpm test` before every commit** that changes code.
+- **Each release is logged** in the [test and evaluation log](test-and-evaluation-log.md) with its commit.
+
 ## Known gaps in this Book (8 October 2026)
 
 - Raw logs from earlier runs are kept in the maintainers' working files, not in the public repository. New

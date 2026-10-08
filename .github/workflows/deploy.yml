@@ -67,9 +67,11 @@ jobs:
           rm -f /tmp/afribit-ai-release.tgz
 
           sudo bash -c 'cd /srv/afribit-ai/current && docker build -f apps/api/Dockerfile -t afribit-api:latest .'
+          # Migrate with the new image before it starts: migrations only add, so the running release is unaffected.
+          sudo bash -c 'cd /srv/afribit-ai && docker compose -f docker-compose.yml run --rm --no-deps afribit-api node dist/db/migrate.js'
           sudo bash -c 'cd /srv/afribit-ai && docker compose -f docker-compose.yml up -d'
           sleep 3
-          sudo docker exec afribit-api node dist/db/migrate.js
+          # (migrations ran before start-up, above)
           curl -sf http://127.0.0.1:3001/health > /dev/null
 
           # Release retention: keep the 5 most recent, matching the backup

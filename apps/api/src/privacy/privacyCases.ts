@@ -234,14 +234,24 @@ await ok("pack endpoint: publishes where the model runs and how long chats are k
 // ── the sweep ─────────────────────────────────────────────────────────────────────────────────────
 await ok("sweep: runs at once with the retention's days; none and keep still clear old report text", async () => {
   calls.length = 0;
-  const stops = [startRetentionSweep(store, { mode: "days", days: 30 }, { log: () => {} }), startRetentionSweep(store, { mode: "none" }, { log: () => {} }), startRetentionSweep(store, { mode: "keep" }, { log: () => {} })];
+  const now = { initialDelayMs: 0, log: () => {} };
+  const stops = [startRetentionSweep(store, { mode: "days", days: 30 }, now), startRetentionSweep(store, { mode: "none" }, now), startRetentionSweep(store, { mode: "keep" }, now)];
   await new Promise((r) => setTimeout(r, 10));
   stops.forEach((s) => s());
   assert.deepEqual(calls.filter((c) => c.op === "sweep").map((c) => c.arg), [30, null, null]);
 });
+await ok("sweep: the first run waits (a deployment may still be migrating)", async () => {
+  calls.length = 0;
+  const stop = startRetentionSweep(store, { mode: "days", days: 30 }, { initialDelayMs: 50, log: () => {} });
+  await new Promise((r) => setTimeout(r, 10));
+  assert.equal(calls.length, 0);
+  await new Promise((r) => setTimeout(r, 80));
+  stop();
+  assert.deepEqual(calls.map((c) => c.arg), [30]);
+});
 await ok("sweep: a failing database is logged, not thrown", async () => {
   const logs: string[] = [];
-  const stop = startRetentionSweep({ ...store, sweep: async () => { throw new Error("db down"); } }, { mode: "days", days: 1 }, { log: (m) => logs.push(m) });
+  const stop = startRetentionSweep({ ...store, sweep: async () => { throw new Error("db down"); } }, { mode: "days", days: 1 }, { initialDelayMs: 0, log: (m) => logs.push(m) });
   await new Promise((r) => setTimeout(r, 10));
   stop();
   assert.ok(logs.some((l) => l.includes("db down")));

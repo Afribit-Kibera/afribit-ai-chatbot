@@ -68,6 +68,22 @@ Add new entries at the top of section 3. Copy this template:
 Entries before 8 October 2026 were backfilled on that date from the evaluation document and the model
 profile notes. Their raw outputs are in the maintainers' experiment folders.
 
+### 2026-10-08-f — Release 20261008134137 to production (migrate-first, sweep delay)
+- **What:** production release of commit `e6ed753`: migrations run with the new image before it starts, and
+  the first retention sweep waits a minute.
+- **A failed attempt first (release id 20261008133957):** the edited deploy script had Windows line endings,
+  so the server's bash stopped at line 3 before extracting anything. Production stayed on 20261008133325,
+  healthy throughout; the only trace is a spare rollback tag for the same image. Fixed by converting the
+  script to Unix line endings.
+- **Result:**
+  - The script's checks passed: typecheck, `pnpm test` and the build.
+  - A backup was taken.
+  - **Migrations ran before start-up** (016 and 017 already applied, so nothing to do).
+  - The container recreated and is healthy.
+  - The first sweep, a minute later, logged no failure. The `service` block is unchanged (cloud, 30 days).
+- **Rollback:**
+  `ln -sfnT /srv/afribit-ai/releases/20261008133325 /srv/afribit-ai/current && docker tag afribit-api:prev-20261008134137 afribit-api:latest && compose up -d`.
+
 ### 2026-10-08-e — Release 20261008133325 to production (F-001, F-002, F-003)
 - **What:** production release of the API with `internal/launch/release.sh`, then the external smoke test.
 - **Code:** commit `ae99e81` on `feat/frontend-rework`. The release packages the working tree's API,

@@ -56,6 +56,32 @@ Set `VOICE_LAB=true` in `.env` and recreate the `api` container. Reviewers and a
 | `LOCAL_LLM_NUM_GPU` | How many layers go on the GPU. Leave empty normally. If the model server crashes with `CUDA out of memory` on a small GPU, set a low number (0 = CPU only). |
 | `LOCAL_EMBEDDING_MODEL` | The search model (default `bge-m3`). If you change it, run `docker compose exec api node dist/knowledge/embedBackfill.js` to re-index. |
 | `NODE_HOSTNAME` / `CADDY_TLS` | The name phones use, and how its certificate is made. |
+| `CHAT_RETENTION` | How long chat text is kept here: `none` (default on a node), `30d`, or `keep`. Members are told. |
+| `REGISTRATION` | `invite` (default): accounts only with a single-use code from an administrator. `closed` or `open` (development only). |
+| `MODEL_LOCATION` | What members are told about where the model runs. `auto` is right when the model is in the `ollama` container. |
+| `LOCAL_LLM_BASE_URL` / `LOCAL_LLM_API_KEY` | Only for a model on **another** server (Afribit Local): its address and this community's key. See below. |
+
+### The model on another server (Afribit Local)
+
+An Afribit Local box keeps the app, the database and search on this machine, and sends questions to Afribit's
+GPU server ([F-006](../../docs/features/F-006-afribit-gpu-server.md)). In `.env`:
+
+```
+LOCAL_LLM_BASE_URL=http://10.77.0.1:11434   # the address Afribit gives you
+LOCAL_LLM_API_KEY=...                       # this community's key
+MODEL_LOCATION=afribit                      # so members are told the truth
+```
+
+`first-run.sh` then skips downloading the chat model and checks that the server answers. Search embeddings
+are always made by this machine's `ollama` container, so search, and the card-only answers when that server
+is unreachable, never depend on it. Tested end to end on 8 Oct 2026 ([test log](../../docs/book/test-and-evaluation-log.md)).
+
+### The first administrator
+
+Accounts are by invitation. `first-run.sh` prints the steps: create a code with
+`docker compose exec api node dist/auth/inviteCli.js --role reviewer`, sign up with it in the app (Contribute),
+then `docker compose exec api node dist/db/promoteToAdmin.js <email> admin`. After that, invitations are made
+in the console at `https://<NODE_HOSTNAME>/pilot` (Team → Invitations).
 
 Semantic search runs on the node too: questions and knowledge cards are embedded by a small local model (`bge-m3`, about 1 GB, on the CPU), so finding the right card needs no cloud call. In our benchmark it found the right card in the top 3 for 97.5% of questions, against 82.5% for the hosted setup it replaces.
 
@@ -84,4 +110,4 @@ Do not pick the largest model you can fit. Run the standing language evaluation 
 
 ## Known limits
 
-Images use `latest` tags (pin them for production), there is no per-device rate limit yet, and conversations are stored for history until the no-storage setting lands (see [data stewardship](../../docs/governance/data-stewardship.md)).
+Images use `latest` tags (pin them for production), and there is no per-device rate limit yet. When the model is unreachable, the card-only answers are the card's own (English) wording; showing reviewed Sheng and Kiswahili versions, with a line in the member's language explaining why, is on the roadmap (F-006 follow-up).

@@ -125,9 +125,9 @@ Risks:
 | Browser push services (Google, Mozilla, Apple) | Delivering notifications | The notification payload and subscription | No (push needs the internet) |
 | GitHub | Code, issues, CI, Dependabot | Code and CI logs | No |
 | Ollama registry / Hugging Face | Downloading models | Download requests | Only at install |
-| Rented GPUs (benchmarks) | Measuring speed | Benchmark prompts only | No |
+| Rented GPUs (RunPod: benchmarks and the F-006 path test) | Measuring speed; standing in for Afribit's GPU server until one is in Kenya | Benchmark and test questions only, never a learner's | No |
 
-## 5b. Changes on 8 October 2026 (F-001, F-002, F-003)
+## 5b. Changes on 8 October 2026 (F-001, F-002, F-003, F-012, F-006 part 1)
 
 - **No new runtime dependencies.** The features use Fastify, `pg` and React, all already listed.
 - **New database migrations:** `016_privacy_settings.sql`, `017_teach_suggestions.sql`.
@@ -138,6 +138,11 @@ Risks:
   F-002/F-003 SQL against it (16 checks), with no Docker. It has no pgvector, so vector columns become arrays
   in that check. It is part of `pnpm test`, and so of every release. It is not shipped: the runtime uses `pg`
   against the real server.
+- **F-012 (later the same day):** no new dependencies (Node's `crypto` for codes and hashes). Migration
+  `018_invitations.sql`. New setting `REGISTRATION` (invite | closed | open; default invite).
+- **F-006 part 1:** no new dependencies. New settings `LOCAL_EMBEDDING_BASE_URL`, `LOCAL_EMBEDDING_API`,
+  `LOCAL_EMBEDDING_API_KEY`; the node kit now passes `LOCAL_LLM_BASE_URL`, `LOCAL_LLM_API` and
+  `LOCAL_LLM_API_KEY` through.
 
 ## 6. Open actions from this register
 

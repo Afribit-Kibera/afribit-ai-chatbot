@@ -14,7 +14,7 @@ There are two kinds of check:
 
 ## 1. Standing test suites
 
-Counts are from the run on 8 October 2026 (entry 2026-10-08-g below). If a count drops between runs
+Counts are from the run on 8 October 2026 after entry 2026-10-08-i below (all passing). If a count drops between runs
 without an explanation, treat it as a defect.
 
 | Suite (`pnpm …`) | Checks | What it protects |
@@ -22,7 +22,7 @@ without an explanation, treat it as a defect.
 | `test:prompt-golden` | 15 | The prompt each model receives contains the right guidance, per language and level |
 | `test:secret-detector` | 34 | Real secrets (seed phrases, keys, PINs) are caught; education and scam questions are not blocked |
 | `test:local-provider` | 31 | The node's model provider works against Ollama- and OpenAI-style servers and fails cleanly |
-| `test:embeddings` | 22 | Hosted and local embeddings, dimensions, prefixes |
+| `test:embeddings` | 26 | Hosted and local embeddings, dimensions, prefixes; a separate embedding server never gets the chat server's key (F-006) |
 | `test:fusion` | 13 | Rank fusion of semantic and full-text search |
 | `test:compact-prompt` | 50 | The compact prompt keeps the community's rules |
 | `test:waiter` | 21 | The waiter's search ticket |
@@ -40,7 +40,7 @@ without an explanation, treat it as a defect.
 | `test:invitations` | 13 | F-012: the `REGISTRATION` setting, codes, one generic refusal, a code works once, `closed` and `open`, who may manage invitations |
 | `test:db` | 21 | The SQL of F-002, F-003 and F-012 against real PostgreSQL (PGlite); every migration must apply |
 | `@afribit/web test` (Vitest) | 61 (7 files) | Web app units, incl. the privacy wording rule, recent turns, deletion, suggestion and sign-up requests |
-| **Total** | **552** | (468 on 8 Oct morning; 529 at release 20261008133325; +23 with F-012) |
+| **Total** | **556** | (468 on 8 Oct morning; 529 at release 20261008133325; +23 with F-012; +4 with F-006 part 1) |
 
 CI also runs `test:voice-ui-assets` (the Voice Lab page's content security policy and assets), Playwright
 browser journeys with axe accessibility checks, and Lighthouse budgets.
@@ -72,6 +72,81 @@ Add new entries at the top of section 3. Copy this template:
 Entries before 8 October 2026 were backfilled on that date from the evaluation document and the model
 profile notes. Their raw outputs are in the maintainers' experiment folders.
 
+### 2026-10-08-i — F-006: a community box using a remote GPU (RunPod stand-in), end to end
+- **What:** the Afribit Local path (ADR 0016) with real parts. A box was built with the node kit on Eddie's
+  laptop in Nairobi (Docker Desktop: Postgres + pgvector, Ollama with `bge-m3` on the CPU, the API, Caddy).
+  Its model was **Gemma 4 26B-A4B** (`gemma4:26b-a4b-it-q4_K_M`) on a rented RunPod GPU, reached through
+  RunPod's HTTPS proxy. Settings: `MODEL_LOCATION=afribit`, `CHAT_RETENTION=none`, `REGISTRATION=invite`,
+  `PROMPT_MODE=full`. **Test questions only**; the pod was deleted after each attempt (a watchdog was armed
+  too). Afterwards the box, its volumes and its settings file were removed. Scripts and raw output:
+  `internal/experiments/2026-10-08-box-gpu/`.
+- **Code:** `feat/frontend-rework` after `3eb5ccf`, with the F-006 part 1 changes (committed with this entry).
+- **Attempts:**
+  1. No pod: RunPod had no 24 GB card free in its community cloud.
+  2. A pod in Taiwan ($0.34/h). **Ollama ran the model on the CPU (0 GB on the GPU, 3.4 tokens/s).** Answers
+     took 50–125 s; one fell back to the cards after ~125 s. The path worked, but the timings are meaningless.
+     The pod was deleted.
+  3. A pod in Romania (secure cloud, $0.49/h; the GPU was probably an L4). 18.4 GB of the model on the GPU.
+     **This is the run reported below.** The script now refuses a pod whose model isn't on the GPU.
+- **Result (attempt 3):**
+  - `first-run.sh` checked the remote server, **skipped the chat-model download**, and indexed 86 embeddings on
+    the box.
+  - `/api/v1/pack` → `service: {modelLocation: "afribit", retention: {mode: "none"}}`.
+  - **Smoke test 35/35**, after fixing the smoke test's history check: on a no-storage server it now checks
+    that no text was kept.
+  - **Embeddings stayed on the box:** the box's Ollama logged 32 `/api/embed` calls and 0 `/api/chat` calls.
+    The pod never had `bge-m3`, and no embedding failure was logged.
+  - **Nothing stored:** 84 chat messages in the box's database, 0 with text.
+  - **Speed** (streamed through the box; network round trip to the pod about 0.57 s including the HTTPS
+    handshake):
+
+    | | First words | Full answer |
+    |---|---|---|
+    | One at a time (5 questions) | 2.2–5.4 s | 6.8–14.8 s |
+    | Four at once | 6.8–8.5 s | all done in 29.8 s |
+
+  - **GPU server gone** (pod deleted, box unchanged): card-only answers in 0.3–1.1 s, search confidence
+    0.70–0.80. Search still ran on the box.
+  - **F-012 on a real box:**
+    - `inviteCli` made a reviewer code; sign-up with it in lower case → 201; reusing it → 409 with the
+      generic message; `promoteToAdmin` made that account an administrator.
+    - In headless Chromium, the console's **Team → Invitations** panel created a code (shown once), listed it
+      and the used one with no codes in the list, and revoked it. The revoked code was then refused (409). No
+      browser console errors under the page's strict content security policy.
+- **Findings:**
+  - A GPU host can silently fall back to the CPU, so the GPU server's health check must check GPU placement
+    (F-006 acceptance test 8).
+  - Card-only answers are in English (follow-up in F-006).
+  - **The node kit's Caddy did not route `/pilot`**, so nodes had no console. Fixed, and verified above.
+- **Caveats:**
+  - The GPU was in Romania and its type was not reported. The prompt was the long one.
+  - The box was a laptop, not the pilot machine.
+  - One run of 5 questions plus 4 at once.
+  - Cost: about US$0.22 of GPU time across the attempts.
+- **Decision / follow-up:**
+  - Part 1 is done.
+  - Repeat test 7 from the pilot box once the GPU is in Kenya.
+  - Build part 2 (gate, WireGuard, host checklist) with the hardware.
+
+### 2026-10-08-h — Release 20261008143525 to production (F-012)
+- **What:** production release of commit `3eb5ccf` with `internal/launch/release.sh`, then the outside smoke
+  test.
+- **Result:**
+  - The script's checks passed: typecheck, `pnpm test` (552 checks) and the build.
+  - A backup was taken and a rollback tag made.
+  - **Migration 018 applied before start-up.** Health is OK.
+  - **Smoke test 38/38**, including the new check "sign-up without an invitation code is refused" (409).
+  - The invitation endpoints refuse anonymous callers (401).
+  - The console at `/pilot` serves the new Invitations panel.
+- **Not done:** the web app is still not on the public site. The Vercel project belongs to a team the
+  logged-in account cannot reach (see the session notes). The API is backward compatible with the deployed
+  web app; its sign-up form has no code field, so sign-up there now always gets the generic refusal. That is
+  intended until the new web app is deployed.
+- **Follow-up:** an administrator reviews the one contributor account created by open sign-up (F-012
+  decision 2).
+- **Rollback:**
+  `ln -sfnT /srv/afribit-ai/releases/20261008134137 /srv/afribit-ai/current && docker tag afribit-api:prev-20261008143525 afribit-api:latest && compose up -d`.
+
 ### 2026-10-08-g — F-012 accounts by invitation only: build and tests
 - **What:** standing tests for [F-012](../features/F-012-invitation-only-accounts.md), run locally with
   `pnpm typecheck` and `pnpm test`.
@@ -95,7 +170,8 @@ profile notes. Their raw outputs are in the maintainers' experiment folders.
   - Web (+4): the form sends the code; a refusal and a closed server are told apart, so the message can be
     shown in the member's language.
 - **Caveats:**
-  - No browser journey covers sign-up. The console's Invitations panel was not exercised in a browser.
+  - No browser journey covers sign-up. (The console's Invitations panel was later exercised in a browser on a
+    real box: entry 2026-10-08-i.)
   - The smoke test now checks that sign-up without a code is refused. A full sign-up needs
     `--auth --invite <code>`.
 - **Decision / follow-up:** release the API (migration 018), then an administrator reviews the existing

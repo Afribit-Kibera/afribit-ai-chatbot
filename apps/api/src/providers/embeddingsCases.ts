@@ -98,6 +98,26 @@ check("sorts the server's reply by index", v.map((x) => x[0]).join() === "1,2,3"
 mutable.localLlmApi = "ollama";
 mutable.localLlmApiKey = "";
 
+console.log("\nA separate embedding server (F-006: an Afribit Local box embeds at home):");
+// The chat model is "elsewhere" (Afribit's GPU server, OpenAI-style, with its key); embeddings use the box's Ollama.
+mutable.localLlmApi = "openai";
+mutable.localLlmApiKey = "gpu-server-key";
+mutable.localEmbeddingBaseUrl = `http://127.0.0.1:${port}/box`;
+handler = ollamaHandler;
+seen.length = 0;
+v = await embedLocalTexts(["abc"]);
+s = seen.at(-1)!;
+check("embeddings go to LOCAL_EMBEDDING_BASE_URL, not the chat model's server", s.url === "/box/api/embed" && v[0]![0] === 3);
+check("with their own API style (Ollama here, though the chat server is OpenAI-style)", s.body.model === "bge-m3" && s.body.options.num_gpu === 0);
+check("the chat server's key is never sent to the embedding server", s.auth === undefined);
+mutable.localEmbeddingApiKey = "box-key";
+await embedLocalTexts(["abc"]);
+check("a separate embedding server can have its own key", seen.at(-1)!.auth === "Bearer box-key");
+mutable.localEmbeddingBaseUrl = "";
+mutable.localEmbeddingApiKey = "";
+mutable.localLlmApi = "ollama";
+mutable.localLlmApiKey = "";
+
 console.log("\nFailures are loud, not silent:");
 handler = (_r, _b, res) => ((res.statusCode = 503), res.end("model loading"));
 await embedLocalTexts(["x"]).then(() => check("HTTP error throws", false), (e) => check("HTTP error throws with the status", /503/.test(String(e))));

@@ -103,7 +103,10 @@ hub's own GPU when it is funded. Moving it moves no data.
 
 - [ ] The pilot machine becomes Kibera's box (app, database, local embeddings, backups).
 - [ ] **F-006 · Afribit's GPU server:** in Kenya, an encrypted tunnel, a key per community, no prompt logging,
-  nothing written to disk. Sized by E-001.
+  nothing written to disk. Sized by E-001 ([spec](docs/features/F-006-afribit-gpu-server.md)).
+  **Part 1 done (8 October 2026):** the box keeps search embeddings at home and the node kit supports a model
+  elsewhere. The whole path was confirmed with a RunPod GPU standing in, using test questions only. Part 2 (the
+  gate, WireGuard, the host checklist) comes with the GPU in Kenya.
 - [ ] Encrypted off-site backups and a restore drill.
 - [ ] **F-005 · Community console v1:** the pilot console plus knowledge, team and data controls. Leaders see
   aggregates, not members' conversations.

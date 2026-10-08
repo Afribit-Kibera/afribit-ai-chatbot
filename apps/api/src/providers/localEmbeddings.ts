@@ -7,21 +7,32 @@ import { env } from "../config/env.js";
  *
  * Same split as localProvider.ts: Ollama's native /api/embed, or the OpenAI-compatible
  * /v1/embeddings, chosen with LOCAL_LLM_API.
+ *
+ * F-006: LOCAL_EMBEDDING_BASE_URL moves embeddings to a server of their own (LOCAL_EMBEDDING_API,
+ * LOCAL_EMBEDDING_API_KEY), so an Afribit Local box embeds at home while its chat model runs elsewhere.
  */
 
 const BATCH = 16;
 
-function headers(): Record<string, string> {
+/** Read on every call, so a changed setting (or a test) takes effect at once. */
+function target(): { base: string; api: "ollama" | "openai"; key: string } {
+  return env.localEmbeddingBaseUrl
+    ? { base: env.localEmbeddingBaseUrl, api: env.localEmbeddingApi, key: env.localEmbeddingApiKey }
+    : { base: env.localLlmBaseUrl, api: env.localLlmApi, key: env.localLlmApiKey };
+}
+
+function headers(key: string): Record<string, string> {
   const h: Record<string, string> = { "Content-Type": "application/json" };
-  if (env.localLlmApiKey) h.Authorization = `Bearer ${env.localLlmApiKey}`;
+  if (key) h.Authorization = `Bearer ${key}`;
   return h;
 }
 
 async function embedBatch(texts: string[]): Promise<number[][]> {
-  const ollama = env.localLlmApi === "ollama";
-  const response = await fetch(`${env.localLlmBaseUrl}${ollama ? "/api/embed" : "/v1/embeddings"}`, {
+  const { base, api, key } = target();
+  const ollama = api === "ollama";
+  const response = await fetch(`${base}${ollama ? "/api/embed" : "/v1/embeddings"}`, {
     method: "POST",
-    headers: headers(),
+    headers: headers(key),
     signal: AbortSignal.timeout(120_000),
     body: JSON.stringify(
       ollama

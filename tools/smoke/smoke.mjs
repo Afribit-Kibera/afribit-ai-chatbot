@@ -160,10 +160,12 @@ async function main() {
     check("invalid feedback is rejected", r.status === 400);
   }
 
-  // ---- history is retrievable ----------------------------------------------------------------
+  // ---- history: kept, or (CHAT_RETENTION=none, F-002) never stored ----------------------------
   if (sessionId) {
     r = await call("GET", `/api/v1/chat/${sessionId}`);
-    check("a session's history can be read back", r.status === 200 && JSON.stringify(r.json).includes(firstQuestion), `HTTP ${r.status}`);
+    if (pack?.service?.retention?.mode === "none")
+      check("no-storage server: the conversation's text was not kept", r.status === 200 && !JSON.stringify(r.json).includes(firstQuestion), `HTTP ${r.status}`);
+    else check("a session's history can be read back", r.status === 200 && JSON.stringify(r.json).includes(firstQuestion), `HTTP ${r.status}`);
   }
 
   // ---- reviewer page and its API are protected -----------------------------------------------

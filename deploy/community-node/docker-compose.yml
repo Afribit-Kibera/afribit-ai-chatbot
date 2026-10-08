@@ -67,11 +67,18 @@ services:
       # node = local model only, nothing leaves this network. hybrid = node first, then
       # the cloud if it fails (sends questions off-network; tell your users).
       INFERENCE_MODE: ${INFERENCE_MODE:-node}
-      LOCAL_LLM_BASE_URL: http://ollama:11434
-      LOCAL_LLM_API: ollama
+      # The chat model's server: the Ollama container on this machine by default. An Afribit Local box sets
+      # Afribit's GPU server here, with LOCAL_LLM_API_KEY and MODEL_LOCATION=afribit (docs/features/F-006).
+      LOCAL_LLM_BASE_URL: ${LOCAL_LLM_BASE_URL:-http://ollama:11434}
+      LOCAL_LLM_API: ${LOCAL_LLM_API:-ollama}
+      LOCAL_LLM_API_KEY: ${LOCAL_LLM_API_KEY:-}
       LOCAL_LLM_MODEL: ${LOCAL_LLM_MODEL:-gemma3:12b}
       LOCAL_LLM_NUM_CTX: ${LOCAL_LLM_NUM_CTX:-8192}
       # Questions are embedded on the node too (bge-m3, on the CPU), so semantic search needs no cloud call.
+      # Always this machine's Ollama, even when the chat model is elsewhere: search and the card-only
+      # answers then keep working if that server is unreachable.
+      LOCAL_EMBEDDING_BASE_URL: http://ollama:11434
+      LOCAL_EMBEDDING_API: ollama
       LOCAL_EMBEDDING_MODEL: ${LOCAL_EMBEDDING_MODEL:-bge-m3}
       # Empty = Ollama decides how many layers go on the GPU. Set a number (0 = CPU only) if it
       # crashes with a CUDA out-of-memory error on a small GPU.

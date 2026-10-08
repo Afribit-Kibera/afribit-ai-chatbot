@@ -62,6 +62,15 @@ export const env = {
    */
   embeddingProvider: ((process.env.EMBEDDING_PROVIDER || (inferenceMode === "node" ? "local" : "openrouter")) === "local" ? "local" : "openrouter") as "local" | "openrouter",
   localEmbeddingModel: process.env.LOCAL_EMBEDDING_MODEL || "bge-m3",
+  /**
+   * F-006 — a separate server for embeddings. Empty (the default): the chat model's server
+   * (LOCAL_LLM_BASE_URL, its API style and key). An Afribit Local box sends questions to Afribit's GPU server
+   * but sets this to its own Ollama, so search, and the card-only answers when that server is unreachable,
+   * never depend on it. A separate server gets its own key, never the chat server's.
+   */
+  localEmbeddingBaseUrl: (process.env.LOCAL_EMBEDDING_BASE_URL ?? "").replace(/\/+$/, ""),
+  localEmbeddingApi: (process.env.LOCAL_EMBEDDING_API ?? "ollama") === "openai" ? ("openai" as const) : ("ollama" as const),
+  localEmbeddingApiKey: process.env.LOCAL_EMBEDDING_API_KEY ?? "",
   /** Embeddings run on the CPU by default (0 GPU layers): bge-m3 takes ~40 ms per question there, and it leaves the GPU's memory to the chat model. */
   localEmbeddingNumGpu: process.env.LOCAL_EMBEDDING_NUM_GPU === undefined || process.env.LOCAL_EMBEDDING_NUM_GPU === "" ? 0 : Number(process.env.LOCAL_EMBEDDING_NUM_GPU),
   /** Some embedding models want a task prefix on questions and on documents (bge-m3 needs none). */

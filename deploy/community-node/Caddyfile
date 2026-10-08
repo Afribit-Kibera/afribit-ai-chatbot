@@ -20,6 +20,10 @@
 	handle /review* {
 		reverse_proxy api:3001
 	}
+	# The console: overview, reports, suggestions, team and invitations (reviewers and administrators).
+	handle /pilot* {
+		reverse_proxy api:3001
+	}
 	# The Voice Lab page (reviewers and administrators; only exists when VOICE_LAB is set).
 	handle /voice* {
 		reverse_proxy api:3001

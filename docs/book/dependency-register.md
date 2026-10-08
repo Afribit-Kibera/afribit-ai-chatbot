@@ -127,7 +127,7 @@ Risks:
 | Ollama registry / Hugging Face | Downloading models | Download requests | Only at install |
 | Rented GPUs (RunPod: benchmarks and the F-006 path test) | Measuring speed; standing in for Afribit's GPU server until one is in Kenya | Benchmark and test questions only, never a learner's | No |
 
-## 5b. Changes on 8 October 2026 (F-001, F-002, F-003, F-012, F-006 part 1)
+## 5b. Changes on 8 October 2026 (F-001, F-002, F-003, F-012, F-006)
 
 - **No new runtime dependencies.** The features use Fastify, `pg` and React, all already listed.
 - **New database migrations:** `016_privacy_settings.sql`, `017_teach_suggestions.sql`.
@@ -140,6 +140,14 @@ Risks:
   against the real server.
 - **F-012 (later the same day):** no new dependencies (Node's `crypto` for codes and hashes). Migration
   `018_invitations.sql`. New setting `REGISTRATION` (invite | closed | open; default invite).
+- **F-006 part 2 (Afribit's GPU server, `deploy/gpu-server/`):** no new packages. The gate uses only Node's
+  standard library.
+  - Images: `node:22-alpine` (MIT) runs the gate; `ollama/ollama` (MIT) runs the model. Pin both in the
+    server's `.env`.
+  - On the server and on boxes: WireGuard (`wireguard-tools`, GPL-2.0), and on the server Ubuntu's `ufw` and
+    `iptables`. These are operating-system packages; nothing is shipped in our code.
+  - Test only: the tunnel rehearsal builds a throwaway image from `node:22-alpine` with `wireguard-tools`,
+    `iproute2`, `iptables`, `bash` and `curl` (`internal/experiments/2026-10-08-gate-tunnel/`).
 - **F-006 part 1:** no new dependencies. New settings `LOCAL_EMBEDDING_BASE_URL`, `LOCAL_EMBEDDING_API`,
   `LOCAL_EMBEDDING_API_KEY`; the node kit now passes `LOCAL_LLM_BASE_URL`, `LOCAL_LLM_API` and
   `LOCAL_LLM_API_KEY` through.

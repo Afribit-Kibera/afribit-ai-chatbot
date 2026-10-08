@@ -76,6 +76,17 @@ MODEL_LOCATION=afribit                      # so members are told the truth
 are always made by this machine's `ollama` container, so search, and the card-only answers when that server
 is unreachable, never depend on it. Tested end to end on 8 Oct 2026 ([test log](../../docs/book/test-and-evaluation-log.md)).
 
+**The tunnel.** The box reaches Afribit's server over WireGuard (`apt install wireguard`). The box dials out,
+so no public address or port forwarding is needed.
+
+1. `sudo ./wireguard.sh key` makes this box's key pair. The private key never leaves the machine. Send Afribit
+   the **public** key it prints.
+2. Afribit replies with a `./wireguard.sh connect …` line and the three `.env` lines above. Run the line as
+   root, put the lines in `.env`, then `docker compose up -d api`.
+3. `sudo ./wireguard.sh status` shows the tunnel and the server's health.
+
+Only traffic to Afribit's server (10.77.0.1) uses the tunnel.
+
 ### The first administrator
 
 Accounts are by invitation. `first-run.sh` prints the steps: create a code with

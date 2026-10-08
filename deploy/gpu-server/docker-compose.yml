@@ -1,0 +1,69 @@
+# Afribit's GPU server (docs/features/F-006-afribit-gpu-server.md): Ollama on the GPU, and the gate in front.
+#
+#   community boxes ──WireGuard (udp 51820)──▶ gate on 10.77.0.1:11434 ──▶ Ollama on 127.0.0.1:11435 (GPU)
+#
+# Nothing here is reachable from the internet: the gate listens only on the WireGuard address, Ollama only on
+# the loopback. Setup and operation: README.md in this folder.
+name: afribit-gpu
+
+services:
+  ollama:
+    image: ollama/ollama:${OLLAMA_VERSION:-latest}
+    restart: unless-stopped
+    environment:
+      OLLAMA_HOST: 0.0.0.0:11434
+      # Debug logging writes prompts to the log. It stays off; check-host.sh verifies it.
+      OLLAMA_DEBUG: "0"
+      OLLAMA_KEEP_ALIVE: ${OLLAMA_KEEP_ALIVE:-24h}
+      OLLAMA_NUM_PARALLEL: ${OLLAMA_NUM_PARALLEL:-4}
+      OLLAMA_MAX_LOADED_MODELS: "1"
+    ports:
+      - "127.0.0.1:11435:11434"
+    volumes:
+      - models:/root/.ollama
+    tmpfs:
+      - /tmp
+    ulimits:
+      core: 0
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "3" }
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+  gate:
+    image: node:${NODE_VERSION:-22}-alpine
+    restart: unless-stopped
+    depends_on: [ollama]
+    # The host's network, so the gate binds the WireGuard address itself and sees each box's real tunnel
+    # address (WireGuard guarantees which peer sent a packet; the gate checks it against the key).
+    network_mode: host
+    user: "1000:1000"
+    read_only: true
+    working_dir: /app
+    command: ["node", "gate.mjs"]
+    environment:
+      GATE_LISTEN: ${GATE_LISTEN:-10.77.0.1:11434}
+      GATE_UPSTREAM: http://127.0.0.1:11435
+      GATE_KEYS_FILE: /etc/afribit-gate/keys.json
+      GATE_USAGE_DIR: /var/lib/afribit-gate/usage
+      GATE_ALLOWED_MODELS: ${GATE_ALLOWED_MODELS:-}
+    volumes:
+      - ./gate:/app:ro
+      - ./keys:/etc/afribit-gate:ro
+      - ./usage:/var/lib/afribit-gate/usage
+    tmpfs:
+      - /tmp
+    ulimits:
+      core: 0
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "5" }
+
+volumes:
+  models:

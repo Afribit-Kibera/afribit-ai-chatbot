@@ -39,8 +39,9 @@ without an explanation, treat it as a defect.
 | `test:teach` | 12 | F-003: suggestion validation, safety topics, consent mapping, self-approval and two-reviewer rules, who may call each route |
 | `test:invitations` | 13 | F-012: the `REGISTRATION` setting, codes, one generic refusal, a code works once, `closed` and `open`, who may manage invitations |
 | `test:db` | 21 | The SQL of F-002, F-003 and F-012 against real PostgreSQL (PGlite); every migration must apply |
+| `test:gate` | 14 | F-006: the GPU server's gate: keys and peer binding, only chat and model lists pass, model allow-list, limits, streaming, token counts, GPU-placement health, usage counts, no text in logs |
 | `@afribit/web test` (Vitest) | 61 (7 files) | Web app units, incl. the privacy wording rule, recent turns, deletion, suggestion and sign-up requests |
-| **Total** | **556** | (468 on 8 Oct morning; 529 at release 20261008133325; +23 with F-012; +4 with F-006 part 1) |
+| **Total** | **570** | (468 on 8 Oct morning; 529 at release 20261008133325; +23 with F-012; +4 with F-006 part 1; +14 with the gate) |
 
 CI also runs `test:voice-ui-assets` (the Voice Lab page's content security policy and assets), Playwright
 browser journeys with axe accessibility checks, and Lighthouse budgets.
@@ -71,6 +72,61 @@ Add new entries at the top of section 3. Copy this template:
 
 Entries before 8 October 2026 were backfilled on that date from the evaluation document and the model
 profile notes. Their raw outputs are in the maintainers' experiment folders.
+
+### 2026-10-08-l — F-006 part 2 with a real GPU: box → gate → Gemma 4 (RunPod stand-in)
+- **What:** the full Afribit Local path with the real gate in front of the model. The box was built with the
+  node kit on Eddie's laptop in Nairobi. The gate ran in a container on the box's network, pointed at Ollama
+  on a RunPod pod (Romania, secure cloud, $0.74/h; GPU type not reported). It was fully on the GPU, checked
+  by `pod.sh` and by the gate's `/healthz` (`gpuShare: 1`). The model was `gemma4:26b-a4b-it-q4_K_M` with
+  `PROMPT_MODE=full`, `MODEL_LOCATION=afribit` and `CHAT_RETENTION=none`. The gate held one test community
+  key, not bound to an address, because Docker addresses are not tunnel addresses; the tunnel rehearsal
+  (entry k) tested the binding. **Test questions only.**
+- **Result:**
+  - Box smoke test **35/35**.
+  - Speed:
+
+    | | First words | Full answer |
+    |---|---|---|
+    | One at a time (5 questions) | 1.1–1.8 s | 2.4–4.0 s |
+    | Four at once | 3.2–3.5 s | all done in 7.8 s |
+
+  - The gate logged 23 lines: 19 `POST /api/chat` 200, 2 `GET /api/tags` 200 and 1 `/healthz` 200 before the
+    outage, plus the outage lines below.
+    - Token counts on all 19 answers: 90,520 in and 5,374 out, about 4,760 and 280 per answer.
+    - The usage file matched.
+    - Searched for question words, key prefixes, `Bearer`, and Docker or tunnel addresses: found in **0**
+      lines of the log and **0** of the usage file.
+  - **GPU gone** (pod deleted): `/healthz` → 503. The box's next question was answered from the cards in
+    **0.6 s** (search confidence 0.70).
+- **Notes:**
+  - `first-run.sh` warned that it could not reach `http://gate:8080` from the host. That is expected in this
+    rehearsal (a Docker-only name). On a real box the host reaches `10.77.0.1` through its tunnel.
+  - These times are about E-001's RTX 3090 figures; the previous pod (entry i) was a slower card.
+- **Cost:** about US$0.09. The pod was deleted and no pods remain. The box, its volumes, its settings file
+  and the test keys were removed.
+- **Evidence:** `internal/experiments/2026-10-08-box-gpu/` (`gate-smoke.txt`, `latency-gate.jsonl`,
+  `gate-log.jsonl`, `gate-usage-2026-10.json`, `pod.log`).
+
+### 2026-10-08-k — F-006 part 2: the gate's tests and a tunnel rehearsal
+- **What:**
+  - The gate's standing tests: `pnpm test:gate`, 14 checks.
+  - A rehearsal of the real `deploy/gpu-server/` scripts, the gate and `deploy/community-node/wireguard.sh`
+    on four throwaway Linux containers (Docker Desktop, kernel 6.18 with WireGuard): `gpu` (with a fake
+    Ollama, no GPU), `box1` ("kibera"), `box2` ("mathare"), and `out`, an outsider on the same network.
+    Script: `internal/experiments/2026-10-08-gate-tunnel/tunnel-test.sh`.
+- **Result: 18 of 18.**
+  1. `setup-wireguard.sh` made the server end, and forwarding from the tunnel was dropped.
+  2. Each box made its own key pair (`wireguard.sh key`). `add-community.sh` gave each a tunnel address and a
+     key, shown once. `keys.json` held hashes only.
+  3. `wireguard.sh connect` brought each tunnel up, and the GPU health answered through it.
+  4. Asking through the tunnel with the box's own key → 200. With no key → 401. With kibera's key from
+     mathare's address → **401**. A model pull → 403.
+  5. Box 1 routes only `10.77.0.1` through the tunnel. The outsider reached neither the gate nor Ollama.
+  6. `remove-community.sh mathare` cut mathare off (key revoked, peer removed), and kibera kept working. One
+     peer was left.
+  7. Usage counted per community. The gate's log and the usage file held no question, key or address.
+- **Caveat:** containers, not the real server. `harden-host.sh` and `check-host.sh` need a real Ubuntu host
+  (systemd, swap, disks) and were only syntax-checked. They run first on the Kenyan server.
 
 ### 2026-10-08-j — Web app deployed to the public site (redesign, F-001–F-003, F-012)
 - **What:** production deploy of `apps/web` to Vercel (`afribit-chat`, team "afribit"), aliased to

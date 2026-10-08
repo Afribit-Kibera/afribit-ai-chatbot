@@ -1,7 +1,14 @@
 # ADR 0016 — Afribit Local: a community box with Afribit's GPUs
 
-**Status:** Accepted, 8 October 2026. Partly built: the node can already use a remote model server. The
-tunnel, the hardened GPU server, the model-location label and provisioning are planned.
+**Status:** Accepted, 8 October 2026. Built the same day and tested with a rented GPU standing in, using test
+questions only:
+
+- the model-location label (F-001);
+- the box keeping its search at home;
+- the gate, the WireGuard tunnel and the host checklist ([F-006](../features/F-006-afribit-gpu-server.md),
+  `deploy/gpu-server/`).
+
+Still to come: the GPU in Kenya, provisioning and billing tools.
 
 **Context:**
 

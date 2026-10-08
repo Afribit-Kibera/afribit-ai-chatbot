@@ -1,6 +1,7 @@
 # F-006 — Afribit's GPU server and the box → GPU path
 
-**Status:** Draft; part 1 built and the box → GPU path confirmed on RunPod, 8 Oct 2026 · **Roadmap stage:** 2 · **Decision records:**
+**Status:** Agreed. Part 1 (the box) and part 2 (the gate, the tunnel, the host checklist) were built and tested
+on 8 Oct 2026. It goes live when the GPU is in Kenya. · **Roadmap stage:** 2 · **Decision records:**
 [ADR 0016](../adr/0016-afribit-local-community-box.md) (Afribit Local), [ADR 0018](../adr/0018-open-licensed-default-model.md)
 (the model) · **Sized by:** [E-001](E-001-gemma4-and-gpu.md)
 
@@ -46,7 +47,7 @@ pieces were missing:
   - checks that the server lists the model;
   - reminds the steward to set `MODEL_LOCATION`.
 
-### Part 2 — the GPU server (to build when the hardware is in Kenya)
+### Part 2 — the GPU server (software built and tested 8 Oct 2026; `deploy/gpu-server/`)
 
 ```
 box (community)  ──WireGuard──▶  gate (key, limits, counts)  ──▶  Ollama (GPU)
@@ -188,8 +189,37 @@ counts.
 8. **The model is really on the GPU.** The server's health check fails, and the gate reports it, when the
    model's memory on the GPU (`/api/ps` → `size_vram`) is less than its size.
 
-Tests 1 (both parts), 2 and 3 passed on the RunPod run, with a box on a laptop. Test 7 was measured against a
-pod in Romania and is repeated from the pilot box once the server is in Kenya. Tests 4, 5, 6 and 8 need part 2.
+**Where each test stands (8 Oct 2026):**
+
+| Test | Status |
+|---|---|
+| 1, 2, 3 | Passed on the RunPod runs, with a box on a laptop |
+| 4 (the gate) | Passed in the gate's tests (`test:gate`), the tunnel rehearsal and the real-GPU run |
+| 5 (no text in logs) | Passed for the gate's log and usage file in all three. On the real server, `check-host.sh` repeats it with a canary across the gate, Ollama, the journal and `/var/log` |
+| 6 (host checklist) | `harden-host.sh` and `check-host.sh` written; they run on the real server |
+| 7 (speed from a Kenyan box) | Measured from Nairobi against pods in Romania; repeated from the pilot box once the server is in Kenya |
+| 8 (model on the GPU) | Passed: the gate's `/healthz` read a real GPU (100% on the GPU), and fails on a CPU fallback in the tests |
+
+### Results of part 2 (8 Oct 2026)
+
+- **The gate's tests: 14 of 14** (`node --test deploy/gpu-server/gate/gate.test.mjs`, in `pnpm test`).
+- **Tunnel rehearsal: 18 of 18.** The real scripts and gate ran on throwaway Linux containers: one server, two
+  boxes and an outsider.
+  - The server end came up, with forwarding from the tunnel dropped.
+  - Each box made its own key pair and was added with a tunnel address and a key shown once.
+  - Asking through the tunnel with the box's key worked. Without the key: 401. With the other box's key,
+    from the wrong address: 401. A model pull: 403.
+  - The boxes route only the GPU server through the tunnel. An outsider on the same network reached neither
+    the gate nor Ollama.
+  - Removing one community cut it off and left the other working.
+  - The gate's log and usage file held no text, key or address.
+- **The whole path with a real GPU** (Gemma 4 26B-A4B on a RunPod pod in Romania, test questions only): box →
+  gate → Ollama.
+  - Box smoke test **35 of 35**.
+  - One at a time: first words in **1.1–1.8 s**, full answers in **2.4–4.0 s**. Four at once: all done in
+    **7.8 s**. That is about E-001's RTX 3090 figures, so the gate adds no noticeable delay.
+  - The gate counted tokens on all 19 real answers. Its log and usage file held no question, key or address.
+  - With the pod deleted: `/healthz` returned 503, and the box answered from its cards in 0.6 s.
 
 ## Not in this feature
 

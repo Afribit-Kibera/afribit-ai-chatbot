@@ -34,7 +34,7 @@ docs it changes are updated, and the result is logged in [the Book](../book/READ
 | F-003 | "Say it your way": members suggest wording, reviewers decide | 2 | **Live** 8 Oct 2026 (API release 20261008134137; migration 017) | [F-003](F-003-say-it-your-way.md) |
 | F-004 | Gap list: questions no card answered | 2 | Planned (spec to write) | — |
 | F-005 | Community console v1 | 2 | Planned (spec to write) | — |
-| F-006 | Afribit GPU server and the box → GPU path (ADR 0016) | 2 | **Draft**; part 1 (the box side) built and the path confirmed on RunPod, 8 Oct 2026 | [F-006](F-006-afribit-gpu-server.md) |
+| F-006 | Afribit GPU server and the box → GPU path (ADR 0016) | 2 | **Built and tested** 8 Oct 2026 (box, gate, tunnel, host checklist); goes live with the GPU in Kenya | [F-006](F-006-afribit-gpu-server.md) |
 | F-007 | A chat channel where people already are (Telegram first), labelled honestly | 2 (experiment) | Planned (spec to write) | — |
 | F-008 | "Ask anything" mode (ADR 0017) | 3 | Planned (spec to write) | — |
 | F-009 | Language readiness kit | 3 | Planned (grows out of E-002) | — |

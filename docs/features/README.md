@@ -40,7 +40,8 @@ docs it changes are updated, and the result is logged in [the Book](../book/READ
 | F-009 | Language readiness kit | 3 | Planned (grows out of E-002) | — |
 | F-010 | Shared Bitcoin core + community overlay packs | 3 | Planned (spec to write) | — |
 | F-011 | Opt-in learner memory | Later | Planned | — |
-| F-012 | Accounts by invitation only (authorized trainers) | 1 | **Built** 8 Oct 2026 (migration 018) | [F-012](F-012-invitation-only-accounts.md) |
+| F-012 | Accounts by invitation only (authorized trainers) | 1 | **Live** 8 Oct 2026 (API release 20261008143525; migration 018) | [F-012](F-012-invitation-only-accounts.md) |
+| F-013 | The public website tells today's story | 1 | **Built** 8 Oct 2026; waiting for the web deploy | [F-013](F-013-public-website-content.md) |
 
 Specs are written just before their stage, so they use what the earlier stages taught us.
 

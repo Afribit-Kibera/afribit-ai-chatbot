@@ -497,5 +497,6 @@ profile notes. Their raw outputs are in the maintainers' experiment folders.
 
 Each deployment should add an entry. It needs at least: the `pnpm test` result on the exact commit deployed,
 the images deployed, the models and digests served, and any live check run afterwards (for example a smoke
-test with `pnpm smoke`). No release has been logged here yet. Earlier deployments are recorded in the
-maintainers' operating notes.
+test with `pnpm smoke`). Releases are logged in section 3: entries 2026-10-08-e, -f and -h (API) and -j (web
+app). Deployments before 8 October are recorded in the maintainers' operating notes. The proposal-ready
+summary of all results is [evidence.md](evidence.md); update it whenever a result here changes.

@@ -694,8 +694,8 @@ svg {
 }
 .community-options {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 70px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 48px;
   margin-top: 42px;
 }
 .community-options > div {
@@ -1590,6 +1590,10 @@ summary::-webkit-details-marker {
 @media (max-width: 1050px) {
   .wrap {
     width: calc(100% - 56px);
+  }
+  .community-options {
+    grid-template-columns: 1fr;
+    gap: 32px;
   }
   .public-nav {
     gap: 18px;

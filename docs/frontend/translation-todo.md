@@ -43,7 +43,7 @@ Generated from the English UI dictionary. English placeholders are intentional. 
 | `nav.open` | Open the app | TODO(reviewers) | TODO(reviewers) |
 | `nav.home` | Afribit AI home | TODO(reviewers) | TODO(reviewers) |
 | `nav.skip` | Skip to content | TODO(reviewers) | TODO(reviewers) |
-| `landing.eyebrow` | OPEN-SOURCE AI. EDUCATION FIRST. | TODO(reviewers) | TODO(reviewers) |
+| `landing.eyebrow` | OPEN SOURCE. REVIEWED BY THE COMMUNITY. | TODO(reviewers) | TODO(reviewers) |
 | `landing.heading` | A clearer way | TODO(reviewers) | TODO(reviewers) |
 | `landing.heading2` | to learn Bitcoin. | TODO(reviewers) | TODO(reviewers) |
 | `landing.subtitle` | In Sheng. In Kiswahili. In English. | TODO(reviewers) | TODO(reviewers) |
@@ -62,28 +62,28 @@ Generated from the English UI dictionary. English placeholders are intentional. 
 | `demo.new` | New conversation | TODO(reviewers) | TODO(reviewers) |
 | `demo.recent` | A sample question | TODO(reviewers) | TODO(reviewers) |
 | `landing.languageTitle` | Your language. | TODO(reviewers) | TODO(reviewers) |
-| `landing.languageBody` | Ask in Sheng, Kiswahili or English. Use the words you know. | TODO(reviewers) | TODO(reviewers) |
+| `landing.languageBody` | Ask in Sheng, Kiswahili or English, in the words you know. If an answer sounds wrong for your community, suggest a better way to say it. | TODO(reviewers) | TODO(reviewers) |
 | `landing.reviewTitle` | Reviewed knowledge. | TODO(reviewers) | TODO(reviewers) |
-| `landing.reviewBody` | Community reviewers approve the knowledge before it is used in answers. | TODO(reviewers) | TODO(reviewers) |
-| `landing.paceTitle` | Your pace. | TODO(reviewers) | TODO(reviewers) |
-| `landing.paceBody` | Start with the basics, or go deeper. You choose the level of detail. | TODO(reviewers) | TODO(reviewers) |
+| `landing.reviewBody` | Answers come from knowledge your community's reviewers approved. If a question isn't covered, the assistant says so. | TODO(reviewers) | TODO(reviewers) |
+| `landing.paceTitle` | Your choice. | TODO(reviewers) | TODO(reviewers) |
+| `landing.paceBody` | The app shows where the AI runs and how long chats are kept. Delete your chats whenever you like. | TODO(reviewers) | TODO(reviewers) |
 | `how.eyebrow` | 01 / HOW IT WORKS | TODO(reviewers) | TODO(reviewers) |
 | `how.title` | A question is a good beginning. | TODO(reviewers) | TODO(reviewers) |
 | `how.description` | We believe education comes first. Our first focus is Bitcoin: a place to ask, learn and ask again in the language you speak. | TODO(reviewers) | TODO(reviewers) |
 | `how.step1Title` | Ask in your words. | TODO(reviewers) | TODO(reviewers) |
-| `how.step1Body` | Choose a language and how much detail you want. You can change either at any time. | TODO(reviewers) | TODO(reviewers) |
-| `how.step2Title` | Learn from reviewed knowledge. | TODO(reviewers) | TODO(reviewers) |
-| `how.step2Body` | Think of a restaurant: your question goes to a waiter that speaks your language. The kitchen works with knowledge the community has checked. | TODO(reviewers) | TODO(reviewers) |
-| `how.step3Title` | Know the limits. | TODO(reviewers) | TODO(reviewers) |
-| `how.step3Body` | The public demo sends questions to a hosted AI provider. Chats stay on our server until you ask us to delete them. The AI can make mistakes. | TODO(reviewers) | TODO(reviewers) |
+| `how.step1Body` | Choose a language and how much detail you want. You can change either at any time. No account needed. | TODO(reviewers) | TODO(reviewers) |
+| `how.step2Title` | Get an answer from reviewed knowledge. | TODO(reviewers) | TODO(reviewers) |
+| `how.step2Body` | The assistant finds the knowledge your community's reviewers approved and answers from it in your language. It never asks for your seed phrase, PIN or password. | TODO(reviewers) | TODO(reviewers) |
+| `how.step3Title` | Know where it goes. | TODO(reviewers) | TODO(reviewers) |
+| `how.step3Body` | On this public service, questions are answered by an outside AI service that promises not to keep them, and chats are deleted from our server after 30 days. You can delete them sooner. The AI can make mistakes. | TODO(reviewers) | TODO(reviewers) |
 | `trust.eyebrow` | 02 / BUILT ON ACCOUNTABILITY | TODO(reviewers) | TODO(reviewers) |
 | `trust.title` | Trust starts with being clear. | TODO(reviewers) | TODO(reviewers) |
-| `trust.reviewTitle` | People check the knowledge. | TODO(reviewers) | TODO(reviewers) |
-| `trust.reviewBody` | New knowledge is used only after community reviewers approve it. The AI does not learn from your conversations. | TODO(reviewers) | TODO(reviewers) |
+| `trust.reviewTitle` | People decide what it learns. | TODO(reviewers) | TODO(reviewers) |
+| `trust.reviewBody` | Nothing changes from a single chat. Members suggest better wording; it is used only after reviewers approve it. The AI does not learn from your conversations. | TODO(reviewers) | TODO(reviewers) |
 | `trust.secretsTitle` | Your secrets have no place in chat. | TODO(reviewers) | TODO(reviewers) |
 | `trust.secretsBody` | Afribit AI never asks for a seed phrase, private key, PIN or password. Messages containing one are refused. | TODO(reviewers) | TODO(reviewers) |
-| `trust.feedbackTitle` | An answer can be questioned. | TODO(reviewers) | TODO(reviewers) |
-| `trust.feedbackBody` | AI can get things wrong or say it does not know. Report an answer that is wrong or unsafe so people can review it. | TODO(reviewers) | TODO(reviewers) |
+| `trust.feedbackTitle` | You choose what is kept. | TODO(reviewers) | TODO(reviewers) |
+| `trust.feedbackBody` | Each assistant says where its AI runs and how long it keeps chats. Delete one chat or all of them at any time. If an answer is wrong or unsafe, report it so people can review it. | TODO(reviewers) | TODO(reviewers) |
 | `trust.openTitle` | The code is open. | TODO(reviewers) | TODO(reviewers) |
 | `trust.openBody` | Anyone can inspect and contribute to the code. Code is Apache-2.0; educational content is CC BY-SA 4.0. | TODO(reviewers) | TODO(reviewers) |
 | `safety.eyebrow` | ONE RULE TO REMEMBER | TODO(reviewers) | TODO(reviewers) |
@@ -93,30 +93,30 @@ Generated from the English UI dictionary. English placeholders are intentional. 
 | `safety.question` | Someone asked for my seed phrase. Should I share it? | TODO(reviewers) | TODO(reviewers) |
 | `community.eyebrow` | 03 / THE COMMUNITY COMES FIRST | TODO(reviewers) | TODO(reviewers) |
 | `community.title` | Your community. Your own AI. | TODO(reviewers) | TODO(reviewers) |
-| `community.description` | Afribit AI is an open-source learning companion that other communities can adapt to their own language and subject. We’re starting with education because understanding comes first. | TODO(reviewers) | TODO(reviewers) |
-| `community.nodeTitle` | An AI on your own network. | TODO(reviewers) | TODO(reviewers) |
-| `community.nodeBody` | A community can run Afribit AI on its own machine, with its own reviewed knowledge and its own database, so the knowledge stays in the community’s hands. | TODO(reviewers) | TODO(reviewers) |
+| `community.description` | Afribit AI is open-source software plus a community pack: your languages, your voice and your reviewed knowledge in one folder. The work is reviewing with your own people, not writing code. | TODO(reviewers) | TODO(reviewers) |
+| `community.nodeTitle` | Run it yourself, free. | TODO(reviewers) | TODO(reviewers) |
+| `community.nodeBody` | A machine at your hub serves everyone on the local Wi-Fi, with your own knowledge and your own database. With its own GPU, questions never leave your network. | TODO(reviewers) | TODO(reviewers) |
 | `community.nodeLink` | Explore community nodes | TODO(reviewers) | TODO(reviewers) |
-| `community.reviewTitle` | Shape it in your community’s words. | TODO(reviewers) | TODO(reviewers) |
-| `community.reviewBody` | Our first community is shaping Sheng and Kiswahili. Contribute a phrase or review how natural it sounds. | TODO(reviewers) | TODO(reviewers) |
-| `community.reviewLink` | Become a contributor | TODO(reviewers) | TODO(reviewers) |
+| `community.reviewTitle` | Shape it in your community's words. | TODO(reviewers) | TODO(reviewers) |
+| `community.reviewBody` | Anyone can suggest a better way to say an answer. Trainers and reviewers, invited by the community, approve phrases and knowledge before anyone else hears them. | TODO(reviewers) | TODO(reviewers) |
+| `community.reviewLink` | Contributor sign-in | TODO(reviewers) | TODO(reviewers) |
 | `community.contribute` | Contribute code | TODO(reviewers) | TODO(reviewers) |
 | `community.host` | Talk about hosting a node | TODO(reviewers) | TODO(reviewers) |
 | `community.fund` | Help fund the work | TODO(reviewers) | TODO(reviewers) |
 | `faq.eyebrow` | 04 / YOUR QUESTIONS, ANSWERED | TODO(reviewers) | TODO(reviewers) |
 | `faq.title` | A few things to know. | TODO(reviewers) | TODO(reviewers) |
-| `faq.q1` | Is the public demo private? | TODO(reviewers) | TODO(reviewers) |
-| `faq.a1` | Questions go to a hosted AI provider that promises not to keep or train on them. They still leave your community. Your chat history is stored on our server until you request deletion. Please do not type personal details you do not need to share. | TODO(reviewers) | TODO(reviewers) |
+| `faq.q1` | Is the public service private? | TODO(reviewers) | TODO(reviewers) |
+| `faq.a1` | Questions go to an outside AI service that promises not to keep or train on them. They still leave your community. Chats are deleted from our server after 30 days, and you can delete them sooner from the app. Please do not type personal details you do not need to share. | TODO(reviewers) | TODO(reviewers) |
 | `faq.q2` | Is it free? | TODO(reviewers) | TODO(reviewers) |
-| `faq.a2` | You can use this demo without paying or making an account. Your mobile data charges still apply. Community nodes are free to use on their local network. | TODO(reviewers) | TODO(reviewers) |
+| `faq.a2` | Yes, for learners: no payment and no account. Your mobile data charges still apply. A community can run its own node for free on its own machine. Afribit Local will be a monthly service paid by the community, never a charge per question. | TODO(reviewers) | TODO(reviewers) |
 | `faq.q3` | Can the AI be wrong? | TODO(reviewers) | TODO(reviewers) |
 | `faq.a3` | Yes. It uses community-reviewed knowledge, but an AI-generated answer can still be wrong. You can report a wrong or unsafe answer from the chat. | TODO(reviewers) | TODO(reviewers) |
 | `faq.q4` | Who checks the knowledge? | TODO(reviewers) | TODO(reviewers) |
-| `faq.a4` | Community reviewers check knowledge and language contributions before they are approved for use. Your conversations do not train the AI. | TODO(reviewers) | TODO(reviewers) |
+| `faq.a4` | Community reviewers check knowledge and wording before it is used. When a member suggests better wording, a reviewer approves it first, and safety topics need two reviewers. Your conversations do not train the AI. | TODO(reviewers) | TODO(reviewers) |
 | `faq.q5` | Do I need an account? | TODO(reviewers) | TODO(reviewers) |
-| `faq.a5` | No account is needed to chat. An account is needed only to contribute or review language phrases. | TODO(reviewers) | TODO(reviewers) |
+| `faq.a5` | No account is needed to chat or to suggest wording. Accounts are for the trainers and reviewers a community invites. | TODO(reviewers) | TODO(reviewers) |
 | `faq.q6` | Does it work without internet? | TODO(reviewers) | TODO(reviewers) |
-| `faq.a6` | The public demo needs internet for new answers. Once installed, the app shell can open offline and keep your draft on this device. A community node can answer on its local network when configured for local AI. | TODO(reviewers) | TODO(reviewers) |
+| `faq.a6` | The public service needs internet for new answers. Once installed, the app shell opens offline and keeps your draft on this device. A community node with its own GPU answers on its local network without internet. | TODO(reviewers) | TODO(reviewers) |
 | `faq.q7` | Is this financial advice? | TODO(reviewers) | TODO(reviewers) |
 | `faq.a7` | No. Afribit AI is for learning. It does not make financial decisions for you. | TODO(reviewers) | TODO(reviewers) |
 | `faq.q8` | Can any community set up Afribit AI? | TODO(reviewers) | TODO(reviewers) |
@@ -129,10 +129,10 @@ Generated from the English UI dictionary. English placeholders are intentional. 
 | `privacy.back` | Back to the homepage | TODO(reviewers) | TODO(reviewers) |
 | `node.title` | Run a community node. | TODO(reviewers) | TODO(reviewers) |
 | `node.intro` | Set up Afribit AI on a machine your community manages. Build around your local language, priorities and reviewed knowledge. | TODO(reviewers) | TODO(reviewers) |
-| `node.requirements` | Local chat is free to use. Local AI needs a GPU with 10 GB or more of memory, ideally 16 GB. | TODO(reviewers) | TODO(reviewers) |
+| `node.requirements` | Chat on a node is free for learners. A GPU with 16 GB runs today's default model for a small group; 24 GB runs Gemma 4 26B-A4B, the open-licensed model we are moving to, subject to our tests. No GPU? Afribit Local is coming for that. | TODO(reviewers) | TODO(reviewers) |
 | `node.docs` | Read the community node specification | TODO(reviewers) | TODO(reviewers) |
 | `node.kit` | Open the deployment kit | TODO(reviewers) | TODO(reviewers) |
-| `node.disclosure` | Local mode keeps inference on the node. Hybrid mode can send questions to a hosted model and must be disclosed. HTTPS is required to install the app. Push notifications need internet. The community mesh has not yet been tested. | TODO(reviewers) | TODO(reviewers) |
+| `node.disclosure` | Node mode keeps questions on the node. Hybrid mode can send questions to a hosted model, and the app says so. HTTPS is required to install the app. Push notifications need internet. Serving a node over the community mesh has not been tested yet. | TODO(reviewers) | TODO(reviewers) |
 | `chat.eyebrow` | YOUR QUESTIONS. YOUR PACE. | TODO(reviewers) | TODO(reviewers) |
 | `chat.title` | Start with a little curiosity. | TODO(reviewers) | TODO(reviewers) |
 | `chat.description` | A question about Bitcoin? You're in the right place. Ask in the language you speak. | TODO(reviewers) | TODO(reviewers) |
@@ -295,7 +295,7 @@ Generated from the English UI dictionary. English placeholders are intentional. 
 | `nav.label` | Main navigation | TODO(reviewers) | TODO(reviewers) |
 | `nav.footer` | Footer | TODO(reviewers) | TODO(reviewers) |
 | `chat.label` | Afribit AI chat | TODO(reviewers) | TODO(reviewers) |
-| `landing.heroDescription` | Open-source AI for communities to make their own. Starting with Bitcoin education in Kibera and Nairobi. | TODO(reviewers) | TODO(reviewers) |
+| `landing.heroDescription` | An AI assistant a community can make its own: it speaks the community's language, answers from knowledge the community's reviewers approved, and can run on the community's own machine. Starting with Bitcoin education in Kibera and Nairobi. | TODO(reviewers) | TODO(reviewers) |
 | `privacy.notice` | # What happens to your questions — plain-language notice (DRAFT)  > **Draft.** This must be translated into Kiswahili and Sheng **by community reviewers** (not by a model) and checked with legal advice on Kenya's Data Protection Act before it is shown to learners as final. It describes what the software does today; if the software changes, this changes first.  ## The short version  - You can ask Afribit AI questions **without making an account**. - **Never type your seed phrase, private key, PIN or password.** If you do, the app refuses the message, does not store it, and does not send it to any AI. - Afribit AI can be wrong. It is for learning, **not financial advice**. If someone asks you for your seed phrase, it is a scam.  ## What we keep  &#124; What &#124; Why &#124; How long &#124; &#124;---&#124;---&#124;---&#124; &#124; Your questions and the answers, so your conversation is still there when you come back &#124; So the chat works &#124; **It depends on how this assistant is set up, and the app tells you:** never stored on the server (only on your phone), deleted after a number of days (30 on our public service), or kept until you delete them. Deleted chats can remain in encrypted backups for up to 14 days. &#124; &#124; An account email and a scrambled (hashed) password, **only if you register** to contribute or review &#124; So you can contribute &#124; Until you ask to leave &#124; &#124; A notification address, **only if you turn on notifications** &#124; To send you the notifications you chose &#124; Until you turn them off &#124;  We do **not** sell your information. We do **not** use your conversations to train any AI. The AI does not learn from you; new knowledge enters only after community reviewers approve it.  ## Where your question goes  This depends on how the app you are using is set up. The app should tell you which.  - **The public demo (cloud).** Your question is sent to an AI provider over the internet. We ask for providers that promise **not to keep or train on** what they receive ("zero data retention"). It is still sent outside your community. - **A community node (the goal).** A machine your community runs answers on your own network. **Nothing leaves the network.** - **A node that also uses a hosted "chef" (optional).** A small AI on the local machine reads your words and writes a neutral English question with names, phone numbers and similar details removed. Only that goes to the hosted AI. Removal is not perfect, so **please don't type personal details** you don't need to.  ## Your choices  - **Delete a conversation** at any time from the conversation list, or **all of them** in Settings. They are deleted from the server straight away. - If you have a contributor account, you can **delete it** from the contributor page. - To see or correct anything else we hold about you, write to **eddie@afribit.africa**. - You can always use the app without an account.  ## Questions or worries  Write to **eddie@afribit.africa**. If you find an answer that is wrong or unsafe, please tell us — it helps everyone.  ---  *For maintainers: keep this in step with [data stewardship](data-stewardship.md). Items still open there — legal review and the Kiswahili and Sheng versions — block calling this notice final.* | TODO(reviewers) | TODO(reviewers) |
 | `privacy.title` | Where your questions go | TODO(reviewers) | TODO(reviewers) |
 | `privacy.dialogBody` | This is how this assistant is set up. It is true for this server only. | TODO(reviewers) | TODO(reviewers) |
@@ -355,3 +355,10 @@ Generated from the English UI dictionary. English placeholders are intentional. 
 | `teach.tooShort` | Write a little more first. | TODO(reviewers) | TODO(reviewers) |
 | `teach.tooMany` | Thank you! That is the most suggestions we take from one conversation for now. Try again later. | TODO(reviewers) | TODO(reviewers) |
 | `teach.error` | Could not send your suggestion. Check your connection and try again. | TODO(reviewers) | TODO(reviewers) |
+| `community.localTitle` | Afribit Local, coming next. | TODO(reviewers) | TODO(reviewers) |
+| `community.localBody` | For communities without a GPU: a small box at your hub keeps your data, and Afribit's AI server in Kenya answers the questions without keeping them. A monthly service for the community; members never pay per question. We are testing it now. | TODO(reviewers) | TODO(reviewers) |
+| `community.localLink` | Ask about Afribit Local | TODO(reviewers) | TODO(reviewers) |
+| `faq.q10` | Will it answer anything, like other AI chats? | TODO(reviewers) | TODO(reviewers) |
+| `faq.a10` | Not yet. It answers from your community's approved knowledge and says when a question isn't covered. A clearly labelled "Ask anything" mode, off by default, is planned for communities that want it. | TODO(reviewers) | TODO(reviewers) |
+| `faq.q11` | Where does the AI run? | TODO(reviewers) | TODO(reviewers) |
+| `faq.a11` | It depends on how each assistant is set up, and the app tells you at the top of the chat: on your community's own machine, with an outside AI service (like this public service), or, with Afribit Local, on Afribit's server in Kenya. | TODO(reviewers) | TODO(reviewers) |

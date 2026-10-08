@@ -19,7 +19,7 @@ dependency register and the test and evaluation log. Started 8 October 2026.
 | 2 | How it is built | [ARCHITECTURE.md](../../ARCHITECTURE.md) · [Community node](../program/community-node.md) · [Community packs](../guides/community-pack-guide.md) |
 | 3 | Why it is built this way (decisions) | [Architecture decision records](../adr/README.md) |
 | 4 | What it depends on | [Dependency register](dependency-register.md) |
-| 5 | How we test and evaluate it | [Test and evaluation log](test-and-evaluation-log.md) · [Evaluation method and results](../evaluation/methodology.md) |
+| 5 | How we test and evaluate it | [Evidence summary](evidence.md) (for proposals) · [Test and evaluation log](test-and-evaluation-log.md) · [Evaluation method and results](../evaluation/methodology.md) |
 | 6 | What happens to people's data | [Data stewardship](../governance/data-stewardship.md) · [Privacy notice (draft)](../governance/privacy-notice-draft.md) |
 | 7 | Who decides | [Governance](../governance/governance.md) |
 | 8 | What can go wrong | [Threat model](../security/threat-model.md) · [SECURITY.md](../../SECURITY.md) |

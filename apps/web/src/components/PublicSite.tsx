@@ -7,6 +7,7 @@ import {
   BookOpen,
   Globe,
   Code2,
+  Lock,
 } from "lucide-react";
 import { BrandMark } from "./BrandMark.js";
 import { I18nProvider, useI18n } from "../lib/i18n.js";
@@ -275,7 +276,7 @@ function PublicPage({ path }: { path: string }) {
                     [
                       { key: "review", Icon: BookOpen },
                       { key: "secrets", Icon: ShieldCheck },
-                      { key: "feedback", Icon: Globe },
+                      { key: "feedback", Icon: Lock },
                       { key: "open", Icon: Code2 },
                     ] as const
                   ).map(({ key, Icon }) => (
@@ -321,6 +322,17 @@ function PublicPage({ path }: { path: string }) {
                   </a>
                 </div>
                 <div>
+                  <h3>{t("community.localTitle")}</h3>
+                  <p>{t("community.localBody")}</p>
+                  <a
+                    className="text-link"
+                    href="mailto:eddie@afribit.africa?subject=Afribit%20Local"
+                  >
+                    {t("community.localLink")}
+                    <ArrowUpRight size={18} />
+                  </a>
+                </div>
+                <div>
                   <h3>{t("community.reviewTitle")}</h3>
                   <p>{t("community.reviewBody")}</p>
                   <a className="text-link" href="/app/contribute">
@@ -350,7 +362,7 @@ function PublicPage({ path }: { path: string }) {
                 <h2>{t("faq.title")}</h2>
               </div>
               <div className="faqs">
-                {([8, 9, 1, 2, 3, 4, 5, 6, 7] as const).map((n) => (
+                {([8, 9, 11, 1, 2, 10, 3, 4, 5, 6, 7] as const).map((n) => (
                   <details key={n}>
                     <summary>
                       {t(`faq.q${n}`)}

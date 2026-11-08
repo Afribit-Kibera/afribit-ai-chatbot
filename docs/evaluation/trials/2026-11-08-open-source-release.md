@@ -92,3 +92,11 @@ public HTTPS, invitations/account switching and private-data caching from a real
 measured179.2-second CPU source answer; review actual short Bitcoin lessons and community language;
 finish retention, encrypted backup/restore and the privacy notice. See the
 [staged release trials](2026-11-06-community-learning-release.md).
+
+## Final anonymous access and private-origin check
+
+Anonymous requests returned200 for repository metadata, the updated release-branch README and
+license; the downloaded license matched the local standard text. Evidence:
+`output/open-source-public-verification-20261108.json`. This verifies public source access, not
+the new app's production availability. The private app HTTP connection timed out (HTTP000),
+consistent with the failed SSH probes. The fresh model request did not start.

@@ -11,6 +11,9 @@ accounts keep their notebooks, conversations and study progress separate.
 ## Deployment status
 
 **8 November 2026: the new education workspace is privately staged, not open for participant enrollment.**
+The release is under review in [PR1](https://github.com/Afribit-Kibera/afribit-ai-chatbot/pull/1)
+and [PR2](https://github.com/Afribit-Kibera/afribit-ai-chatbot/pull/2). The latest private-host check
+timed out over LAN/Tailscale; its earlier successful smoke does not establish current availability.
 
 | Link | What it serves |
 |---|---|
@@ -64,7 +67,7 @@ not investment advice or a wallet. [Draft privacy notice](docs/governance/privac
 Requires Node.js22+, pnpm11.25.0, and Docker with Compose for Postgres/pgvector.
 
 ```sh
-git clone https://github.com/Afribit-Kibera/afribit-ai-chatbot.git
+git clone --branch release/open-source https://github.com/Afribit-Kibera/afribit-ai-chatbot.git
 cd afribit-ai-chatbot
 corepack enable
 pnpm install --frozen-lockfile
@@ -85,6 +88,8 @@ See [community node setup](deploy/community-node/README.md),
 [community packs](docs/guides/community-pack-guide.md). Do not promote imported teaching material
 without the required community review. Keep `.env`, operator tokens, learner exports and model
 weights out of Git.
+The commands select the prepared release branch while the PRs are open; use the default branch
+after those changes are reviewed and merged.
 
 ## Validation
 

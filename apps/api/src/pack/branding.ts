@@ -13,7 +13,7 @@ import type { PackBranding } from "./types.js";
  */
 
 export const DEFAULT_POWERED_BY_LABEL = "Powered by Afribit AI";
-export const DEFAULT_POWERED_BY_URL = "https://github.com/afribit/afribit-ai";
+export const DEFAULT_POWERED_BY_URL = "https://github.com/Afribit-Kibera/afribit-ai-chatbot";
 export const MAX_LOGO_BYTES = 200 * 1024;
 export const INK_LIGHT = "#ffffff";
 export const INK_DARK = "#111111";

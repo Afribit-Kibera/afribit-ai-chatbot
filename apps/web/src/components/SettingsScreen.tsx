@@ -6,6 +6,7 @@ import type { Preferences } from "../lib/preferences.js";
 import { useI18n } from "../lib/i18n.js";
 import { PreferenceControls } from "./PreferenceControls.js";
 import { PoweredBy } from "./PoweredBy.js";
+import { SoftwareNotice } from "./SoftwareNotice.js";
 import { usePack } from "../lib/pack.js";
 import {
   enablePushNotifications,
@@ -233,7 +234,7 @@ export default function SettingsScreen({
             </a>
             <a
               className="text-link"
-              href="https://github.com/afribit/afribit-ai"
+              href="https://github.com/Afribit-Kibera/afribit-ai-chatbot"
             >
               {t("common.github")}
               <ArrowUpRight size={15} />
@@ -245,6 +246,7 @@ export default function SettingsScreen({
           <p className="quiet">{t("settings.version")}</p>
           <p className="quiet">{t("footer.licences")}</p>
           <PoweredBy brand={pack.branding} className="powered-by-left" />
+          <SoftwareNotice />
         </section>
       </div>
       <Dialog

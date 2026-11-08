@@ -1,15 +1,8 @@
 name: CI
 
-# Runs on every push and PR. Deliberately does NOT run the live-model eval
-# scripts (pnpm dataset:communication-eval, dataset:fallback-bakeoff, etc.)
-# -- those call a real paid OpenRouter model and need a real API key; they
-# stay a manual/local check (see CONTRIBUTING.md), not a
-# CI gate that would either need a shared paid key in CI secrets or block
-# every PR on a flaky third-party API call.
+# Optional manual checks. The maintained release gate runs locally; Actions is disabled for this repository.
 on:
-  push:
-    branches: [main, master]
-  pull_request:
+  workflow_dispatch: {}
 
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}

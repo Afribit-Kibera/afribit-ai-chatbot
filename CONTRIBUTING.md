@@ -20,7 +20,7 @@ to one person can sound dated or wrong to another, so this is a living
 reviewing process, not a finished one.
 
 **To suggest a correction**, open a
-[language correction issue](https://github.com/afribit/afribit-ai/issues/new?template=language_correction.yml)
+[language correction issue](https://github.com/Afribit-Kibera/afribit-ai-chatbot/issues/new?template=language_correction.yml)
 and tell us:
 
 1. the original phrase,
@@ -55,7 +55,7 @@ sense to ask for a seed phrase. If you're correcting a fact, cite where the
 correction comes from.
 
 Found the live app giving a wrong or unsafe answer? Use the
-[unsafe or wrong answer issue](https://github.com/afribit/afribit-ai/issues/new?template=unsafe_or_wrong_answer.yml).
+[unsafe or wrong answer issue](https://github.com/Afribit-Kibera/afribit-ai-chatbot/issues/new?template=unsafe_or_wrong_answer.yml).
 Include the exact question and answer. These reports are the most valuable
 thing you can send us.
 
@@ -81,6 +81,11 @@ for most development. The full setup is in the [README](README.md); how the
 pieces fit together is in [ARCHITECTURE.md](ARCHITECTURE.md).
 
 ### Before you open a pull request
+
+GitHub Actions is currently disabled for this repository. Run the checks locally and include
+the command results, commit and limitations in your PR. Do not describe absent CI as passing.
+All release commits use the configured maintainer identity; do not add assistant co-author trailers.
+
 
 ```bash
 pnpm typecheck
@@ -127,7 +132,7 @@ The [roadmap's](ROADMAP.md) "Prove one node" stage is open research: finding the
 
 By contributing you agree that:
 
-- code you contribute is licensed under [Apache-2.0](LICENSE);
+- original application code you contribute is licensed under [AGPL-3.0-only](LICENSE);
 - content you contribute (teaching material, phrases, translations, knowledge
   entries) is licensed under [CC BY-SA 4.0](LICENSE-CONTENT);
 - you wrote it, or have the right to contribute it.

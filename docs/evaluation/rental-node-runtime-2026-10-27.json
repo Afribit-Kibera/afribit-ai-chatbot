@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "trial": "c2963bad-2df8-4ba2-a02a-689361dd0f3b",
+  "observedAt": "2026-10-27T18:45:45.643Z",
+  "version": "v22.23.4",
+  "url": "https://nodejs.org/download/release/v22.23.4/node-v22.23.4-linux-x64.tar.xz",
+  "bytes": 31029996,
+  "sha256": "1805bcd35e6815559bd2eb97db438d3fdb0eb3a5e6a977b7c1badca76337e9ce",
+  "archiveMember": "node-v22.23.4-linux-x64/bin/node",
+  "publisherChecksumOnly": true,
+  "archiveBytesVerified": false,
+  "downloaded": false,
+  "paidComputeUsd": 0
+}

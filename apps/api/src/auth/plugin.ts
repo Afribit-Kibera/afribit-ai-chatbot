@@ -2,10 +2,11 @@ import fp from "fastify-plugin";
 import jwt from "@fastify/jwt";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { env } from "../config/env.js";
+import { pool } from "../db/pool.js";
 
 export interface AuthedUser {
   id: string;
-  role: "contributor" | "admin";
+  role: "learner" | "contributor" | "reviewer" | "admin";
 }
 
 declare module "@fastify/jwt" {
@@ -20,6 +21,7 @@ declare module "@fastify/jwt" {
  * and routes/notifications.ts:
  * - requireAuth: any signed-in user (contributor or admin). Microtasks.
  * - requireAdmin: role='admin' only. Knowledge management.
+ * - requireReviewer: role 'reviewer' or 'admin'. The review workflow for knowledge cards.
  * - optionalAuth: verifies a token if present, but never rejects the
  *   request if absent/invalid -- for routes that stay usable anonymously
  *   but should use the real user id when one is available (fixes
@@ -49,6 +51,17 @@ export const authPlugin = fp(async (app: FastifyInstance) => {
     }
   });
 
+  app.decorate("requireReviewer", async (request: FastifyRequest, reply: FastifyReply) => {
+    try {
+      await request.jwtVerify();
+    } catch {
+      return reply.status(401).send({ error: "Authentication required" });
+    }
+    if (request.user.role !== "admin" && request.user.role !== "reviewer") {
+      return reply.status(403).send({ error: "Reviewer access required" });
+    }
+  });
+
   app.decorate("optionalAuth", async (request: FastifyRequest) => {
     try {
       await request.jwtVerify();
@@ -57,12 +70,20 @@ export const authPlugin = fp(async (app: FastifyInstance) => {
       // reject here; that's the whole point of "optional".
     }
   });
+  app.decorate("requireContributor", async (request: FastifyRequest, reply: FastifyReply) => {
+    await app.requireAuth(request, reply);
+    if (reply.sent) return;
+    const { rows } = await pool.query(`SELECT 1 FROM users WHERE id=$1 AND role IN ('contributor','reviewer','admin')`, [request.user.id]);
+    if (!rows.length) return reply.status(403).send({ error: "Contributor access required" });
+  });
 });
 
 declare module "fastify" {
   interface FastifyInstance {
     requireAuth: (request: FastifyRequest, reply: FastifyReply) => Promise<void>;
     requireAdmin: (request: FastifyRequest, reply: FastifyReply) => Promise<void>;
+    requireReviewer: (request: FastifyRequest, reply: FastifyReply) => Promise<void>;
     optionalAuth: (request: FastifyRequest, reply: FastifyReply) => Promise<void>;
+    requireContributor: (request: FastifyRequest, reply: FastifyReply) => Promise<void>;
   }
 }

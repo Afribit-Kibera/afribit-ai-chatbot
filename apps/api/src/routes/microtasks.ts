@@ -1,11 +1,13 @@
 import type { FastifyInstance } from "fastify";
+import { getPack, getRegistry } from "../pack/active.js";
+import { isKnownMode, modeErrorMessage } from "../pack/modes.js";
 import { pool } from "../db/pool.js";
 
 interface SubmitBody {
   utterance?: string;
   meaning?: string;
   intent?: string;
-  style?: "simple_en" | "swahili" | "sheng" | "mixed_ke";
+  style?: string;
   sourceContext?: string;
 }
 
@@ -25,7 +27,7 @@ interface VoteBody {
  * read or wrote it over HTTP; every row in this codebase so far came from
  * internal seed scripts. This is the first real contribution surface.
  *
- * Everything here requires requireAuth (any signed-in contributor) --
+ * Everything here requires requireContributor (current database role, excluding learner accounts) --
  * not anonymous, unlike the main chat flow. Accountability matters
  * specifically for this pipeline: docs/adr/0005 and
  * docs/LANGUAGE_CORPUS.md are both explicit that unreviewed community
@@ -51,39 +53,41 @@ export function registerMicrotaskRoutes(app: FastifyInstance): void {
   // 'afribit_authored') or bootstrap/synthetic data -- this queue is for
   // the actual community contribution loop, not everything with
   // status='draft' in the table.
-  app.get("/api/v1/microtasks/queue", { preHandler: app.requireAuth }, async (request, reply) => {
+  app.get("/api/v1/microtasks/queue", { preHandler: app.requireContributor }, async (request, reply) => {
     const { rows } = await pool.query(
       `SELECT id, utterance, meaning, intent, style, source_context, created_at, contributor_key
        FROM language_entries
        WHERE status = 'draft'
          AND source_type = 'afribit_microtask'
          AND (contributor_key IS DISTINCT FROM $1)
+         AND COALESCE(pack_id, $2) = $3
        ORDER BY created_at ASC
        LIMIT 25`,
-      [request.user.id],
+      [request.user.id, getRegistry().default.id, getPack().id],
     );
     return reply.send({ queue: rows });
   });
 
-  app.get("/api/v1/microtasks/mine", { preHandler: app.requireAuth }, async (request, reply) => {
+  app.get("/api/v1/microtasks/mine", { preHandler: app.requireContributor }, async (request, reply) => {
     const { rows } = await pool.query(
       `SELECT id, utterance, meaning, intent, style, status, created_at
        FROM language_entries
        WHERE contributor_key = $1
+         AND COALESCE(pack_id, $2) = $3
        ORDER BY created_at DESC
        LIMIT 50`,
-      [request.user.id],
+      [request.user.id, getRegistry().default.id, getPack().id],
     );
     return reply.send({ submissions: rows });
   });
 
-  app.post<{ Body: SubmitBody }>("/api/v1/microtasks/language-entries", { preHandler: app.requireAuth }, async (request, reply) => {
+  app.post<{ Body: SubmitBody }>("/api/v1/microtasks/language-entries", { preHandler: app.requireContributor }, async (request, reply) => {
     const { utterance, meaning, intent, style, sourceContext } = request.body ?? {};
     if (!utterance?.trim() || !style) {
       return reply.status(400).send({ error: "utterance and style are required" });
     }
-    if (!["simple_en", "swahili", "sheng", "mixed_ke"].includes(style)) {
-      return reply.status(400).send({ error: "style must be one of simple_en, swahili, sheng, mixed_ke" });
+    if (!isKnownMode(style)) {
+      return reply.status(400).send({ error: modeErrorMessage("style") });
     }
 
     // Conservative-by-default on every provenance flag, matching
@@ -94,13 +98,13 @@ export function registerMicrotaskRoutes(app: FastifyInstance): void {
         (utterance, meaning, intent, style, source_context, status, freshness,
          corpus_layer, source, source_type, human_authored, synthetic,
          afribit_reviewed, quality_tier, allowed_for_rag, allowed_for_training,
-         allowed_for_evaluation, contributor_key)
+         allowed_for_evaluation, contributor_key, pack_id)
        VALUES ($1, $2, $3, $4, $5, 'draft', 'context_specific',
                'L2_community_collected', 'afribit_microtasks', 'afribit_microtask', true, false,
                false, 'unrated', false, false,
-               false, $6)
+               false, $6, $7)
        RETURNING id`,
-      [utterance.trim(), meaning?.trim() ?? null, intent?.trim() ?? null, style, sourceContext?.trim() ?? null, request.user.id],
+      [utterance.trim(), meaning?.trim() ?? null, intent?.trim() ?? null, style, sourceContext?.trim() ?? null, request.user.id, getPack().id],
     );
 
     return reply.status(201).send({ ok: true, id: rows[0]?.id });
@@ -108,7 +112,7 @@ export function registerMicrotaskRoutes(app: FastifyInstance): void {
 
   app.post<{ Params: { id: string }; Body: ReviewBody }>(
     "/api/v1/microtasks/language-entries/:id/review",
-    { preHandler: app.requireAuth },
+    { preHandler: app.requireContributor },
     async (request, reply) => {
       const { decision, notes } = request.body ?? {};
       if (!decision || !["approve", "reject", "needs_changes"].includes(decision)) {
@@ -116,8 +120,8 @@ export function registerMicrotaskRoutes(app: FastifyInstance): void {
       }
 
       const { rows: entryRows } = await pool.query<{ contributor_key: string | null }>(
-        `SELECT contributor_key FROM language_entries WHERE id = $1`,
-        [request.params.id],
+        `SELECT contributor_key FROM language_entries WHERE id = $1 AND COALESCE(pack_id, $2) = $3`,
+        [request.params.id, getRegistry().default.id, getPack().id],
       );
       if (entryRows.length === 0) {
         return reply.status(404).send({ error: "language entry not found" });
@@ -143,14 +147,14 @@ export function registerMicrotaskRoutes(app: FastifyInstance): void {
 
   app.post<{ Params: { id: string }; Body: VoteBody }>(
     "/api/v1/microtasks/language-entries/:id/vote",
-    { preHandler: app.requireAuth },
+    { preHandler: app.requireContributor },
     async (request, reply) => {
       const naturalness = request.body?.naturalness;
       if (typeof naturalness !== "number" || naturalness < 1 || naturalness > 5 || !Number.isInteger(naturalness)) {
         return reply.status(400).send({ error: "naturalness must be an integer between 1 and 5" });
       }
 
-      const { rows: entryRows } = await pool.query(`SELECT id FROM language_entries WHERE id = $1`, [request.params.id]);
+      const { rows: entryRows } = await pool.query(`SELECT id FROM language_entries WHERE id = $1 AND COALESCE(pack_id, $2) = $3`, [request.params.id, getRegistry().default.id, getPack().id]);
       if (entryRows.length === 0) {
         return reply.status(404).send({ error: "language entry not found" });
       }

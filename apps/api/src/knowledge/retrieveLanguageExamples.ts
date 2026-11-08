@@ -1,5 +1,6 @@
 import type { LanguageExample } from "@afribit/shared";
 import { pool } from "../db/pool.js";
+import { getPack, getRegistry } from "../pack/active.js";
 import { buildOrQuery } from "./retrieval.js";
 
 /**
@@ -26,6 +27,9 @@ import { buildOrQuery } from "./retrieval.js";
  * block or degrade the chat response, only mean the model falls back to
  * SHENG_STYLE_GUIDE's smaller hardcoded example list.
  *
+ * Each row belongs to one pack (language_entries.pack_id, NULL = the default pack's), so a second
+ * community's code-switched mode is never shown the first community's slang.
+ *
  * Known limitation, confirmed live (2026-09-23): this matches across
  * BOTH source manuals' entire approved vocabulary with no topic
  * filtering, so a query can surface off-topic terms with no relevance to
@@ -51,11 +55,12 @@ export async function retrieveLanguageExamples(query: string, limit = 6): Promis
       FROM language_entries
       WHERE status = 'approved'
         AND allowed_for_rag = true
+        AND COALESCE(pack_id, $3) = $4
         AND to_tsvector('simple', utterance || ' ' || coalesce(meaning, '')) @@ to_tsquery('simple', $1)
       ORDER BY ts_rank_cd(to_tsvector('simple', utterance || ' ' || coalesce(meaning, '')), to_tsquery('simple', $1)) DESC
       LIMIT $2
       `,
-      [tsQuery, limit],
+      [tsQuery, limit, getRegistry().default.id, getPack().id],
     );
     return rows;
   } catch (err) {

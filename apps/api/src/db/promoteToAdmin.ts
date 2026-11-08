@@ -12,18 +12,19 @@ import { pool } from "./pool.js";
  */
 async function main(): Promise<void> {
   const email = process.argv[2]?.trim().toLowerCase();
+  const role = process.argv[3] === "reviewer" ? "reviewer" : "admin";
   if (!email) {
-    console.error("Usage: tsx src/db/promoteToAdmin.ts <email>");
+    console.error("Usage: tsx src/db/promoteToAdmin.ts <email> [reviewer]   (default role: admin)");
     process.exit(1);
   }
 
   const { rows } = await pool.query<{ id: string; role: string }>(
-    `UPDATE users SET role = 'admin' WHERE email = $1 AND created_via = 'registered' RETURNING id, role`,
-    [email],
+    `UPDATE users SET role = $2 WHERE email = $1 AND created_via = 'registered' RETURNING id, role`,
+    [email, role],
   );
   const user = rows[0];
   if (!user) {
-    console.error(`No registered user found with email ${email}. They must register (POST /api/v1/auth/register) first.`);
+    console.error(`No registered user found with email ${email}. They must create an account first (with an invitation: invite:create).`);
     process.exit(1);
   }
 

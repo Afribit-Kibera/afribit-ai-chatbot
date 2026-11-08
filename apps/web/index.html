@@ -1,28 +1,24 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="dark">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, interactive-widget=resizes-content"
+    />
     <meta name="theme-color" content="#070807" />
     <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="icon" href="/brand/afribit-mark-icon.png" type="image/png" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=DM+Sans:wght@400;500;700&family=Poppins:wght@700;800&family=JetBrains+Mono:wght@400;500&display=swap"
-      rel="stylesheet"
+    <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+    <title>Afribit AI — Open-source AI for communities</title>
+    <meta
+      name="description"
+      content="Afribit AI is an open-source learning companion that communities can host and shape for themselves. Education first, starting with Bitcoin in Kibera and Nairobi."
     />
-    <title>Afribit AI</title>
+    <!-- seo -->
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
-    <script>
-      if ("serviceWorker" in navigator) {
-        window.addEventListener("load", () => {
-          navigator.serviceWorker.register("/sw.js").catch(() => {});
-        });
-      }
-    </script>
   </body>
 </html>

@@ -1,7 +1,31 @@
 import type { AfribitChatRequest, AfribitChatResponse, InferenceProvider } from "@afribit/shared";
 import { getModelProfile } from "../config/modelProfiles.js";
+import { assertContextPolicy } from "../privacy/contextPolicy.js";
 
+/** Default for hosted APIs. A profile can override it with `timeoutMs` (community nodes need far longer). */
 const CHAT_TIMEOUT_MS = 15_000;
+
+function timeoutFor(profileName: string): number {
+  return getModelProfile(profileName).timeoutMs ?? CHAT_TIMEOUT_MS;
+}
+
+/** One model call, as the gateway saw it. Recorded by whatever meter the server installs (see usage/meter.ts). */
+export interface UsageEvent {
+  requestId: string;
+  /** The community pack the call was made for (see setScope); null when the gateway has no scope, as in scripts. */
+  packId: string | null;
+  profile: string;
+  provider: string;
+  model: string | null;
+  promptTokens: number | null;
+  completionTokens: number | null;
+  latencyMs: number | null;
+  estimatedCostUsd: number | null;
+  status: "ok" | "error" | "timeout";
+  errorMessage: string | null;
+}
+
+export type UsageMeter = (event: UsageEvent) => Promise<void>;
 
 export class GatewayError extends Error {
   constructor(
@@ -13,14 +37,15 @@ export class GatewayError extends Error {
   }
 }
 
-async function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
+async function withTimeout<T>(promise: Promise<T>, ms: number, onTimeout: () => void = () => { }): Promise<T> {
   let timer: NodeJS.Timeout;
   const timeout = new Promise<never>((_, reject) => {
-    timer = setTimeout(() => reject(new GatewayError(`Request timed out after ${ms}ms`)), ms);
+    timer = setTimeout(() => { onTimeout(); reject(new GatewayError(`Request timed out after ${ms}ms`)); }, ms);
   });
   try {
     return await Promise.race([promise, timeout]);
-  } finally {
+  }
+  finally {
     clearTimeout(timer!);
   }
 }
@@ -32,7 +57,45 @@ async function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
  * future provider directly — that is the whole point of the abstraction.
  */
 export class AfribitAIGateway {
+  private meter: UsageMeter | null = null;
+  private scope: (() => string | null) | null = null;
+
   constructor(private readonly providers: Map<string, InferenceProvider>) {}
+
+  /** Record every model call (answers, waiter, chef; successes and failures). A meter failure never affects the call. */
+  setMeter(meter: UsageMeter | null): void {
+    this.meter = meter;
+  }
+
+  /** Tell the gateway which community pack the running call belongs to (the server passes getPack().id), so each metered call carries it. */
+  setScope(scope: (() => string | null) | null): void {
+    this.scope = scope;
+  }
+
+  private async record(request: AfribitChatRequest, profileName: string, outcome: { response: AfribitChatResponse } | { error: unknown }): Promise<void> {
+    if (!this.meter) return;
+    const providerName = getModelProfile(profileName).provider;
+    try {
+      const packId = this.scope ? this.scope() : null;
+      if ("response" in outcome) {
+        const r = outcome.response;
+        await this.meter({
+          requestId: request.requestId, packId, profile: profileName, provider: r.provider, model: r.model,
+          promptTokens: r.usage.promptTokens, completionTokens: r.usage.completionTokens, latencyMs: r.latencyMs,
+          estimatedCostUsd: r.estimatedCostUsd, status: "ok", errorMessage: null,
+        });
+      } else {
+        const message = outcome.error instanceof Error ? outcome.error.message : String(outcome.error);
+        await this.meter({
+          requestId: request.requestId, packId, profile: profileName, provider: providerName, model: getModelProfile(profileName).model,
+          promptTokens: null, completionTokens: null, latencyMs: null, estimatedCostUsd: null,
+          status: /timed out/i.test(message) ? "timeout" : "error", errorMessage: message.slice(0, 300),
+        });
+      }
+    } catch (err) {
+      console.warn(`[gateway] usage meter failed: ${err instanceof Error ? err.message : String(err)}`);
+    }
+  }
 
   /**
    * Attempts the requested model profile, then its configured fallback
@@ -44,6 +107,7 @@ export class AfribitAIGateway {
     try {
       return await this.attempt(request, request.modelProfile);
     } catch (primaryError) {
+      if(request.signal instanceof AbortSignal && request.signal.aborted)throw primaryError;
       const primaryProfile = getModelProfile(request.modelProfile);
       if (!primaryProfile.fallbackProfile) {
         throw new GatewayError("Primary model failed and no fallback is configured", primaryError);
@@ -66,6 +130,7 @@ export class AfribitAIGateway {
 
   private resolve(request: AfribitChatRequest, profileName: string): { provider: InferenceProvider; scopedRequest: AfribitChatRequest } {
     const profile = getModelProfile(profileName);
+    assertContextPolicy(request, profile.provider);
     const provider = this.providers.get(profile.provider);
     if (!provider) {
       throw new GatewayError(`No provider registered for "${profile.provider}"`);
@@ -82,7 +147,20 @@ export class AfribitAIGateway {
 
   private async attempt(request: AfribitChatRequest, profileName: string): Promise<AfribitChatResponse> {
     const { provider, scopedRequest } = this.resolve(request, profileName);
-    return withTimeout(provider.chat(scopedRequest), CHAT_TIMEOUT_MS);
+    const controller = new AbortController();
+    const signal = request.signal instanceof AbortSignal ? AbortSignal.any([request.signal, controller.signal]) : controller.signal;
+    try {
+      const response = await withTimeout(provider.chat({ ...scopedRequest, signal }), timeoutFor(profileName), () => controller.abort());
+      await this.record(request, profileName, { response });
+      return response;
+    }
+    catch (error) {
+      await this.record(request, profileName, { error });
+      throw error;
+    }
+    finally {
+      controller.abort();
+    }
   }
 
   /**
@@ -94,38 +172,54 @@ export class AfribitAIGateway {
    * arrived and surfaces the error to the client.
    */
   async *chatStream(request: AfribitChatRequest): AsyncGenerator<string, AfribitChatResponse, void> {
+    let started = false;
     try {
-      return yield* this.attemptStream(request, request.modelProfile);
-    } catch (primaryError) {
+      return yield* this.attemptStream(request, request.modelProfile, () => { started = true; });
+    }
+    catch (primaryError) {
+      if(request.signal instanceof AbortSignal && request.signal.aborted)throw primaryError;
+      if (started)
+        throw new GatewayError("Model stream interrupted after output started", primaryError);
       const primaryProfile = getModelProfile(request.modelProfile);
       if (!primaryProfile.fallbackProfile) {
         throw new GatewayError("Primary model failed and no fallback is configured", primaryError);
       }
-      console.warn(
-        `[gateway] ${request.modelProfile} failed (stream), falling back to ${primaryProfile.fallbackProfile}: ${primaryError instanceof Error ? primaryError.message : String(primaryError)}`,
-      );
+      console.warn(`[gateway] ${request.modelProfile} failed (stream), falling back to ${primaryProfile.fallbackProfile}: ${primaryError instanceof Error ? primaryError.message : String(primaryError)}`);
       try {
         return yield* this.attemptStream(request, primaryProfile.fallbackProfile);
-      } catch (fallbackError) {
+      }
+      catch (fallbackError) {
         throw new GatewayError("Primary and fallback models both failed", fallbackError);
       }
     }
   }
 
-  private async *attemptStream(request: AfribitChatRequest, profileName: string): AsyncGenerator<string, AfribitChatResponse, void> {
+  private async *attemptStream(request: AfribitChatRequest, profileName: string, onStarted: () => void = () => { }): AsyncGenerator<string, AfribitChatResponse, void> {
     const { provider, scopedRequest } = this.resolve(request, profileName);
-    const generator = provider.chatStream(scopedRequest);
-
-    // Only the time-to-first-chunk is bounded — once tokens are flowing,
-    // total response time depends on length, not a fixed idle timeout.
-    const first = await withTimeout(generator.next(), CHAT_TIMEOUT_MS);
-    if (first.done) return first.value;
-    yield first.value;
-
-    while (true) {
-      const next = await generator.next();
-      if (next.done) return next.value;
-      yield next.value;
+    const controller = new AbortController(), deadline = Date.now() + timeoutFor(profileName);
+    const signal = request.signal instanceof AbortSignal ? AbortSignal.any([request.signal, controller.signal]) : controller.signal;
+    const generator = provider.chatStream({ ...scopedRequest, signal });
+    let complete = false;
+    try {
+      while (true) {
+        const next = await withTimeout(generator.next(), Math.max(1, deadline - Date.now()), () => controller.abort());
+        if (next.done) {
+          complete = true;
+          await this.record(request, profileName, { response: next.value });
+          return next.value;
+        }
+        onStarted();
+        yield next.value;
+      }
+    }
+    catch (error) {
+      await this.record(request, profileName, { error });
+      throw error;
+    }
+    finally {
+      controller.abort();
+      if (!complete)
+        void generator.return(undefined as never).catch(() => { });
     }
   }
 

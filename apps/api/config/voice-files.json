@@ -1,0 +1,174 @@
+{
+  "_about": "Plain-English descriptions for the Voice Lab (/voice). Edit the words freely; the list of files itself comes from the code, so a file with no entry here still appears (under Advanced, with a generic note). 'affects' says where the text is used: full = the full prompt (what the live service sends unless PROMPT_MODE=compact), compact = the compact 'waiter' prompt, serve = the serve prompt of the restaurant pipeline, waiter/chef = the two helper models of that pipeline, message = shown to the learner exactly as written (no model involved), push = the push notification, search = how questions are searched, all = every answer.",
+  "groups": [
+    { "id": "speech", "title": "How it speaks (language modes)", "blurb": "The wording that decides how the assistant talks in each language mode. Start here." },
+    { "id": "messages", "title": "Fixed messages", "blurb": "Messages learners read exactly as written. The model does not rewrite these." },
+    { "id": "safety", "title": "Safety rules (admin)", "blurb": "What the assistant must never do. Only an administrator can change these." },
+    { "id": "advanced", "title": "Advanced", "blurb": "Identity, helper prompts, vocabulary headings and search. Change these only if you know what they do." }
+  ],
+  "kinds": {
+    "modeFull": {
+      "group": "speech",
+      "label": "{mode}: how to speak (full prompt)",
+      "affects": ["full"],
+      "description": "The style guide for the {label} mode in the FULL prompt: the register, the do and don't rules, and examples of the voice. This is the most important file for how {label} answers sound. The live service uses the full prompt unless PROMPT_MODE=compact."
+    },
+    "modeCompact": {
+      "group": "speech",
+      "label": "{mode}: how to speak (compact prompt)",
+      "affects": ["compact"],
+      "description": "The short version of the {label} style guide, used only by the COMPACT prompt (PROMPT_MODE=compact). Keep it to a few lines: the compact prompt is for small models that get confused by long instructions. Has no effect while the service uses the full prompt."
+    },
+    "postprocess": {
+      "group": "advanced",
+      "label": "Clean-up rules after the answer",
+      "affects": ["all"],
+      "description": "A list of find-and-replace rules applied to every answer after the model has written it, in every language mode and both prompts. Use it for one stubborn habit you have seen again and again, not for general style. A wrong rule changes every answer, so try it with several questions before saving."
+    },
+    "synonyms": {
+      "group": "advanced",
+      "label": "Search synonyms",
+      "affects": ["search"],
+      "description": "Extra words the search adds when a learner types a word that the knowledge cards do not use. Changes which cards are found for a question, in all language modes and both prompts. It does not change how the assistant speaks."
+    },
+    "fewShots": {
+      "group": "speech",
+      "label": "Example conversations (few-shots)",
+      "affects": ["full", "compact"],
+      "description": "Real example turns (learner question, then the assistant's answer) shown to the model before the learner's question, only in code-switched modes such as Sheng. Models copy examples more faithfully than they follow rules, so these shape the voice strongly. It is a JSON list; each learner turn must be followed by an assistant turn."
+    },
+    "starterQuestions": {
+      "group": "messages",
+      "label": "Suggested first questions",
+      "affects": ["message"],
+      "description": "The questions an app suggests to a new learner, for each language mode. Shown as written; the model is not involved. It is JSON: keep the structure and change only the questions."
+    }
+  },
+  "slots": {
+    "identityFull": {
+      "group": "advanced",
+      "label": "Who the assistant is (full prompt)",
+      "affects": ["full"],
+      "description": "The opening line of the full prompt: what the assistant is called and what it is for."
+    },
+    "safetyFull": {
+      "group": "safety",
+      "label": "Safety rules (full prompt)",
+      "affects": ["full"],
+      "description": "The rules the model must follow in the full prompt: answer only from the knowledge given, never ask for secrets, never promise returns, and the common mistakes to avoid. Changing this changes what the assistant is allowed to say to real learners."
+    },
+    "communicationGuide": {
+      "group": "speech",
+      "label": "General communication guide",
+      "affects": ["full"],
+      "description": "Advice on register and answer shape that applies in every language mode of the full prompt (for example how to mirror the learner's formality). It may be empty."
+    },
+    "vocabIntroFull": {
+      "group": "advanced",
+      "label": "Heading for reviewed vocabulary (full prompt)",
+      "affects": ["full"],
+      "description": "One line placed above the community-approved words the assistant is offered for a question, in code-switched modes of the full prompt."
+    },
+    "noKnowledgeFull": {
+      "group": "advanced",
+      "label": "When no knowledge matched (full prompt)",
+      "affects": ["full"],
+      "description": "What the model is told when the search found no approved card for the question. This is what keeps it from inventing an answer, so keep the meaning: say you are not certain."
+    },
+    "identityCompact": {
+      "group": "advanced",
+      "label": "Who the assistant is (compact prompt)",
+      "affects": ["compact"],
+      "description": "The opening line of the compact prompt. Has no effect while the service uses the full prompt."
+    },
+    "safetyCompact": {
+      "group": "safety",
+      "label": "Safety rules (compact prompt)",
+      "affects": ["compact"],
+      "description": "The short safety rules of the compact prompt. Has no effect while the service uses the full prompt, but it becomes the safety text the moment PROMPT_MODE=compact is switched on."
+    },
+    "codeSwitchedRulesCompact": {
+      "group": "speech",
+      "label": "Extra rules for mixed languages (compact prompt)",
+      "affects": ["compact"],
+      "description": "Extra style rules added to the compact prompt only for code-switched modes such as Sheng. May be empty. Has no effect while the service uses the full prompt."
+    },
+    "shapeCompact": {
+      "group": "speech",
+      "label": "Shape of an answer (compact prompt)",
+      "affects": ["compact", "serve"],
+      "description": "How an answer is built in the compact and serve prompts: answer first, one example, a warning if needed, one check-back question. Has no effect while the service uses the full prompt."
+    },
+    "vocabIntroCompact": {
+      "group": "advanced",
+      "label": "Heading for reviewed vocabulary (compact prompt)",
+      "affects": ["compact", "serve"],
+      "description": "One line placed above the community-approved words in the compact and serve prompts."
+    },
+    "serveIdentity": {
+      "group": "advanced",
+      "label": "Who the assistant is (serve prompt)",
+      "affects": ["serve"],
+      "description": "The opening line of the serve prompt, used only when the optional restaurant pipeline is on (CHAT_PIPELINE=restaurant). Off in the live service."
+    },
+    "serveSafety": {
+      "group": "safety",
+      "label": "Safety rules (serve prompt)",
+      "affects": ["serve"],
+      "description": "The safety rules of the serve prompt, used only with the optional restaurant pipeline (CHAT_PIPELINE=restaurant). Off in the live service."
+    },
+    "ticket": {
+      "group": "safety",
+      "label": "Waiter's order ticket instructions",
+      "affects": ["waiter"],
+      "description": "Instructions to the small model that turns a learner's message into a clean English search question and removes personal details before anything is sent on. Used when the waiter or restaurant pipeline is on. A mistake here can leak personal details."
+    },
+    "chef": {
+      "group": "safety",
+      "label": "Chef's instructions",
+      "affects": ["chef"],
+      "description": "Instructions to the hosted model that writes the fact sheet in the restaurant pipeline (CHAT_PIPELINE=restaurant). It sees only the scrubbed ticket and the cards. Off in the live service."
+    },
+    "ungroundedNote": {
+      "group": "messages",
+      "label": "Note when an answer cannot be confirmed",
+      "affects": ["message"],
+      "description": "Shown to the learner when the grounding check finds names or figures in an answer that were not in the knowledge given (only when the pack sets safety.grounding to enforce). Replaces the answer, or is added below a streamed one."
+    },
+    "secretWarning": {
+      "group": "messages",
+      "label": "Message when someone pastes a secret",
+      "affects": ["message"],
+      "description": "Shown instead of an answer when the learner's message contains a password, PIN, recovery phrase or key. The message is not sent to any model. Keep it clear that nobody legitimate will ever ask for these."
+    },
+    "outputWithheld": {
+      "group": "messages",
+      "label": "Message when an answer is withheld",
+      "affects": ["message"],
+      "description": "Shown instead of an answer that the output safety check blocked (it asked for a secret or promised a guaranteed return)."
+    },
+    "serviceUnavailable": {
+      "group": "messages",
+      "label": "Message when the AI cannot be reached",
+      "affects": ["message"],
+      "description": "Shown when the model could not be reached and no saved knowledge card matched the question."
+    },
+    "notificationTitle": {
+      "group": "messages",
+      "label": "Push notification title",
+      "affects": ["push"],
+      "description": "The title of the notification that tells a learner their answer is ready."
+    },
+    "notificationBody": {
+      "group": "messages",
+      "label": "Push notification text",
+      "affects": ["push"],
+      "description": "The text of the notification that tells a learner their answer is ready."
+    }
+  },
+  "fallback": {
+    "group": "advanced",
+    "affects": ["all"],
+    "description": "No description has been written for this file yet (add one in apps/api/config/voice-files.json). Treat it with care and try it before saving."
+  }
+}

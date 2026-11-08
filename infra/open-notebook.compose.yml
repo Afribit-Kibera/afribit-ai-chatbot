@@ -1,0 +1,39 @@
+# Source storage only. Keep the Open Notebook UI/API behind Afribit; no provider keys here.
+# Use a private env file: see docs/guides/open-notebook-source-engine.md.
+services:
+  surrealdb:
+    image: ${SURREALDB_IMAGE:?Set a pinned SurrealDB image digest}
+    command: ["start", "--log", "error", "--user", "afribit", "--pass", "${SURREAL_PASSWORD:?Set a database password}", "rocksdb:/mydata/notebook.db"]
+    user: root
+    volumes: ["study_db:/mydata"]
+    networks: [study_private]
+  open_notebook:
+    image: ${OPEN_NOTEBOOK_IMAGE:?Set a pinned Open Notebook image digest}
+    environment:
+      OPEN_NOTEBOOK_PASSWORD: ${OPEN_NOTEBOOK_PASSWORD:?Set the API password}
+      OPEN_NOTEBOOK_ENCRYPTION_KEY: ${OPEN_NOTEBOOK_ENCRYPTION_KEY:?Set the provider-secret encryption key}
+      SURREAL_URL: ws://surrealdb:8000/rpc
+      SURREAL_USER: afribit
+      SURREAL_PASSWORD: ${SURREAL_PASSWORD}
+      SURREAL_NAMESPACE: open_notebook
+      SURREAL_DATABASE: open_notebook
+      OPEN_NOTEBOOK_WORKER_MAX_TASKS: "1"
+    volumes: ["study_data:/app/data"]
+    networks: [study_private]
+    depends_on: [surrealdb]
+  source_gateway:
+    image: ${SOURCE_GATEWAY_IMAGE:?Set a pinned socat image digest}
+    command: ["TCP-LISTEN:5055,fork,reuseaddr", "TCP:open_notebook:5055"]
+    ports: ["127.0.0.1:5055:5055"]
+    networks: [study_private, study_access]
+    depends_on: [open_notebook]
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+volumes:
+  study_db:
+  study_data:
+networks:
+  study_access: {}
+  study_private:
+    internal: true

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 168 40" width="168" height="40" role="img" aria-label="Reading Room">
+  <rect width="168" height="40" rx="10" fill="#1f6f5c"/>
+  <path d="M10 11c5-1.5 10-1 14 2v17c-4-3-9-3.500-14-2z" fill="#ffffff"/>
+  <path d="M38 11c-5-1.500-10-1-14 2v17c4-3 9-3.500 14-2z" fill="#d9efe8"/>
+  <path d="M24 13v17" stroke="#1f6f5c" stroke-width="1.500"/>
+  <circle cx="35" cy="9" r="3" fill="#ffd166"/>
+  <text x="48" y="25.500" font-family="Georgia, serif" font-size="15" font-weight="700" textLength="108" lengthAdjust="spacingAndGlyphs" fill="#ffffff">Reading Room</text>
+</svg>

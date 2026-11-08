@@ -1,0 +1,74 @@
+{
+  "cases": [
+    {
+      "id": "L01",
+      "query": "How many books can I take home?",
+      "expected": [
+        "library.borrowing.limit.001"
+      ]
+    },
+    {
+      "id": "L02",
+      "query": "can i keep a book for a month",
+      "expected": [
+        "library.borrowing.period.001"
+      ]
+    },
+    {
+      "id": "L03",
+      "query": "do I pay if I return late?",
+      "expected": [
+        "library.borrowing.late.001"
+      ]
+    },
+    {
+      "id": "L04",
+      "query": "I lost the book I borrowed",
+      "expected": [
+        "library.borrowing.lost.001"
+      ]
+    },
+    {
+      "id": "L05",
+      "query": "What time do you open on Saturday?",
+      "expected": [
+        "library.visiting.hours.001"
+      ]
+    },
+    {
+      "id": "L06",
+      "query": "can I eat in the reading room",
+      "expected": [
+        "library.visiting.quiet.001"
+      ]
+    },
+    {
+      "id": "L07",
+      "query": "My daughter is 9, can she join?",
+      "expected": [
+        "library.membership.child.001"
+      ]
+    },
+    {
+      "id": "L08",
+      "query": "what do I bring to become a member",
+      "expected": [
+        "library.membership.join.001"
+      ]
+    }
+  ],
+  "notCovered": [
+    {
+      "id": "N01",
+      "query": "What is Bitcoin?"
+    },
+    {
+      "id": "N02",
+      "query": "How do I renew my passport?"
+    },
+    {
+      "id": "N03",
+      "query": "Who won the football match yesterday?"
+    }
+  ]
+}

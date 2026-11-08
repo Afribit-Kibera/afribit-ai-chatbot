@@ -1,11 +1,18 @@
 name: Deploy API
 
-# Manual trigger only, deliberately not on every push to master. insats-prod
-# also runs a completely separate business's live BTCPay-adjacent payment
-# services (see infra/LUNANODE.md) -- auto-deploying to a shared production
-# box on every push is a bigger blast radius than this project's current
-# single-operator workflow needs. Flip to `on: push: branches: [master]`
-# once this pipeline has been used manually a few times without incident.
+# Maintainers' reference deploy: build the API image on a Docker host over SSH.
+# Manual trigger only, deliberately not on every push -- a production deploy
+# should be a decision, not a side effect of merging.
+#
+# Needs repository configuration (Settings -> Secrets and variables -> Actions):
+#   secret   DEPLOY_SSH_KEY   private key of a dedicated deploy-only keypair
+#   variable DEPLOY_HOST      hostname or IP of the Docker host
+#   variable DEPLOY_USER      SSH user with passwordless sudo
+#   variable API_PUBLIC_URL   public base URL of the API (for the health check)
+# The host is expected to be prepared already: Docker + Compose, a compose file
+# at /srv/afribit-ai/docker-compose.yml, and env files under /etc/afribit-ai/
+# (secrets never travel through this pipeline). Forks have no access to these
+# secrets, so this workflow does nothing useful there -- that is intentional.
 on:
   workflow_dispatch: {}
 
@@ -15,7 +22,7 @@ concurrency:
 
 jobs:
   deploy:
-    name: Deploy apps/api to insats-prod
+    name: Deploy apps/api
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -25,32 +32,32 @@ jobs:
       - name: Package release
         run: |
           tar --exclude='apps/web' --exclude='node_modules' --exclude='.git' \
-              --exclude='docs' --exclude='*.docx' --exclude='.env' \
+              --exclude='.env' --exclude='.env.*' --exclude='dist' \
               -czf /tmp/afribit-ai-release.tgz \
-              apps/api packages/shared db package.json pnpm-lock.yaml \
+              apps/api packages/shared db packs package.json pnpm-lock.yaml \
               pnpm-workspace.yaml tsconfig.base.json .dockerignore
 
       - name: Set up SSH access
         run: |
           install -d -m 700 ~/.ssh
-          printf '%s\n' "${{ secrets.LUNANODE_SSH_KEY }}" > ~/.ssh/deploy_key
+          printf '%s\n' "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
-          ssh-keyscan -H "${{ vars.LUNANODE_HOST }}" >> ~/.ssh/known_hosts 2>/dev/null
+          ssh-keyscan -H "${{ vars.DEPLOY_HOST }}" >> ~/.ssh/known_hosts 2>/dev/null
 
       - name: Upload release
         run: |
           scp -i ~/.ssh/deploy_key /tmp/afribit-ai-release.tgz \
-            "${{ vars.LUNANODE_USER }}@${{ vars.LUNANODE_HOST }}:/tmp/afribit-ai-release.tgz"
+            "${{ vars.DEPLOY_USER }}@${{ vars.DEPLOY_HOST }}:/tmp/afribit-ai-release.tgz"
 
       # Same sequence as the first manual deploy (2026-09-24): extract to a
       # timestamped release dir, symlink current, rebuild the image on the
-      # server (matches Insats' own build-from-source-on-host convention),
+      # server (build from source on the host),
       # bring the compose stack up, run any new migrations, then verify.
       # Existing /etc/afribit-ai/api.env and postgres.env are untouched --
       # secrets never travel through this pipeline.
       - name: Build and deploy on server
         run: |
-          ssh -i ~/.ssh/deploy_key "${{ vars.LUNANODE_USER }}@${{ vars.LUNANODE_HOST }}" 'bash -s' <<'REMOTE'
+          ssh -i ~/.ssh/deploy_key "${{ vars.DEPLOY_USER }}@${{ vars.DEPLOY_HOST }}" 'bash -s' <<'REMOTE'
           set -euo pipefail
           RID=$(date +%Y%m%d%H%M%S)
           sudo mkdir -p /srv/afribit-ai/releases/$RID
@@ -60,9 +67,11 @@ jobs:
           rm -f /tmp/afribit-ai-release.tgz
 
           sudo bash -c 'cd /srv/afribit-ai/current && docker build -f apps/api/Dockerfile -t afribit-api:latest .'
+          # Migrate with the new image before it starts: migrations only add, so the running release is unaffected.
+          sudo bash -c 'cd /srv/afribit-ai && docker compose -f docker-compose.yml run --rm --no-deps afribit-api node dist/db/migrate.js'
           sudo bash -c 'cd /srv/afribit-ai && docker compose -f docker-compose.yml up -d'
           sleep 3
-          sudo docker exec afribit-api node dist/db/migrate.js
+          # (migrations ran before start-up, above)
           curl -sf http://127.0.0.1:3001/health > /dev/null
 
           # Release retention: keep the 5 most recent, matching the backup
@@ -74,4 +83,4 @@ jobs:
           REMOTE
 
       - name: Verify public health
-        run: curl -sf https://afribit-api.insats.org/health
+        run: curl -sf "${{ vars.API_PUBLIC_URL }}/health"

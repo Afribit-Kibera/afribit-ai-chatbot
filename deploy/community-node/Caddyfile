@@ -1,0 +1,39 @@
+# Serves the app and proxies /api to the Afribit AI API.
+#
+# HTTPS is not optional: browsers only allow installing the app (PWA) and using a
+# service worker on a secure origin. CADDY_TLS chooses how the certificate is made:
+#   internal          Caddy's own local CA. Works with no internet, but each phone
+#                     must trust the CA once (see README, "Making phones trust the node").
+#   you@example.org   Real certificate from Let's Encrypt (needs a public name and
+#                     internet while issuing/renewing; offline afterwards until expiry).
+{$NODE_HOSTNAME:localhost} {
+	tls {$CADDY_TLS:internal}
+	encode zstd gzip
+
+	handle /api/* {
+		# flush_interval -1: chat answers stream token by token (NDJSON); don't buffer them.
+		reverse_proxy api:3001 {
+			flush_interval -1
+		}
+	}
+	# The reviewers' page (log in with a reviewer account).
+	handle /review* {
+		reverse_proxy api:3001
+	}
+	# The console: overview, reports, suggestions, team and invitations (reviewers and administrators).
+	handle /pilot* {
+		reverse_proxy api:3001
+	}
+	# The Voice Lab page (reviewers and administrators; only exists when VOICE_LAB is set).
+	handle /voice* {
+		reverse_proxy api:3001
+	}
+	handle /health* {
+		reverse_proxy api:3001
+	}
+	handle {
+		root * /srv
+		try_files {path} {path}/index.html /index.html
+		file_server
+	}
+}

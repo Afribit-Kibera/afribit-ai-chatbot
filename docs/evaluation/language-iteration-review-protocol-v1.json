@@ -1,0 +1,49 @@
+{
+  "schema": "afribit-language-review-protocol/1",
+  "id": "language-review-protocol-v1",
+  "status": "draft-for-community-approval-before-model-run",
+  "generationPerformed": false,
+  "developmentSuite": "language-iteration-synthetic-v1.json",
+  "candidateProposal": "community-language-proposal-v1.json",
+  "technicalEligibility": {
+    "promptMode": "compact",
+    "contextWindowTokens": 8192,
+    "maxOutputTokens": 300,
+    "requireCompleteStop": true,
+    "rejectReviewedFallbackAsModelAnswer": true,
+    "requirePromptAndPassageHashes": true,
+    "requireSourceIdentityAndOwnedEndpointQualification": true,
+    "requireNoPrivacyDowngradeOrUnapprovedEgress": true,
+    "requirePaidAllocationBeforeAnyGeneration": true
+  },
+  "answerEligibilityForAcceptance": [
+    "Preserve every relevant supplied day, opening period and price; explicitly say free when supplied",
+    "Acknowledge requested missing details rather than invent dates, slots, fees or availability",
+    "Correct false premises using the supplied record",
+    "Make two visits understandable when requested without inventing appointments",
+    "Use clear equivalent 12-hour time formatting for the pilot candidate without changing day or time meaning",
+    "Keep any closing question relevant to a real ambiguity",
+    "Retain privacy and safety requirements"
+  ],
+  "humanRatings": {
+    "naturalness": "Existing 1-5 instrument; judge grammatical conversational fit, not substring compliance",
+    "correctness": ["yes", "mostly", "no"],
+    "riskFlag": "Boolean with explanation when flagged",
+    "acceptance": "Acceptable as written versus needs revision or rejection",
+    "notes": "Request reasons for mostly-correct and rejected answers; preserve exact original feedback"
+  },
+  "analysis": {
+    "compareOnSameFactsAndQuestion": true,
+    "blindModelAndRecipeIdentity": true,
+    "shuffleAndRetainPrivateMapping": true,
+    "retainFailedIncompleteAndNegativeResults": true,
+    "reportFactualErrorsSeparatelyFromLanguagePreference": true,
+    "reportPerCaseAndPerReviewerDisagreement": true,
+    "noAutomatedWordReplacementOrWordBanFluencyScore": true,
+    "requireFreshCommunityAuthoredHeldOutCasesForImprovementClaim": true,
+    "minimumAggregateReleaseScore": null,
+    "releaseThresholdDecision": "Must be agreed before any future scored generation; no threshold is retroactively imposed on baseline returns"
+  },
+  "communityApprovals": [],
+  "corpusOrTrainingReuseConsent": "Not granted by evaluation participation"
+}

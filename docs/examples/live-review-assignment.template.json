@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "preparationTrial": "6f90f6bd-735e-4fa6-a39d-e81d89dcec8b",
+  "reviewMode": "single",
+  "humanReviewsCompleted": 0,
+  "distributionSent": false,
+  "assignments": [
+    { "copy": "reviewer-01", "packId": "6633eca19d", "reviewerPseudonym": null, "audienceFit": null, "compensationAgreement": null, "sentAt": null, "returnedAt": null, "returnedFile": null, "validated": null },
+    { "copy": "reviewer-02", "packId": "8720a57dce", "reviewerPseudonym": null, "audienceFit": null, "compensationAgreement": null, "sentAt": null, "returnedAt": null, "returnedFile": null, "validated": null },
+    { "copy": "reviewer-03", "packId": "557a00e770", "reviewerPseudonym": null, "audienceFit": null, "compensationAgreement": null, "sentAt": null, "returnedAt": null, "returnedFile": null, "validated": null }
+  ],
+  "corpusOrTrainingConsent": "Not requested; review participation does not grant it",
+  "aggregateQualityResult": null
+}

@@ -1,0 +1,133 @@
+# Afribit Community Node -- one machine that serves Afribit AI to a local network.
+#
+#   web (Caddy: HTTPS + the app)  ->  api (Afribit AI)  ->  ollama (the model)
+#                                          |
+#                                       postgres (reviewed knowledge + accounts)
+#
+# Nothing here calls a cloud service when INFERENCE_MODE=node (the default).
+# See README.md for hardware, first-run steps, and the privacy settings.
+name: afribit-node
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: afribit
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: afribit
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U afribit -d afribit"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    networks: [internal]
+
+  ollama:
+    image: ollama/ollama:latest
+    restart: unless-stopped
+    environment:
+      # Keep the model in memory between questions; loading it can take a minute.
+      OLLAMA_KEEP_ALIVE: ${OLLAMA_KEEP_ALIVE:-24h}
+    volumes:
+      - ollama:/root/.ollama
+    networks: [internal]
+    # For an NVIDIA GPU add the override file:
+    #   docker compose -f docker-compose.yml -f docker-compose.gpu.yml up -d
+
+  api:
+    build:
+      context: ../..
+      dockerfile: apps/api/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: "3001"
+      DATABASE_URL: postgres://afribit:${POSTGRES_PASSWORD}@postgres:5432/afribit
+      JWT_SECRET: ${JWT_SECRET:?set JWT_SECRET in .env (openssl rand -hex 32)}
+      # Which community this node serves: a folder under ./packs (mounted below). The default is the
+      # Kibera and Nairobi Bitcoin pack. See docs/guides/community-pack-guide.md to make your own.
+      COMMUNITY_PACK_DIR: /app/packs/${COMMUNITY_PACK:-kibera-bitcoin}
+      # To serve SEVERAL communities from this one node, list their pack ids in .env
+      # (COMMUNITY_PACKS=kibera-bitcoin,example-library). That serves exactly those packs and the line above
+      # is ignored. Unset (the default) means the single pack above, exactly as before.
+      COMMUNITY_PACKS_DIR: ${COMMUNITY_PACKS:+/app/packs}
+      COMMUNITY_PACKS: ${COMMUNITY_PACKS:-}
+      # The pack a request gets when it names none (first by id if unset, kibera-bitcoin when it is served).
+      DEFAULT_PACK: ${DEFAULT_PACK:-}
+      # The Voice Lab (/voice): reviewers edit the pack's wording and try answers live. Off unless VOICE_LAB is
+      # set in .env; the edits are kept in the `overrides` volume below, on top of the reviewed pack in git.
+      COMMUNITY_PACK_OVERRIDES_DIR: ${VOICE_LAB:+/data/overrides}
+      CORS_ORIGIN: https://${NODE_HOSTNAME:-localhost}
+      # node = local model only, nothing leaves this network. hybrid = node first, then
+      # the cloud if it fails (sends questions off-network; tell your users).
+      INFERENCE_MODE: ${INFERENCE_MODE:-node}
+      # The chat model's server: the Ollama container on this machine by default. An Afribit Local box sets
+      # Afribit's GPU server here, with LOCAL_LLM_API_KEY and MODEL_LOCATION=afribit (docs/features/F-006).
+      LOCAL_LLM_BASE_URL: ${LOCAL_LLM_BASE_URL:-http://ollama:11434}
+      LOCAL_LLM_API: ${LOCAL_LLM_API:-ollama}
+      LOCAL_LLM_API_KEY: ${LOCAL_LLM_API_KEY:-}
+      LOCAL_LLM_MODEL: ${LOCAL_LLM_MODEL:-gemma3:12b}
+      LOCAL_LLM_NUM_CTX: ${LOCAL_LLM_NUM_CTX:-8192}
+      # Questions are embedded on the node too (bge-m3, on the CPU), so semantic search needs no cloud call.
+      # Always this machine's Ollama, even when the chat model is elsewhere: search and the card-only
+      # answers then keep working if that server is unreachable.
+      LOCAL_EMBEDDING_BASE_URL: http://ollama:11434
+      LOCAL_EMBEDDING_API: ollama
+      LOCAL_EMBEDDING_MODEL: ${LOCAL_EMBEDDING_MODEL:-bge-m3}
+      # Empty = Ollama decides how many layers go on the GPU. Set a number (0 = CPU only) if it
+      # crashes with a CUDA out-of-memory error on a small GPU.
+      LOCAL_LLM_NUM_GPU: ${LOCAL_LLM_NUM_GPU:-}
+      # Where the model runs, as members are told it (docs/features/F-001). The Ollama container next to the
+      # API counts as this node ("auto" works). An Afribit Local box using Afribit's GPU must set "afribit".
+      MODEL_LOCATION: ${MODEL_LOCATION:-auto}
+      # How long chat text is kept on this node (docs/features/F-002): none, <N>d (e.g. 30d) or keep.
+      CHAT_RETENTION: ${CHAT_RETENTION:-none}
+      # Who may create an account (docs/features/F-012): invite (single-use codes from an administrator), closed or open.
+      REGISTRATION: ${REGISTRATION:-invite}
+      # Only used when INFERENCE_MODE=hybrid.
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
+      VAPID_PUBLIC_KEY: ${VAPID_PUBLIC_KEY:-}
+      VAPID_PRIVATE_KEY: ${VAPID_PRIVATE_KEY:-}
+      VAPID_SUBJECT: ${VAPID_SUBJECT:-mailto:admin@example.org}
+    volumes:
+      # Your pack can live next to the built-in ones without rebuilding the image.
+      - ../../packs:/app/packs:ro
+      # Live wording edits and their history. Back this volume up: it is not in git.
+      - overrides:/data/overrides
+    networks: [internal]
+
+  web:
+    build:
+      context: ../..
+      dockerfile: deploy/community-node/web.Dockerfile
+      args:
+        # Same variable as the api's pack: brands the page title and the app manifest for that community.
+        COMMUNITY_PACK: ${COMMUNITY_PACK:-}
+    restart: unless-stopped
+    depends_on: [api]
+    environment:
+      NODE_HOSTNAME: ${NODE_HOSTNAME:-localhost}
+      CADDY_TLS: ${CADDY_TLS:-internal}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - caddy_data:/data
+      - caddy_config:/config
+    networks: [internal]
+
+networks:
+  internal:
+
+volumes:
+  overrides:
+  pgdata:
+  ollama:
+  caddy_data:
+  caddy_config:

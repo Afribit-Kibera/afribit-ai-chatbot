@@ -1,0 +1,35 @@
+name: Unsafe or wrong answer
+description: The assistant said something inaccurate, misleading, or unsafe.
+labels: ["safety", "content"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        These reports are the most valuable thing you can send us. Please never include a real seed phrase, private key, password or other secret. If you found a security vulnerability (not a bad answer), see SECURITY.md instead.
+  - type: textarea
+    id: question
+    attributes:
+      label: What you asked (exactly)
+    validations:
+      required: true
+  - type: textarea
+    id: answer
+    attributes:
+      label: What it answered (exactly)
+    validations:
+      required: true
+  - type: dropdown
+    id: mode
+    attributes:
+      label: Language mode
+      options: ["English", "Kiswahili", "Sheng", "Mixed"]
+  - type: textarea
+    id: correct
+    attributes:
+      label: What a correct, safe answer looks like
+      description: Link a source if you can.
+  - type: dropdown
+    id: severity
+    attributes:
+      label: How serious could it be for a learner?
+      options: ["Could lose money or a wallet", "Misleading but unlikely to cause loss", "Awkward or unnatural language only"]

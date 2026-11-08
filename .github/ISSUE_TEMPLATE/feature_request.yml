@@ -1,0 +1,19 @@
+name: Feature request
+description: Propose an improvement. Check the roadmap first.
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem would this solve, and for whom?
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: What do you propose?
+  - type: textarea
+    id: privacy
+    attributes:
+      label: Privacy and safety implications
+      description: Does this collect, store or send any new data? Could it expose a learner to a scam?

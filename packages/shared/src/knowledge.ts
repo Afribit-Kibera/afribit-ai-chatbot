@@ -41,8 +41,17 @@ export interface RetrievalResult {
   sourceVersion: number;
   freshnessDate: string;
   relatedConcepts: string[];
-  /** 0..1 — drives the confidence check in PRD §18.2 / §30.6. */
+  /**
+   * 0..1 — the legacy value: the larger of the word-match and meaning-match scores. The word-match score saturates
+   * at 1 whenever a question shares common words with a card, so this does NOT say whether a card answers it.
+   */
   confidence: number;
+  /**
+   * How close the card is in meaning (embedding cosine similarity), or null if it was found by words only or
+   * meaning search is off. The gap list (F-004) uses this: with bge-m3, uncovered questions scored 0.42–0.65 and
+   * covered ones 0.67–0.79 (8 Oct 2026).
+   */
+  semanticScore?: number | null;
 }
 
 /**

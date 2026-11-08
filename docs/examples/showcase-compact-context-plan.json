@@ -1,0 +1,33 @@
+{
+  "schema": 1,
+  "budgetMicrousd": 10000000,
+  "heldAsideMicrousd": 2000000,
+  "externalChargesMicrousd": 7755016,
+  "upstreamLimitReference": "Offline preview only. Retains the original $10 allocations; does not authorize a new rental. Replace the placeholder endpoint/model only in a separately reviewed, funded plan.",
+  "maxOutputTokens": 300,
+  "answerWordLimit": 120,
+  "timeoutMs": 45000,
+  "maxDurationMs": 240000,
+  "concurrency": 1,
+  "repetitions": 1,
+  "promptMode": "compact",
+  "contextWindowTokens": 8192,
+  "candidates": [{
+    "id": "compact-preview",
+    "modelRevision": "unverified-placeholder; preview only",
+    "route": {
+      "kind": "chat",
+      "provider": "local",
+      "model": "replace-with-served-model",
+      "baseUrl": "http://ollama:11434",
+      "region": "community",
+      "maxInputBytes": 65536,
+      "maxOutputTokens": 300,
+      "reservationMicrousd": 0,
+      "billingBoundConfirmed": false,
+      "upstreams": [],
+      "promptPriceMicrousdPerMillion": 0,
+      "completionPriceMicrousdPerMillion": 0
+    }
+  }]
+}

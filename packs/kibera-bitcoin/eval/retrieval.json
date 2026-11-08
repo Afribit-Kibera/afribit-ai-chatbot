@@ -1,0 +1,330 @@
+{
+  "cases": [
+    {
+      "id": "R01",
+      "query": "Bitcoin ni nini?",
+      "expected": [
+        "btc.basics.what_is_bitcoin",
+        "btcman.ch01.bitcoin_ni_nini"
+      ]
+    },
+    {
+      "id": "R02",
+      "query": "What exactly is Bitcoin, explain like I'm new to this",
+      "expected": [
+        "btc.basics.what_is_bitcoin",
+        "btcman.ch01.bitcoin_ni_nini"
+      ]
+    },
+    {
+      "id": "R03",
+      "query": "Bitcoin ni sawa na crypto zingine zote?",
+      "expected": [
+        "btc.basics.vs_crypto"
+      ]
+    },
+    {
+      "id": "R04",
+      "query": "Nini maana ya sats?",
+      "expected": [
+        "btc.basics.what_are_sats",
+        "btcman.ch03.btc_and_sats"
+      ]
+    },
+    {
+      "id": "R05",
+      "query": "Ni nani anacontrol Bitcoin?",
+      "expected": [
+        "btc.basics.who_controls_bitcoin",
+        "btcman.ch02.why_bitcoin_can_work_without_one_company"
+      ]
+    },
+    {
+      "id": "R06",
+      "query": "Serikali inaweza kuizima Bitcoin ama kuifreeze?",
+      "expected": [
+        "btc.basics.can_be_shut_down",
+        "btcman.faq.03.can_bitcoin_be_switched_off_by_one_company"
+      ]
+    },
+    {
+      "id": "R07",
+      "query": "Kwanini watu wanasema Bitcoin ina thamani, ni pesa ya kubuni tu?",
+      "expected": [
+        "btc.basics.why_value"
+      ]
+    },
+    {
+      "id": "R08",
+      "query": "Wallet ya Bitcoin ni nini hasa?",
+      "expected": [
+        "btc.wallets.what_is_a_wallet",
+        "btcman.ch04.wallets_addresses_and_qr_codes"
+      ]
+    },
+    {
+      "id": "R09",
+      "query": "What is a seed phrase and why does it matter?",
+      "expected": [
+        "btc.wallets.seed_phrase",
+        "btcman.ch06.recovery_phrases_and_backups"
+      ]
+    },
+    {
+      "id": "R10",
+      "query": "Kwanini sipaswi kumwambia mtu seed phrase yangu?",
+      "expected": [
+        "btc.wallets.never_share_seed_phrase",
+        "btcman.ch06.recovery_phrases_and_backups"
+      ]
+    },
+    {
+      "id": "R11",
+      "query": "Custodial na non-custodial wallet ni tofauti gani?",
+      "expected": [
+        "btc.wallets.custodial_vs_noncustodial",
+        "btcman.ch07.self_custody_and_custodial_wallets"
+      ]
+    },
+    {
+      "id": "R12",
+      "query": "Nikipoteza simu yangu, Bitcoin zangu zitapotea pia?",
+      "expected": [
+        "btc.wallets.lost_phone",
+        "btcman.faq.08.what_if_i_lose_my_phone"
+      ]
+    },
+    {
+      "id": "R13",
+      "query": "Private key ina maana gani, na inafanya kazi vipi na signature?",
+      "expected": [
+        "btcman.ch05.private_keys_signatures_and_ownership"
+      ]
+    },
+    {
+      "id": "R14",
+      "query": "Msee amenitumia DM ananidai nimtumie recovery phrase yangu ndio anisaidie",
+      "expected": [
+        "btc.safety.fake_support",
+        "btc.wallets.never_share_seed_phrase",
+        "btcman.ch17.security_and_avoiding_scams"
+      ]
+    },
+    {
+      "id": "R15",
+      "query": "What are the most common Bitcoin scams I should watch out for?",
+      "expected": [
+        "btc.safety.common_scams",
+        "btcman.ch17.security_and_avoiding_scams"
+      ]
+    },
+    {
+      "id": "R16",
+      "query": "Nimetuma Bitcoin kwa address mbaya, nifanye nini?",
+      "expected": [
+        "btc.safety.wrong_address"
+      ]
+    },
+    {
+      "id": "R17",
+      "query": "Ni njia gani za msingi za kubackup wallet yangu?",
+      "expected": [
+        "btc.safety.backup_basics",
+        "btcman.ch06.recovery_phrases_and_backups"
+      ]
+    },
+    {
+      "id": "R18",
+      "query": "Nitalipaje kwa duka linalokubali Bitcoin?",
+      "expected": [
+        "btc.paying.pay_merchant",
+        "btcman.ch19.customer_payment_flow"
+      ]
+    },
+    {
+      "id": "R19",
+      "query": "Naeza rudisha Bitcoin transaction ikishatumwa?",
+      "expected": [
+        "btc.paying.reversible",
+        "btcman.faq.06.can_i_reverse_a_bitcoin_payment"
+      ]
+    },
+    {
+      "id": "R20",
+      "query": "How do I actually receive Bitcoin from someone?",
+      "expected": [
+        "btc.receiving.how_to_receive"
+      ]
+    },
+    {
+      "id": "R21",
+      "query": "Ninajuaje kama payment imefanikiwa kupokelewa?",
+      "expected": [
+        "btc.receiving.payment_confirmation"
+      ]
+    },
+    {
+      "id": "R22",
+      "query": "What is Lightning and how is it different from normal Bitcoin?",
+      "expected": [
+        "btc.lightning.what_is_lightning",
+        "btcman.ch15.on_chain_and_lightning_payments"
+      ]
+    },
+    {
+      "id": "R23",
+      "query": "Lightning address ni nini?",
+      "expected": [
+        "btc.lightning.address"
+      ]
+    },
+    {
+      "id": "R24",
+      "query": "Lightning invoice ni tofauti gani na address ya kawaida?",
+      "expected": [
+        "btc.lightning.invoice"
+      ]
+    },
+    {
+      "id": "R25",
+      "query": "Mbona Lightning payment yangu imefail?",
+      "expected": [
+        "btc.lightning.payment_failure"
+      ]
+    },
+    {
+      "id": "R26",
+      "query": "Kwanini Lightning ni haraka kuliko on-chain?",
+      "expected": [
+        "btc.lightning.why_faster",
+        "btcman.ch15.on_chain_and_lightning_payments"
+      ]
+    },
+    {
+      "id": "R27",
+      "query": "Transaction yangu bado iko pending, mbona haijaconfirm?",
+      "expected": [
+        "btcman.ch12.confirmations_and_payment_finality",
+        "btcman.faq.05.why_is_my_payment_pending"
+      ]
+    },
+    {
+      "id": "R28",
+      "query": "How does a Bitcoin transaction actually move from my wallet to someone else's?",
+      "expected": [
+        "btcman.ch08.how_a_bitcoin_transaction_moves"
+      ]
+    },
+    {
+      "id": "R29",
+      "query": "Blockchain ni kitu gani, na kila mtu anaeza kuiona?",
+      "expected": [
+        "btcman.ch09.the_blockchain_and_public_record"
+      ]
+    },
+    {
+      "id": "R30",
+      "query": "Nodes zinafanya kazi gani kwa network ya Bitcoin?",
+      "expected": [
+        "btcman.ch10.nodes_rules_and_consensus"
+      ]
+    },
+    {
+      "id": "R31",
+      "query": "What is Bitcoin mining and proof of work?",
+      "expected": [
+        "btcman.ch11.mining_proof_of_work_and_blocks",
+        "btcman.faq.11.who_creates_new_bitcoin"
+      ]
+    },
+    {
+      "id": "R32",
+      "query": "Kuna Bitcoin ngapi zitakazokuwepo, na halving ni nini?",
+      "expected": [
+        "btcman.ch13.bitcoin_supply_and_halving"
+      ]
+    },
+    {
+      "id": "R33",
+      "query": "Halving ikitokea, bei ya Bitcoin inapanda mara moja?",
+      "expected": [
+        "btcman.faq.15.does_a_halving_mean_price_doubles",
+        "btcman.ch13.bitcoin_supply_and_halving"
+      ]
+    },
+    {
+      "id": "R34",
+      "query": "Kwanini fee ya on-chain transaction inatofautiana kila wakati?",
+      "expected": [
+        "btcman.ch14.transaction_fees",
+        "btcman.faq.10.why_did_the_fee_change"
+      ]
+    },
+    {
+      "id": "R35",
+      "query": "Is Bitcoin completely anonymous, can people see what I bought?",
+      "expected": [
+        "btcman.ch16.privacy_and_transaction_visibility",
+        "btcman.faq.07.is_bitcoin_anonymous"
+      ]
+    },
+    {
+      "id": "R36",
+      "query": "Bei ya Bitcoin inapanda na kushuka sana, ni salama kuiwekeza pesa yangu yote?",
+      "expected": [
+        "btcman.ch18.price_volatility_and_responsible_learning"
+      ]
+    },
+    {
+      "id": "R37",
+      "query": "Sina lazima kununua Bitcoin nzima moja, ama?",
+      "expected": [
+        "btcman.faq.01.do_i_need_to_buy_one_whole_bitcoin",
+        "btc.basics.what_are_sats"
+      ]
+    },
+    {
+      "id": "R38",
+      "query": "Can support team recover my wallet if I lose access and it's non-custodial?",
+      "expected": [
+        "btcman.faq.04.can_support_recover_my_self_custody_wallet"
+      ]
+    },
+    {
+      "id": "R39",
+      "query": "Naeza tumia Bitcoin bila internet kabisa?",
+      "expected": [
+        "btcman.faq.14.can_i_use_bitcoin_without_internet"
+      ]
+    },
+    {
+      "id": "R40",
+      "query": "Miners wanaeza kuiba Bitcoin yangu wakati wana-process transaction?",
+      "expected": [
+        "btcman.faq.12.can_miners_steal_my_bitcoin"
+      ]
+    }
+  ],
+  "notCovered": [
+    {
+      "id": "N01",
+      "query": "Nani alishinda Kombe la Dunia 2022?"
+    },
+    {
+      "id": "N02",
+      "query": "How do I treat malaria at home?"
+    },
+    {
+      "id": "N03",
+      "query": "Niaje, unaweza nisaidia na homework ya maths?"
+    },
+    {
+      "id": "N04",
+      "query": "What is the best phone to buy this year?"
+    },
+    {
+      "id": "N05",
+      "query": "Ni dawa gani ya kuumwa na kichwa?"
+    }
+  ]
+}

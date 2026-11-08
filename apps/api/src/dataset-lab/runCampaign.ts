@@ -122,7 +122,7 @@ async function main() {
   // (greetings, active listening), which would waste budget generating
   // candidates nobody wants.
   const { rows: concepts } = await pool.query<{ id: string; title: string; canonical_answer: string }>(
-    `SELECT id, title, canonical_answer FROM knowledge_entries WHERE status = 'published' AND domain = 'bitcoin' ORDER BY id`,
+    `SELECT id, title, canonical_answer FROM knowledge_entries WHERE status = 'published' AND community_pack_id IS NULL AND domain = 'bitcoin' ORDER BY id`,
   );
   if (concepts.length === 0) throw new Error("No published knowledge_entries found — run `pnpm db:seed` first.");
 

@@ -1,0 +1,33 @@
+{
+  "schema": 1,
+  "budgetMicrousd": 10000000,
+  "heldAsideMicrousd": 2000000,
+  "externalChargesMicrousd": 0,
+  "upstreamLimitReference": "",
+  "maxOutputTokens": 300,
+  "answerWordLimit": 120,
+  "timeoutMs": 30000,
+  "maxDurationMs": 300000,
+  "concurrency": 1,
+  "repetitions": 1,
+  "candidates": [
+    {
+      "id": "candidate-a",
+      "modelRevision": "unverified-placeholder; replace before measurement",
+      "route": {
+        "kind": "chat",
+        "provider": "local",
+        "model": "replace-with-served-model",
+        "baseUrl": "http://ollama:11434",
+        "region": "community",
+        "maxInputBytes": 65536,
+        "maxOutputTokens": 300,
+        "reservationMicrousd": 0,
+        "billingBoundConfirmed": false,
+        "upstreams": [],
+        "promptPriceMicrousdPerMillion": 0,
+        "completionPriceMicrousdPerMillion": 0
+      }
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "schema": 1,
+  "leaseId": "00000000-0000-4000-8000-000000000020",
+  "podId": "REPLACE_WITH_DISPOSABLE_POD_ID",
+  "expectedName": "afribit-showcase-00000000-0000-4000-8000-000000000020",
+  "createdAt": "2026-10-26T00:00:00.000Z",
+  "deadlineAt": "2026-10-26T00:30:00.000Z",
+  "quotedHourlyMicrousd": 1000000,
+  "nonComputeMicrousd": 100000,
+  "maxRentalMicrousd": 1000000,
+  "shutdownGraceMs": 30000,
+  "pollMs": 1000,
+  "requestTimeoutMs": 2000,
+  "cleanupAttempts": 3,
+  "disposableDataOnly": true
+}

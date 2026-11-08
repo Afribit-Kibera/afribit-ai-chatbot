@@ -1,126 +1,143 @@
 # Contributing to Afribit AI
 
-Afribit AI is built on a simple rule: **the community doesn't learn to speak
-like AI — the AI learns to speak like the community.** That means this
-project needs more than code. It needs people who actually speak Sheng,
-Kiswahili, and English the way Kibera and Nairobi speak them, and people
-who understand Bitcoin well enough to catch a wrong or unsafe answer
-before a beginner ever sees it.
+Thank you for helping. Afribit AI rests on one rule: **the community doesn't
+learn to speak like AI — the AI learns to speak like the community.** So this
+project needs more than code. It needs people who speak Sheng, Kiswahili and
+English the way Kibera and Nairobi speak them, and people who understand
+Bitcoin well enough to catch a wrong or unsafe answer before a beginner sees
+it.
 
-There are three ways to contribute. Pick whichever matches what you know —
-you don't need to be a developer to make this product better.
+Everyone taking part is expected to follow our [Code of Conduct](CODE_OF_CONDUCT.md).
+To report a security problem, see [SECURITY.md](SECURITY.md) — please don't
+open a public issue for it.
 
-## 1. Language review (no coding required)
+There are four ways to contribute. Pick whichever matches what you know.
 
-The two source teaching manuals in this repo —
-[`Bitcoin_Basics_in_Kenyan_Sheng_Afribit_AI.docx`](Bitcoin_Basics_in_Kenyan_Sheng_Afribit_AI.docx)
-and
-[`Basic_Communication_Skills_in_Kenyan_Sheng_Afribit_AI.docx`](Basic_Communication_Skills_in_Kenyan_Sheng_Afribit_AI.docx) —
-were presented to and approved by community reviewers on 2026-09-23 as
-each manual's **Version 1.0, first community-approved version**. That
-approval isn't a finish line, though: Sheng changes by age, neighbourhood,
-and context, and this is a living document — a phrase that sounds natural
-to one reviewer can sound dated or wrong to another, or to the same
-reviewer a year from now. Every chapter ends with a review worksheet built
-for exactly this ongoing correction process, and future corrections ship
-as new reviewed versions, not silent edits to v1.0.
+## 1. Language review — no coding needed
 
-To review:
+Sheng changes by age, neighbourhood and context. A phrase that sounds natural
+to one person can sound dated or wrong to another, so this is a living
+reviewing process, not a finished one.
 
-1. Read a chapter's Sheng Teaching Version against the Simple English
-   next to it.
-2. Ask: does this sound like something a real person in your
-   neighbourhood would actually say? Is anything outdated, too formal, too
-   informal, or unsafe?
-3. Record corrections using each manual's own Appendix C worksheet format
-   (original phrase → suggested phrase → reason → your area/age group →
-   confidence). Don't just say "wrong" — say what you'd actually say
-   instead and why.
-4. Never include a real seed phrase, private key, password, or other
-   secret in a correction or example — use obviously-fake placeholders
-   only, the same rule the manuals themselves teach.
+**To suggest a correction**, open a
+[language correction issue](https://github.com/afribit/afribit-ai/issues/new?template=language_correction.yml)
+and tell us:
 
-For corrections to the two existing manuals, send them through whatever
-channel the person who shared this repo with you set up (issue, pull
-request editing the source `.docx`/`.json`, or a direct message) — that
-part still has no dedicated tool.
+1. the original phrase,
+2. what you would actually say instead,
+3. why (too formal? dated? means something else in your area?),
+4. your area and age group, and how confident you are.
 
-For a **new** phrase or example (not a correction to existing content),
-there's now a real submission path: **Microtasks**. Register an account
-(`POST /api/v1/auth/register`, or the "Contributor account" section in
-the app's Settings screen), submit a phrase, and other contributors can
-review it. See [`docs/AUTH_AND_MICROTASKS_2026-09-24.md`](docs/AUTH_AND_MICROTASKS_2026-09-24.md)
-for the full API. You cannot review your own submission — that's
-enforced by the server, not just a guideline.
+Don't just say "wrong" — say what you'd say instead. Never include a real
+seed phrase, private key, password or other secret; use obviously fake
+placeholders.
 
-**Where your review goes:** Version 1.0 of both manuals is already
-`published`/`approved` in the database and live in chat retrieval — your
-correction doesn't need to clear a first-time review gate, it becomes the
-next reviewed version. New content (a future volume, or a correction that
-changes meaning rather than just phrasing) still starts at
-`status = 'needs_language_review'` and is **not** shown to real users
-until a reviewer's correction gets it promoted — same gate, just not the
-one v1.0 is behind anymore. See [`docs/LANGUAGE_CORPUS.md`](docs/LANGUAGE_CORPUS.md)
-for the full provenance model, and
-[`docs/adr/0005-microtasks-human-feedback-layer.md`](docs/adr/0005-microtasks-human-feedback-layer.md)
-for why AI-generated or unreviewed content can never promote itself.
+**If you'd rather edit the content directly**, the teaching content lives in
+[`apps/api/src/db/data/`](apps/api/src/db/data) as JSON (chapters with their
+Simple English, Sheng teaching version, examples and common confusions, plus
+glossaries and phrase banks). Open a pull request. Because wording changes can
+alter meaning, content changes are reviewed by a maintainer *and* at least one
+other Sheng or Kiswahili speaker before they are merged, and they ship as a new
+reviewed version rather than a silent edit.
 
-## 2. Bitcoin content review
+**To add new phrases**, use the in-app contributor flow: register in the app's
+Settings screen, submit a phrase, and other contributors review and vote on it.
+You cannot review your own submission — the server enforces that.
 
-If you know Bitcoin well: read the same two manuals for factual accuracy,
-not just language. Flag anything that's outdated, technically wrong, or
-gives advice the manual's own rules say it shouldn't (e.g. anything that
-reads as a guaranteed-return claim, or that would make sense to ask for a
-seed phrase). The manuals cite their sources at the end of each document —
-if you're correcting a fact, cite where you got the correction too.
+**To compare answers blind** — the most useful thing a Sheng or Kiswahili speaker can do — ask a maintainer for a review page (see [`tools/blind-review`](tools/blind-review)). You will see questions and several unlabelled answers, and say which sound natural, which are correct, and which you would show a learner. It takes 30–40 minutes on a phone and works offline.
+
+## 2. Bitcoin and safety review
+
+If you know Bitcoin well, read the content for accuracy and safety, not just
+language. Flag anything outdated, technically wrong, or that gives advice it
+shouldn't — anything that reads as a guaranteed return, or that would make
+sense to ask for a seed phrase. If you're correcting a fact, cite where the
+correction comes from.
+
+Found the live app giving a wrong or unsafe answer? Use the
+[unsafe or wrong answer issue](https://github.com/afribit/afribit-ai/issues/new?template=unsafe_or_wrong_answer.yml).
+Include the exact question and answer. These reports are the most valuable
+thing you can send us.
 
 ## 3. Code
 
-Standard GitHub flow: fork, branch, PR. A few things specific to this repo:
+Standard flow: fork, branch, pull request. Look for issues to pick up, or
+propose one first for anything large. See [ROADMAP.md](ROADMAP.md) for where the
+project is heading; proving a community node on modest hardware is the biggest open area.
 
-- **Read [`Afribit_Chatbot_PRD.md`](Afribit_Chatbot_PRD.md) and
-  [`docs/adr/`](docs/adr) first.** Several design decisions here look
-  unusual until you've read the reasoning — in particular, the provider
-  abstraction rule below is load-bearing, not a style preference.
-- **The provider abstraction rule is not optional.** Nothing outside
-  `apps/api/src/gateway` and `apps/api/src/providers` may know which
-  inference provider is active. Application code calls
-  `AfribitAIGateway.chat()`, never `OpenRouterProvider` directly. See the
-  README's "Key architectural rule" section for why.
-- **New admin or Microtasks routes need `requireAdmin`/`requireAuth`.**
-  See `apps/api/src/auth/plugin.ts`. There is no public path to admin
-  anywhere in this codebase (an operator runs `promoteToAdmin.ts` by
-  hand) — don't add one, even for convenience.
-- **Knowledge and language data have a status gate for a reason.** Never
-  write code that lets unreviewed content (`draft` / `needs_language_review`
-  / `needs_factual_review`) reach a real user, and never let one AI model's
-  (or one self-interested human's) judgment of their own output count as
-  review — see `docs/adr/0005-microtasks-human-feedback-layer.md` and
-  `routes/microtasks.ts`'s self-review block. If you're touching
-  `apps/api/src/knowledge/retrieval.ts` or anything that queries
-  `knowledge_entries`/`language_entries`, this is the first thing to check.
-- **Run the checks before opening a PR:**
+### Set up
 
-  ```bash
-  pnpm typecheck
-  pnpm --filter @afribit/api test:prompt-golden   # prompt-construction regression check, no DB/API needed
-  ```
+```bash
+pnpm install
+cp .env.example .env
+pnpm db:up && pnpm db:migrate && pnpm db:seed
+pnpm dev:api    # http://localhost:3001
+pnpm dev:web    # http://localhost:5173
+```
 
-  If your change touches the live chat prompt (`apps/api/src/prompt/`),
-  also read [`docs/COMMUNICATION_STYLE_EVAL.md`](docs/COMMUNICATION_STYLE_EVAL.md)
-  before and after — it's both a worked example of how this project tests
-  prompt changes and the regression history for two real bugs found that
-  way.
-- **Don't invent secrets or scam scenarios with real-looking detail.**
-  Safety examples throughout this codebase use obviously-fake data
-  (`Bei ni ngapi kwa KES?`-style scripts, not real wallet addresses or
-  phone numbers). Keep it that way.
-- **Small, focused PRs.** This is a young prototype (see the README's
-  "Status" section) — large speculative refactors are harder to review
-  than a working product justifies right now.
+Requires Node 22+, pnpm and Docker. An `OPENROUTER_API_KEY` is optional —
+without it the API answers directly from the knowledge cards, which is enough
+for most development. The full setup is in the [README](README.md); how the
+pieces fit together is in [ARCHITECTURE.md](ARCHITECTURE.md).
+
+### Before you open a pull request
+
+```bash
+pnpm typecheck
+pnpm test        # prompt, secret-detector, provider, retrieval-fusion, waiter and chef checks; need no database or API key
+pnpm build
+```
+
+If you change the live chat prompt (`apps/api/src/prompt/`), run the evaluation
+scripts too (`pnpm --filter @afribit/api dataset:communication-eval`; they call
+a paid model and need an API key) and describe the before/after in your PR.
+Results on a single run vary — read the individual judge notes, not just the
+pass count.
+
+### Rules that are not optional
+
+- **Provider abstraction.** Nothing outside `apps/api/src/gateway` and
+  `apps/api/src/providers` may know which inference provider is active. Application
+  code calls `AfribitAIGateway.chat()`, never a provider directly. This is what
+  makes a move to a community node or self-hosted models an infrastructure change instead
+  of a rewrite.
+- **Status gate.** Never write code that lets unreviewed content (`draft`,
+  `needs_language_review`, `needs_factual_review`) reach a learner, and never let a
+  model's — or a contributor's — judgment of their own output count as review. If
+  you touch retrieval or anything that queries `knowledge_entries` or
+  `language_entries`, check this first.
+- **Auth.** New admin or Microtasks routes need `requireAdmin` / `requireAuth`
+  (`apps/api/src/auth/plugin.ts`). There is deliberately no public path to admin.
+- **Never ask for secrets.** Nothing may prompt for, collect, log or store a seed
+  phrase, private key, PIN or password.
+- **Safety examples use obviously fake data** — no real-looking wallet addresses,
+  phone numbers or scam scripts.
+- **Privacy.** No new telemetry, third-party calls or data collection without a
+  discussion first. Where this project is heading is *less* data leaving the
+  device, not more.
+
+Keep pull requests small and focused, with a clear description of the problem and
+how you checked the fix.
+
+## 4. Research on the community node
+
+The [roadmap's](ROADMAP.md) "Prove one node" stage is open research: finding the smallest open model that passes our Sheng and Kiswahili rubric, a compact (~1,000-token) prompt, local embeddings, and measuring how many people a modest machine can serve. Run a node with the [kit](deploy/community-node/README.md) on whatever hardware you have, evaluate it with the [methodology](docs/evaluation/methodology.md), and share what you measure — results published either way are useful. Open an issue to coordinate.
+
+## Licensing of contributions
+
+By contributing you agree that:
+
+- code you contribute is licensed under [Apache-2.0](LICENSE);
+- content you contribute (teaching material, phrases, translations, knowledge
+  entries) is licensed under [CC BY-SA 4.0](LICENSE-CONTENT);
+- you wrote it, or have the right to contribute it.
+
+Third-party material you add must be openly licensed, and its license and
+attribution recorded in [NOTICE](NOTICE). Do not submit text copied from sources
+you don't have the rights to — including scraped dictionaries and translated
+religious texts of unclear provenance.
 
 ## Questions
 
-Start with [`README.md`](README.md) and [`Afribit_Chatbot_PRD.md`](Afribit_Chatbot_PRD.md) —
-most "why does it work this way" questions are answered in one of the two.
-For anything not covered, open an issue.
+Open an issue or a discussion. For anything about funding or partnerships, write
+to [eddie@afribit.africa](mailto:eddie@afribit.africa).

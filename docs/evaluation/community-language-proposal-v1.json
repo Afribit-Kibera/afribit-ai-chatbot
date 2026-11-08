@@ -1,0 +1,13 @@
+{
+  "schema": "afribit-language-preview/1",
+  "id": "review-language-candidate-v1",
+  "status": "draft",
+  "scope": "operator-synthetic-preview-only",
+  "targetPackId": "language-pilot-a",
+  "modeIds": ["sheng", "mixed_ke"],
+  "communityApprovals": [],
+  "feedbackReport": "docs/evaluation/trials/2026-10-28-three-reviewer-findings.md",
+  "languageGuidance": "PILOT LANGUAGE CANDIDATE V1: For this pilot's Sheng or mixed mode, prefer conversational sentence construction: vile instead of formal jinsi, kwa where natural instead of kwenye, and natural ina- constructions instead of inavyo-. Prefer inacost when explaining a cost. Rewrite the complete sentence grammatically; never perform blind word replacement. Cheki and ona are allowed variants when natural. Keep useful English technical terms. Do not force greetings or copy this register into another language mode. Facts and safety override style.",
+  "taskGuidance": "PILOT SCHEDULE TASK V1: For service-schedule questions, state the supplied day, opening hours and price explicitly, including free when supplied. Express clock times clearly in 12-hour am/pm form without changing their meaning. Do not invent dates, booking availability, durations, fees or opening times. If a requested detail is absent, say it is unknown. Correct false premises using only the supplied record. For two visits, distinguish visit 1 and visit 2 as supported by the schedule and explain that exact dates or slots need confirmation when not supplied. Give the answer directly. A closing question is optional and must resolve a relevant ambiguity; this schedule rule overrides generic instructions requiring a closing question. Do not append an unrelated wallet question. Preserve all safety rules.",
+  "activation": "Not approved for learner traffic; export for community review only"
+}

@@ -1,0 +1,100 @@
+{
+  "schema": "afribit-community-pack/0.1",
+  "id": "kibera-bitcoin",
+  "name": "Afribit AI",
+  "version": "1.0.0",
+  "description": "Bitcoin education in Sheng, Kiswahili and English for Kibera and Nairobi, built with Afribit Africa and its community reviewers.",
+  "license": "CC-BY-SA-4.0",
+  "maintainers": [
+    {
+      "name": "Afribit Africa",
+      "contact": "eddie@afribit.africa"
+    }
+  ],
+  "community": {
+    "name": "Kibera and Nairobi, Kenya",
+    "country": "KE"
+  },
+  "domain": {
+    "id": "bitcoin",
+    "label": "Bitcoin education",
+    "retrievalDomains": [
+      "bitcoin"
+    ]
+  },
+  "defaultMode": "mixed_ke",
+  "modes": [
+    {
+      "id": "simple_en",
+      "label": "English",
+      "description": "Simple English: short sentences, everyday words.",
+      "codeSwitched": false
+    },
+    {
+      "id": "swahili",
+      "label": "Kiswahili",
+      "description": "Clear, natural Kiswahili; conversational unless the learner is formal.",
+      "codeSwitched": false
+    },
+    {
+      "id": "sheng",
+      "label": "Sheng",
+      "description": "Community Teaching Sheng: natural Nairobi/Kibera speech, composed directly rather than translated.",
+      "codeSwitched": true
+    },
+    {
+      "id": "mixed_ke",
+      "label": "Mixed",
+      "description": "Mirrors how the learner mixes Sheng, Kiswahili and English.",
+      "codeSwitched": true
+    }
+  ],
+  "knowledge": {
+    "files": [
+      "knowledge/cards.json"
+    ]
+  },
+  "safety": {
+    "secretDetection": true,
+    "grounding": "log"
+  },
+  "knowledgeLabel": "Afribit",
+  "disclaimers": [],
+  "branding": {
+    "shortName": "Afribit AI",
+    "poweredBy": {
+      "show": false
+    }
+  },
+  "knownTerms": [
+    "bitcoin",
+    "lightning",
+    "wallet",
+    "mpesa",
+    "pesa",
+    "m-pesa",
+    "safaricom",
+    "kenya",
+    "kenyan",
+    "nairobi",
+    "kibera",
+    "mathare",
+    "afribit",
+    "afribit's",
+    "telegram",
+    "whatsapp",
+    "facebook",
+    "google",
+    "android",
+    "iphone",
+    "usd",
+    "kes",
+    "ksh",
+    "sats",
+    "satoshi",
+    "blockchain",
+    "lnurl",
+    "nostr",
+    "btc"
+  ]
+}

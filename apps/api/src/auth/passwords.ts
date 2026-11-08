@@ -1,8 +1,8 @@
 import bcrypt from "bcryptjs";
 
 // bcryptjs, not native bcrypt or argon2: zero native-binding compilation,
-// which matters for this project's actual deploy target (infra/LUNANODE.md,
-// a plain VPS) and for contributors on Windows/whatever else without a
+// which matters for this project's actual deploy target (a plain VPS)
+// and for contributors on Windows/whatever else without a
 // build toolchain ready. 12 rounds is a reasonable current default (OWASP's
 // general guidance floor); revisit upward as hardware gets cheaper.
 const SALT_ROUNDS = 12;

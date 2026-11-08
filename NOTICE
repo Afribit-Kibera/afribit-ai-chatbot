@@ -1,0 +1,36 @@
+Afribit AI
+Copyright 2026 Afribit Africa and the Afribit AI contributors.
+
+This repository contains material under different licenses.
+
+1. SOURCE CODE — Apache License 2.0 (see LICENSE)
+   Everything under apps/, packages/, db/migrations/, infra/, .github/ and the
+   root configuration files, except the content listed below.
+
+2. CONTENT — Creative Commons Attribution-ShareAlike 4.0 International
+   (see LICENSE-CONTENT)
+   - apps/api/src/db/data/*.json — the Afribit teaching manuals ("Bitcoin Basics in
+     Kenyan Sheng" and "Basic Communication Skills in Kenyan Sheng"), community
+     approved version 1.0.
+   - The starter knowledge cards defined in apps/api/src/db/seed.ts.
+   - Any content contributed through the Microtasks flow or by pull request.
+   Attribution: "Afribit Africa and the Afribit AI contributors, CC BY-SA 4.0".
+
+3. THIRD-PARTY DATA — each under its own license; NOT relicensed here
+   - db/seed/001_lughakonnect_sheng.sql
+     Word/translation data from LughaKonnect (https://lughakonnect.co.ke),
+     CC BY 4.0.
+   - db/seed/002_kencorpus_text.sql
+     Kencorpus: Kenyan Languages Corpus (Wanjawa, Wanzare, Indede, McOnyango,
+     Ombui, Muchemi), https://doi.org/10.7910/DVN/6N5V1K, CC BY 4.0.
+   Please carry these attributions forward wherever the rows are redistributed.
+   These rows are imported as drafts and are not cleared for retrieval or training.
+
+4. TRADEMARKS AND BRAND ASSETS
+   The names "Afribit" and "Afribit AI" and the logo files in logo/ and
+   apps/web/public/brand/ are not licensed under Apache-2.0 or CC BY-SA. You may
+   not use them to suggest your fork or product is the official Afribit AI.
+
+5. THIRD-PARTY SOFTWARE
+   Dependencies are installed from package registries under their own licenses; see
+   each package's own license information.

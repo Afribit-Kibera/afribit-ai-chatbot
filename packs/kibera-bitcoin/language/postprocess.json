@@ -1,0 +1,25 @@
+{
+  "note": "Deterministic clean-up applied to every answer after the model writes it. Each rule: a regular expression (find), flags, and the replacement. Add a rule only for a phrase you have seen repeatedly despite the prompt rules.",
+  "rules": [
+    {
+      "find": "Kwa hivyo,?",
+      "flags": "g",
+      "replace": "So,"
+    },
+    {
+      "find": "Kwa hiyo,?",
+      "flags": "g",
+      "replace": "So,"
+    },
+    {
+      "find": "kwa hivyo,?",
+      "flags": "g",
+      "replace": "so,"
+    },
+    {
+      "find": "kwa hiyo,?",
+      "flags": "g",
+      "replace": "so,"
+    }
+  ]
+}

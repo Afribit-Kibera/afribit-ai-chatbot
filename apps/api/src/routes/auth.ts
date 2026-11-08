@@ -1,11 +1,23 @@
 import type { FastifyInstance } from "fastify";
 import { pool } from "../db/pool.js";
+import { env } from "../config/env.js";
 import { hashPassword, verifyPassword, isPasswordAcceptable } from "../auth/passwords.js";
+import { invitationStore, type InvitationStore } from "../auth/invitationStore.js";
+
+/** Sign-ins last 30 days. A role change (a demotion, for one) reaches the older pages when the token is renewed. */
+const TOKEN_LIFETIME = "30d";
+
+/**
+ * F-012: one answer for a missing, unknown, used, expired or revoked code AND for an email that already has an
+ * account, so the form confirms neither which codes are live nor which emails are registered.
+ */
+export const REGISTER_REFUSED = "Could not create the account. Check the invitation code, or ask your administrator for a new one.";
 
 interface RegisterBody {
   email?: string;
   password?: string;
   displayName?: string;
+  invitationCode?: string;
 }
 
 interface LoginBody {
@@ -17,7 +29,7 @@ interface UserRow {
   id: string;
   email: string;
   password_hash: string;
-  role: "contributor" | "admin";
+  role: "learner" | "contributor" | "reviewer" | "admin";
   display_name: string | null;
 }
 
@@ -30,12 +42,22 @@ interface UserRow {
  * config), so this is a known, documented simplification, not an
  * oversight. No public "become an admin" path exists anywhere in this
  * file by design; see apps/api/src/db/promoteToAdmin.ts.
+ *
+ * F-012 (docs/features/F-012-invitation-only-accounts.md): by default (REGISTRATION=invite) an account needs
+ * a single-use invitation code from an administrator, and gets the invitation's role.
  */
-export function registerAuthRoutes(app: FastifyInstance): void {
-  app.post<{ Body: RegisterBody }>("/api/v1/auth/register", async (request, reply) => {
+export function registerAuthRoutes(app: FastifyInstance, store: InvitationStore = invitationStore): void {
+  // 10 tries per 15 minutes per address: a code has about 39.6 random bits, so guessing is hopeless anyway.
+  const registerLimit = { config: { rateLimit: { max: 10, timeWindow: "15 minutes" } } };
+
+  app.post<{ Body: RegisterBody }>("/api/v1/auth/register", registerLimit, async (request, reply) => {
+    if (env.registration === "closed") {
+      return reply.status(403).send({ error: "New accounts are not being created on this server. Ask your administrator." });
+    }
     const email = request.body?.email?.trim().toLowerCase();
     const password = request.body?.password;
-    const displayName = request.body?.displayName?.trim() || null;
+    const displayName = request.body?.displayName?.trim().slice(0, 100) || null;
+    const code = typeof request.body?.invitationCode === "string" ? request.body.invitationCode.trim() : "";
 
     if (!email || !email.includes("@")) {
       return reply.status(400).send({ error: "A valid email is required" });
@@ -44,24 +66,30 @@ export function registerAuthRoutes(app: FastifyInstance): void {
       return reply.status(400).send({ error: "Password must be at least 10 characters" });
     }
 
-    const { rows: existing } = await pool.query("SELECT id FROM users WHERE email = $1", [email]);
-    if (existing.length > 0) {
+    // Hashed before any check, so a refusal takes as long as a success and its timing tells nothing either.
+    const passwordHash = await hashPassword(password);
+    if (await store.emailTaken(email)) {
       // Deliberately vague (not "email already registered") to avoid
       // trivially confirming which emails have accounts.
-      return reply.status(409).send({ error: "Could not register with these details" });
+      return reply.status(409).send({ error: env.registration === "invite" ? REGISTER_REFUSED : "Could not register with these details" });
     }
 
-    const passwordHash = await hashPassword(password);
-    const { rows } = await pool.query<{ id: string; role: string }>(
-      `INSERT INTO users (email, password_hash, display_name, role, created_via)
-       VALUES ($1, $2, $3, 'contributor', 'registered')
-       RETURNING id, role`,
-      [email, passwordHash, displayName],
-    );
-    const user = rows[0];
-    if (!user) throw new Error("Failed to create user");
+    let user: { id: string; role: string } | null;
+    if (env.registration === "invite") {
+      if (!code) return reply.status(409).send({ error: REGISTER_REFUSED });
+      try {
+        user = await store.register({ code, email, passwordHash, displayName });
+      } catch (err) {
+        // The same email registered a moment ago, between the check above and here.
+        if ((err as { code?: string }).code === "23505") return reply.status(409).send({ error: REGISTER_REFUSED });
+        throw err;
+      }
+      if (!user) return reply.status(409).send({ error: REGISTER_REFUSED });
+    } else {
+      user = await store.registerOpen({ email, passwordHash, displayName });
+    }
 
-    const token = app.jwt.sign({ id: user.id, role: user.role as "contributor" | "admin" });
+    const token = app.jwt.sign({ id: user.id, role: user.role as "contributor" | "reviewer" | "admin" }, { expiresIn: TOKEN_LIFETIME });
     return reply.status(201).send({ token, role: user.role });
   });
 
@@ -83,7 +111,7 @@ export function registerAuthRoutes(app: FastifyInstance): void {
       return reply.status(401).send({ error: "Invalid email or password" });
     }
 
-    const token = app.jwt.sign({ id: user.id, role: user.role });
+    const token = app.jwt.sign({ id: user.id, role: user.role }, { expiresIn: TOKEN_LIFETIME });
     return reply.send({ token, role: user.role, displayName: user.display_name });
   });
 

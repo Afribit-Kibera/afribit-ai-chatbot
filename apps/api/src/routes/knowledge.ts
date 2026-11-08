@@ -50,7 +50,7 @@ export function registerKnowledgeRoutes(app: FastifyInstance): void {
            safety_notes = COALESCE($5, safety_notes),
            version = version + 1,
            updated_at = now()
-         WHERE id = $1`,
+         WHERE id = $1 AND community_pack_id IS NULL`,
         [
           request.params.id,
           b.title ?? null,
@@ -72,7 +72,7 @@ export function registerKnowledgeRoutes(app: FastifyInstance): void {
       // to be any reviewer by name in the request body.
       const reviewerId = request.user.id;
       await pool.query(
-        `UPDATE knowledge_entries SET status = 'published', reviewed_by = $2, reviewed_at = now(), updated_at = now() WHERE id = $1`,
+        `UPDATE knowledge_entries SET status = 'published', reviewed_by = $2, reviewed_at = now(), updated_at = now() WHERE id = $1 AND community_pack_id IS NULL`,
         [request.params.id, reviewerId],
       );
       await pool.query(

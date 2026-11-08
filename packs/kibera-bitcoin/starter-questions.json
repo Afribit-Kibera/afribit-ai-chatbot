@@ -1,0 +1,14 @@
+{
+  "reviewed": false,
+  "note": "English only. Starter questions in Kiswahili, Sheng and mixed registers must be written and approved by the community reviewers; until they are, clients show their own.",
+  "byMode": {
+    "simple_en": [
+      "What is Bitcoin?",
+      "What is a seed phrase?",
+      "Someone asked for my seed phrase. Should I give it?",
+      "Where does the on-chain fee go?",
+      "What is Lightning?",
+      "Can I lose my Bitcoin if I lose my phone?"
+    ]
+  }
+}

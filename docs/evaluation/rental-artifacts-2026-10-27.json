@@ -1,0 +1,123 @@
+{
+  "schema": 1,
+  "observedAt": "2026-10-27T11:25:48.400Z",
+  "modelSnapshotTrial": "5e82b07b-592b-4b8a-92e3-ef2295eac847",
+  "imageTagTrial": "9e2eb6c4-a550-456d-901a-ac8cb59db5ee",
+  "models": [
+    {
+      "name": "gemma4:e4b-it-q4_K_M",
+      "source": "https://registry.ollama.ai/v2/library/gemma4/manifests/e4b-it-q4_K_M",
+      "manifestDigest": "sha256:dc35e8d9c6061baa6f0fa870975ab6932e2542b579b13ea0f199fa4bb7300c9c",
+      "manifestBytesVerified": true,
+      "advertisedDigestMatched": null,
+      "downloadBytes": 6583656505,
+      "descriptors": [
+        {
+          "mediaType": "application/vnd.docker.container.image.v1+json",
+          "digest": "sha256:7ca1ae564b24fefd47da34cc579b906b75024860ed4e5bfbfa6d6cbd9777cee5",
+          "size": 241
+        },
+        {
+          "mediaType": "application/vnd.ollama.image.model",
+          "digest": "sha256:370c2879f17648d337b0ab4e208fdce348e24d1060064e93d7645daafd56d39c",
+          "size": 5493439296,
+          "from": "gemma4-validation-20260929:e4b-imatrix-attention-q6-q8-draft2"
+        },
+        {
+          "mediaType": "application/vnd.ollama.image.projector",
+          "digest": "sha256:4cb21b935cd7e79daed76f3154e82f2f160ad7a9d8d22cb5f14c7b93d5fb38ba",
+          "size": 991552256,
+          "from": "gemma4-validation-20260929:e4b-imatrix-attention-q6-q8-draft2"
+        },
+        {
+          "mediaType": "application/vnd.ollama.image.draft",
+          "digest": "sha256:05612e54110f8f68bade01dfcc546cdc6914d11dde0b650a65f263f0f87bbbd2",
+          "size": 98653280,
+          "from": "gemma4-validation-20260929:e4b-imatrix-attention-q6-q8-draft2"
+        },
+        {
+          "mediaType": "application/vnd.ollama.image.template",
+          "digest": "sha256:b507b9c2f6ca642bffcd06665ea7c91f235fd32daeefdf875a0f938db05fb315",
+          "size": 13,
+          "from": "gemma4-validation-20260929:e4b-imatrix-attention-q6-q8-draft2"
+        },
+        {
+          "mediaType": "application/vnd.ollama.image.license",
+          "digest": "sha256:7339fa418c9ad3e8e12e74ad0fd26a9cc4be8703f9c110728a992b193be85cb2",
+          "size": 11355,
+          "from": "gemma4-validation-20260929:e4b-imatrix-attention-q6-q8-draft2"
+        },
+        {
+          "mediaType": "application/vnd.ollama.image.params",
+          "digest": "sha256:2365fbb6d97bf654fdda0353b7505baa2254c662122cff0f153e4b47e6220ded",
+          "size": 64
+        }
+      ],
+      "weightsBytesVerified": false,
+      "licenseReview": "publisher labels Apache-2.0; layer bytes not fetched",
+      "inferenceTestedInThisTrial": false
+    },
+    {
+      "name": "gemma4:26b-a4b-it-q4_K_M",
+      "source": "https://registry.ollama.ai/v2/library/gemma4/manifests/26b-a4b-it-q4_K_M",
+      "manifestDigest": "sha256:5571076f3d70050487b26b341705799e0ab29b808164f90d20d4cf84f699d251",
+      "manifestBytesVerified": true,
+      "advertisedDigestMatched": null,
+      "downloadBytes": 17987581215,
+      "descriptors": [
+        {
+          "mediaType": "application/vnd.docker.container.image.v1+json",
+          "digest": "sha256:90294508afbbc106b71a808a80e13bdf88c20ecbefcd6cf3380eafa484cef3e4",
+          "size": 474
+        },
+        {
+          "mediaType": "application/vnd.ollama.image.model",
+          "digest": "sha256:7121486771cbfe218851513210c40b35dbdee93ab1ef43fe36283c883980f0df",
+          "size": 17987569344
+        },
+        {
+          "mediaType": "application/vnd.ollama.image.license",
+          "digest": "sha256:7339fa418c9ad3e8e12e74ad0fd26a9cc4be8703f9c110728a992b193be85cb2",
+          "size": 11355
+        },
+        {
+          "mediaType": "application/vnd.ollama.image.params",
+          "digest": "sha256:56380ca2ab89f1f68c283f4d50863c0bcab52ae3f1b9a88e4ab5617b176f71a3",
+          "size": 42
+        }
+      ],
+      "weightsBytesVerified": false,
+      "licenseReview": "publisher labels Apache-2.0; layer bytes not fetched",
+      "inferenceTestedInThisTrial": false
+    }
+  ],
+  "images": [
+    {
+      "repo": "ollama/ollama",
+      "observedTag": "latest",
+      "source": "https://hub.docker.com/v2/repositories/ollama/ollama/tags/latest",
+      "indexDigest": "sha256:dea72d1e22270fe095b68fdf756d2b489d615643c5a2eaebbc5f569181e322d8",
+      "platformDigest": "sha256:459985308d740b99071719baec2740a60f5b2b2d9b835c171991ae25690203da",
+      "platform": "linux/amd64",
+      "imageBytes": 3372404290,
+      "pinnedImage": "ollama/ollama@sha256:459985308d740b99071719baec2740a60f5b2b2d9b835c171991ae25690203da",
+      "publisherReportedOnly": true,
+      "manifestBytesVerified": false,
+      "imageLayerBytesVerified": false
+    },
+    {
+      "repo": "library/node",
+      "observedTag": "22-bookworm-slim",
+      "source": "https://hub.docker.com/v2/repositories/library/node/tags/22-bookworm-slim",
+      "indexDigest": "sha256:de170b39439eb0e5a3444ad7d60b015614a381e10fecae2e30ec9e735122f38d",
+      "platformDigest": "sha256:ea11b74b986d520137cdef9a5346e447a00f275ecc4abc0055b7151226231e09",
+      "platform": "linux/amd64",
+      "imageBytes": 79850351,
+      "pinnedImage": "library/node@sha256:ea11b74b986d520137cdef9a5346e447a00f275ecc4abc0055b7151226231e09",
+      "publisherReportedOnly": true,
+      "manifestBytesVerified": false,
+      "imageLayerBytesVerified": false
+    }
+  ],
+  "status": "metadata-only; weights and image layers not downloaded; runtime integration unqualified"
+}

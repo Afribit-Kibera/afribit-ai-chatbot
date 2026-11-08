@@ -30,7 +30,7 @@ If the assistant gives a wrong, misleading or unsafe *answer* — for example
 overstating Bitcoin's speed or safety, implying a transaction can always be
 reversed, or failing to warn about a scam — that is a content-safety problem, not
 a vulnerability. Please file it publicly using the
-[unsafe or wrong answer template](https://github.com/afribit/afribit-ai/issues/new?template=unsafe_or_wrong_answer.yml)
+[unsafe or wrong answer template](https://github.com/Afribit-Kibera/afribit-ai-chatbot/issues/new?template=unsafe_or_wrong_answer.yml)
 so it can be fixed and added to the evaluation set.
 
 ## Please don't

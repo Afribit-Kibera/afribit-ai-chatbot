@@ -14,7 +14,7 @@ import { I18nProvider, useI18n } from "../lib/i18n.js";
 import type { Locale } from "../lib/preferences.js";
 import sample from "../content/sample-answer.json";
 import { PrivacyContent } from "./PrivacyContent.js";
-const SOURCE_URL = "https://github.com/afribit/afribit-ai";
+const SOURCE_URL = "https://github.com/Afribit-Kibera/afribit-ai-chatbot";
 const sampleAnswer = sample.answer;
 export function PublicSite({ path }: { path: string }) {
   const locale: Locale = path.startsWith("/sw")

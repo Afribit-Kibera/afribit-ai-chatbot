@@ -4,6 +4,11 @@ Status, 8 November 2026: **private staging; participant release pending**. The s
 name is `ai.afribit.africa`. Its current public origin is still the existing Vercel deployment.
 See [F-035](../features/F-035-community-learning-release.md) for scope and release checks.
 
+Latest8 November reachability check: both Proxmox SSH paths and the private app HTTP connection
+timed out. The deployment below is the recorded staged configuration; current availability is
+unconfirmed. Restore reachability before repeating live-model/phone checks. No fresh model
+request started during the [release follow-up](../evaluation/trials/2026-11-08-open-source-release.md).
+
 ## What is staged
 
 Proxmox node `home`, dedicated LXC101 `private-ai`, Debian13,4 cores,12GiB RAM.

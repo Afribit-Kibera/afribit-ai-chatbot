@@ -2,8 +2,8 @@
   "name": "afribit-ai",
   "private": true,
   "version": "0.1.0",
-  "license": "Apache-2.0",
-  "description": "Afribit AI â€” community-first Bitcoin education assistant for Kibera and Nairobi, speaking Sheng, Kiswahili, and English the way people actually talk",
+  "license": "AGPL-3.0-only",
+  "description": "Community-controlled AI learning workspaces for Afribit Kibera and other communities",
   "packageManager": "pnpm@11.25.0",
   "scripts": {
     "smoke": "node tools/smoke/smoke.mjs",
@@ -25,10 +25,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/afribit/afribit-ai.git"
+    "url": "git+https://github.com/Afribit-Kibera/afribit-ai-chatbot.git"
   },
-  "homepage": "https://github.com/afribit/afribit-ai#readme",
+  "homepage": "https://github.com/Afribit-Kibera/afribit-ai-chatbot#readme",
   "bugs": {
-    "url": "https://github.com/afribit/afribit-ai/issues"
+    "url": "https://github.com/Afribit-Kibera/afribit-ai-chatbot/issues"
   }
 }

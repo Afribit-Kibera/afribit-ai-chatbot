@@ -5,7 +5,7 @@
 ## What you may do
 
 - **Use the "Powered by Afribit AI" line and badge.** Any deployment of this engine may show it. You do not need to ask.
-- **Run the engine under your own name.** Give it your name, colours and logo through the `branding` block of your pack ([white-label guide](guides/white-label-guide.md)). The code is Apache-2.0 and the content CC BY-SA 4.0, so this is your right, not a favour.
+- **Run the engine under your own name.** Give it your name, colours and logo through the `branding` block of your pack ([white-label guide](guides/white-label-guide.md)). The code is AGPL-3.0-only and the content CC BY-SA 4.0. Follow the applicable source-sharing and attribution terms.
 
 ## What we ask
 
@@ -13,6 +13,10 @@
 - Keep the attribution that the licences already require (NOTICE; "Afribit Africa and the Afribit AI contributors, CC BY-SA 4.0" for the content).
 
 You *can* switch the line off (`"poweredBy": { "show": false }` in your pack): the code does not stop you and the licence does not forbid it. The Kibera pack does, because it is Afribit's own service. If you switch it off, please keep a visible credit somewhere else, such as an "About" page.
+
+The requested badge is optional. It does not replace the applicable license/source notices, and this
+branding policy adds no condition to the software license. Modified network deployments must provide
+the corresponding source required by AGPL, whether or not they show the badge.
 
 ## What you may not do
 

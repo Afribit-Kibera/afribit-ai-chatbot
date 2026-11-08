@@ -15,7 +15,7 @@ function inline(value: string): ReactNode[] {
         const destination = link[2]!;
         const href =
           destination === "data-stewardship.md"
-            ? "https://github.com/afribit/afribit-ai/blob/master/docs/governance/data-stewardship.md"
+            ? "https://github.com/Afribit-Kibera/afribit-ai-chatbot/blob/master/docs/governance/data-stewardship.md"
             : /^(https:\/\/|mailto:|\/)/.test(destination)
               ? destination
               : undefined;

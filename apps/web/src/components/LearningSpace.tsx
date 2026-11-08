@@ -4,6 +4,7 @@ import {learningApi,type PersonalLearning} from '../lib/learning.js';
 import {getLearnerIdentity,sameLearnerIdentity} from '../lib/learnerSession.js';
 import {LearnerAccount} from './LearnerAccount.js';
 import {Dialog} from './ui/Dialog.js';
+import {SoftwareNotice} from './SoftwareNotice.js';
 
 export function LearningSpace({data,refresh,openPath,onFocus,onSetup}:{
  data:PersonalLearning|null;refresh:()=>void;openPath:(id:string)=>void;onFocus:()=>void;onSetup:()=>void;
@@ -29,6 +30,7 @@ export function LearningSpace({data,refresh,openPath,onFocus,onSetup}:{
   {error&&!editing&&<p className="hub-error" role="alert">{error}</p>}
   <section className="panel hub-account"><h2>{token?'Account & choices':'Sign in to save your learning'}</h2><LearnerAccount onAccess={refresh}/><div className="space-settings"><button className="text-button" onClick={onSetup}>Language & learning preferences <ArrowRight/></button><button className="text-button" onClick={onFocus}>All spaces <ArrowRight/></button></div></section>
   <details className="space-privacy"><summary>About your notes and privacy</summary><p>Study notes are saved to your account. They are not sent to the AI or added to shared knowledge. Optional AI memory has separate controls in your account.</p><p>Your account keeps members separate inside the app. The box operator can still access plaintext. Passkey-protected vaults are not active.</p><p>Steps explored are not a score or a measure of understanding.</p></details>
+  <SoftwareNotice/>
   <Dialog open={editing} onOpenChange={setEditing} title="Keep what helped." description="A personal study note. It will not become a shared source or model context." className="learning-workspace workspace-dialog">
    <form onSubmit={e=>{e.preventDefault();void perform(async()=>{await learningApi.note(note);if(sameLearnerIdentity(token)){setNote('');setEditing(false);}});}}><label className="form-field">Your note<textarea value={note} onChange={e=>setNote(e.target.value)} maxLength={4000} required/></label>{error&&<p className="hub-error" role="alert">{error}</p>}<footer className="modal-actions"><button className="primary" disabled={busy}>{busy?'Saving…':'Save note'}</button></footer></form>
   </Dialog>

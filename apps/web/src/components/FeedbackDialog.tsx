@@ -26,7 +26,7 @@ export function FeedbackDialog({
   const [note, setNote] = useState("");
   const [sent, setSent] = useState(false);
   const body = `${include ? `Question:\n${question}\n\nAnswer:\n${message?.content ?? ""}\n\n` : ""}Reason: ${reason}\n\n${comment}`;
-  const issue = `https://github.com/afribit/afribit-ai/issues/new?template=unsafe_or_wrong_answer.yml&title=${encodeURIComponent("Answer report")}&question=${encodeURIComponent(include ? question : "Text not shared")}&answer=${encodeURIComponent(include ? (message?.content ?? "") : "Text not shared")}&correct=${encodeURIComponent(`Reason: ${reason}\n\n${comment}`)}&body=${encodeURIComponent(body)}`;
+  const issue = `https://github.com/Afribit-Kibera/afribit-ai-chatbot/issues/new?template=unsafe_or_wrong_answer.yml&title=${encodeURIComponent("Answer report")}&question=${encodeURIComponent(include ? question : "Text not shared")}&answer=${encodeURIComponent(include ? (message?.content ?? "") : "Text not shared")}&correct=${encodeURIComponent(`Reason: ${reason}\n\n${comment}`)}&body=${encodeURIComponent(body)}`;
   return (
     <Dialog
       open={Boolean(message)}

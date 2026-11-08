@@ -94,7 +94,7 @@ Generated from the English UI dictionary. English placeholders are intentional. 
 | `trust.feedbackTitle` | You choose what is kept. | TODO(reviewers) | TODO(reviewers) |
 | `trust.feedbackBody` | Each assistant says where its AI runs and how long it keeps chats. Delete one chat or all of them at any time. If an answer is wrong or unsafe, report it so people can review it. | TODO(reviewers) | TODO(reviewers) |
 | `trust.openTitle` | The code is open. | TODO(reviewers) | TODO(reviewers) |
-| `trust.openBody` | Anyone can inspect and contribute to the code. Code is Apache-2.0; educational content is CC BY-SA 4.0. | TODO(reviewers) | TODO(reviewers) |
+| `trust.openBody` | Anyone can inspect and contribute to the code. Code is AGPL-3.0-only; educational content is CC BY-SA 4.0. | TODO(reviewers) | TODO(reviewers) |
 | `safety.eyebrow` | ONE RULE TO REMEMBER | TODO(reviewers) | TODO(reviewers) |
 | `safety.title` | Your seed phrase is yours. Keep it that way. | TODO(reviewers) | TODO(reviewers) |
 | `safety.body` | Nobody legitimate will ever ask for your seed phrase. Never type it into this chat. If someone asks for it, pause and ask for help. | TODO(reviewers) | TODO(reviewers) |
@@ -133,7 +133,7 @@ Generated from the English UI dictionary. English placeholders are intentional. 
 | `faq.q9` | Is Afribit AI only for Bitcoin education? | TODO(reviewers) | TODO(reviewers) |
 | `faq.a9` | Education is our starting point because understanding comes first. Today’s public demo focuses on Bitcoin. The open-source engine lets communities build around their own reviewed knowledge. | TODO(reviewers) | TODO(reviewers) |
 | `footer.invite` | Your next question is a good place to start. | TODO(reviewers) | TODO(reviewers) |
-| `footer.licences` | Apache-2.0 code · CC BY-SA 4.0 content | TODO(reviewers) | TODO(reviewers) |
+| `footer.licences` | AGPL-3.0-only code · CC BY-SA 4.0 content | TODO(reviewers) | TODO(reviewers) |
 | `privacy.draft` | DRAFT — awaiting legal and community language review | TODO(reviewers) | TODO(reviewers) |
 | `privacy.back` | Back to the homepage | TODO(reviewers) | TODO(reviewers) |
 | `node.title` | Run a community node. | TODO(reviewers) | TODO(reviewers) |

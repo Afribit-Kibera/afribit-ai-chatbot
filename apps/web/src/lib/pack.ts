@@ -48,7 +48,7 @@ export const PACK_KEY = "afribit.pack";
 
 export const DEFAULT_POWERED_BY = {
   label: "Powered by Afribit AI",
-  url: "https://github.com/afribit/afribit-ai",
+  url: "https://github.com/Afribit-Kibera/afribit-ai-chatbot",
 };
 
 /** Kibera is Afribit itself: its name, its colours, its mark, and no "Powered by" line. */

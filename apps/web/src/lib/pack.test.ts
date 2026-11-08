@@ -171,7 +171,7 @@ describe("pack branding (white-label)", () => {
       poweredBy: {
         show: true,
         label: "Powered by Afribit AI",
-        url: "https://github.com/afribit/afribit-ai",
+        url: "https://github.com/Afribit-Kibera/afribit-ai-chatbot",
       },
     },
   };
@@ -262,7 +262,7 @@ describe("pack branding (white-label)", () => {
     expect(parse(undefined)).toEqual({
       show: true,
       label: "Powered by Afribit AI",
-      url: "https://github.com/afribit/afribit-ai",
+      url: "https://github.com/Afribit-Kibera/afribit-ai-chatbot",
     });
     expect(parse({ show: false }).show).toBe(false);
     expect(parse({ label: "Built on Afribit AI" }).label).toBe(
@@ -272,10 +272,10 @@ describe("pack branding (white-label)", () => {
       "Powered by Afribit AI",
     );
     expect(parse({ url: "http://example.org" }).url).toBe(
-      "https://github.com/afribit/afribit-ai",
+      "https://github.com/Afribit-Kibera/afribit-ai-chatbot",
     );
     expect(parse({ url: "javascript:alert(1)" }).url).toBe(
-      "https://github.com/afribit/afribit-ai",
+      "https://github.com/Afribit-Kibera/afribit-ai-chatbot",
     );
     expect(parse({ url: "https://example.org/about" }).url).toBe(
       "https://example.org/about",

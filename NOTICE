@@ -3,9 +3,13 @@ Copyright 2026 Afribit Africa and the Afribit AI contributors.
 
 This repository contains material under different licenses.
 
-1. SOURCE CODE — Apache License 2.0 (see LICENSE)
+1. ORIGINAL APPLICATION SOURCE — GNU Affero General Public License version 3 only
+   SPDX-License-Identifier: AGPL-3.0-only (see LICENSE).
+   License change: 8 November 2026, authorized by the project maintainer.
    Everything under apps/, packages/, db/migrations/, infra/, .github/ and the
-   root configuration files, except the content listed below.
+   root configuration files, plus deploy/ and tools/, except separately licensed
+   content and third-party components. Prior Apache-2.0 releases retain their
+   original grants. The Apache text is retained in LICENSES/Apache-2.0.txt.
 
 2. CONTENT — Creative Commons Attribution-ShareAlike 4.0 International
    (see LICENSE-CONTENT)
@@ -14,6 +18,8 @@ This repository contains material under different licenses.
      approved version 1.0.
    - The starter knowledge cards defined in apps/api/src/db/seed.ts.
    - Any content contributed through the Microtasks flow or by pull request.
+   - Original documentation under docs/ and the root Markdown documentation.
+   Submitted third-party material is not automatically relicensed by these terms.
    Attribution: "Afribit Africa and the Afribit AI contributors, CC BY-SA 4.0".
 
 3. THIRD-PARTY DATA — each under its own license; NOT relicensed here
@@ -28,9 +34,15 @@ This repository contains material under different licenses.
 
 4. TRADEMARKS AND BRAND ASSETS
    The names "Afribit" and "Afribit AI" and the logo files in logo/ and
-   apps/web/public/brand/ are not licensed under Apache-2.0 or CC BY-SA. You may
+   apps/web/public/brand/ are not licensed under AGPL-3.0-only or CC BY-SA. You may
    not use them to suggest your fork or product is the official Afribit AI.
 
 5. THIRD-PARTY SOFTWARE
    Dependencies are installed from package registries under their own licenses; see
    each package's own license information.
+   - Open Notebook (lfnovo/open-notebook), MIT; consumed as a separate pinned service.
+     https://github.com/lfnovo/open-notebook/blob/main/LICENSE
+   - Retained voice UI components keep the terms and copyright notices in
+     apps/api/voice/components/LICENSE.kokonut.
+   - Model weights, fonts, container images and other dependencies are not relicensed
+     by this repository. Preserve upstream notices when redistributing them.

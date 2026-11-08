@@ -344,14 +344,14 @@ await okAsync("GET /api/v1/pack describes the request's pack and varies on x-pac
 });
 await okAsync("GET /api/v1/pack carries branding per pack: Kibera is unchanged (no logo, no Powered-by), the library pack brings its own", async () => {
   const k = (await app.inject({ method: "GET", url: "/api/v1/pack" })).json().branding;
-  assert.deepEqual(k, { shortName: "Afribit AI", tagline: null, accentColor: null, accentInk: null, welcomeTitle: null, welcomeText: null, composerPlaceholder: null, poweredBy: { show: false, label: "Powered by Afribit AI", url: "https://github.com/afribit/afribit-ai" } });
+  assert.deepEqual(k, { shortName: "Afribit AI", tagline: null, accentColor: null, accentInk: null, welcomeTitle: null, welcomeText: null, composerPlaceholder: null, poweredBy: { show: false, label: "Powered by Afribit AI", url: "https://github.com/Afribit-Kibera/afribit-ai-chatbot" } });
   const res = await app.inject({ method: "GET", url: "/api/v1/pack", headers: { "x-pack": "example-library" } });
   const b = res.json().branding;
   assert.equal(b.shortName, "Reading Room");
   assert.equal(b.accentColor, "#1f6f5c");
   assert.equal(b.accentInk, "#ffffff");
   assert.match(b.logoUrl, /^\/api\/v1\/pack\/brand\/logo\?pack=example-library&v=[0-9a-f]{16}$/);
-  assert.deepEqual(b.poweredBy, { show: true, label: "Powered by Afribit AI", url: "https://github.com/afribit/afribit-ai" });
+  assert.deepEqual(b.poweredBy, { show: true, label: "Powered by Afribit AI", url: "https://github.com/Afribit-Kibera/afribit-ai-chatbot" });
   assert.equal(/logo\.svg|[A-Za-z]:\\|packs[\\/]/.test(res.body), false, "no file path leaves the server");
 });
 await okAsync("GET /api/v1/pack/brand/logo serves the chosen pack's logo with safe headers, and 304 when unchanged", async () => {

@@ -1,0 +1,38 @@
+{
+  "expectedVersion": 0,
+  "enabled": true,
+  "policy": {
+    "dailyBudgetMicrousd": 0,
+    "dailyAttemptLimit": 1000,
+    "routes": [
+      {
+        "kind": "chat",
+        "provider": "local",
+        "model": "gemma3:12b",
+        "baseUrl": "http://ollama:11434",
+        "region": "community",
+        "maxInputBytes": 32768,
+        "maxOutputTokens": 800,
+        "reservationMicrousd": 0,
+        "billingBoundConfirmed": false,
+        "upstreams": [],
+        "promptPriceMicrousdPerMillion": 0,
+        "completionPriceMicrousdPerMillion": 0
+      },
+      {
+        "kind": "embeddings",
+        "provider": "local",
+        "model": "bge-m3",
+        "baseUrl": "http://ollama:11434",
+        "region": "community",
+        "maxInputBytes": 32768,
+        "maxOutputTokens": 0,
+        "reservationMicrousd": 0,
+        "billingBoundConfirmed": false,
+        "upstreams": [],
+        "promptPriceMicrousdPerMillion": 0,
+        "completionPriceMicrousdPerMillion": 0
+      }
+    ]
+  }
+}

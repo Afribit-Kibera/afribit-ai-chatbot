@@ -1,5 +1,18 @@
 # Pilot Plan
 
+**Current delivery/UX update,6 November2026:** Edmund's community feedback points to Bitcoin101
+broken into small steps with relatable examples and learner-controlled pacing. Plan the first
+community study online using the candidate home Proxmox host, with Edmund as operator/language
+editor. Host readiness is unverified; community-site offline equipment is a funding need. The
+[current education plan](bitcoin-education-pilot-2026-11.md) qualifies the older phase/network
+assumptions below. No course engine, online deployment or human education result is claimed.
+
+**6 November2026 scope update:** Edmund selected existing Afribit adult Bitcoin learners and
+merchants. The [next-milestone plan](bitcoin-education-pilot-2026-11.md) narrows this protocol to
+Bitcoin learning/scam recognition and defines discovery, deployment, study and case-study gates.
+The [internal90-point application scorecard](../evaluation/hrf-application-readiness-scorecard.md)
+is separate from learning/model metrics and HRF's own review. No human education pilot has run.
+
 The pilot exists to turn assumptions into measurements. We publish the results whether or not they flatter us.
 
 > Targets below are **proposals**. They are agreed with the community's language and safety reviewers before the pilot starts, and recorded in the pilot's pre-registration note so we cannot move them afterwards.

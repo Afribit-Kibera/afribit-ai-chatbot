@@ -1,42 +1,70 @@
-# What happens to your questions — plain-language notice (DRAFT)
+# What happens to your questions ? plain-language notice (DRAFT)
 
-> **Draft.** This must be translated into Kiswahili and Sheng **by community reviewers** (not by a model) and checked with legal advice on Kenya's Data Protection Act before it is shown to learners as final. It describes what the software does today; if the software changes, this changes first.
+> **Draft, updated 8 November 2026.** Community reviewers must check the English wording and prepare
+> Kiswahili/Sheng versions. Legal and operational review remain pending before participant release.
+> This describes the home Proxmox education staging service; other deployments need their own notice.
 
 ## The short version
 
-- You can ask Afribit AI questions **without making an account**.
-- **Never type your seed phrase, private key, PIN or password.** If you do, the app refuses the message, does not store it, and does not send it to any AI.
-- Afribit AI can be wrong. It is for learning, **not financial advice**. If someone asks you for your seed phrase, it is a scam.
+- This education pilot requires a community invitation and account. Other members cannot browse
+  your conversations, personal notebooks, notes or saved learning progress through the app.
+- The community server operator can access stored plaintext. We have **not** implemented a
+  phone-key encrypted vault, passkeys or a hardware enclave that hides your data from that operator.
+- Never enter recovery words, private keys, PINs or passwords. The app checks for recognizable
+  secrets and refuses detected messages; detection is not a guarantee that every secret is found.
+- AI can be wrong. Check supporting material and ask a trusted educator when unsure.
+  This is education, not a recommendation to invest or a service for handling your money.
 
 ## What we keep
 
-| What | Why | How long |
-|---|---|---|
-| Your questions and the answers, so your conversation is still there when you come back | So the chat works | **It depends on how this assistant is set up, and the app tells you:** never stored on the server (only on your phone), deleted after a number of days (30 on our public service), or kept until you delete them. Deleted chats can remain in encrypted backups for up to 14 days. |
-| An account email and a scrambled (hashed) password, **only if you register** to contribute or review | So you can contribute | Until you ask to leave |
-| A notification address, **only if you turn on notifications** | To send you the notifications you chose | Until you turn them off |
+| Information | Purpose and handling |
+|---|---|
+| Account email and password hash | Community sign-in. Staff manage membership and review roles. Passwords are not intentionally stored as plaintext. |
+| Questions and answers | Conversation history under the deployment's configured retention setting. Server storage and browser history settings must be explained before enrollment; this draft does not promise a universal 30-day period. |
+| Personal source notebooks | Text you deliberately import, plus titles and ownership records. Stored in the community-hosted source service with account/community access checks. Only import material you have permission to use. |
+| Learning notes and progress | Notes you deliberately save and your place in a published chapter, scoped to your account and community. Study notes are separate from AI memory and are not automatically inserted into prompts. |
+| Optional AI memory | Separately enabled personal memory can be retrieved for your questions. Each note's remote permission is separate; local-only notes must not be routed to a hosted model. |
+| Operational evidence | Service, security, compute and trial records used to operate and evaluate the system. Do not assume these records are anonymous or that deleting a chat removes all logs or backups. |
 
-We do **not** sell your information. We do **not** use your conversations to train any AI. The AI does not learn from you; new knowledge enters only after community reviewers approve it.
+We do not sell your information or automatically train model weights on your chats, sources or notes.
+Importing a source is not model training. Explicit proposals to share community knowledge require a
+separate review process; they do not automatically publish a private notebook or conversation.
 
-## Where your question goes
+## Where processing happens
 
-This depends on how the app you are using is set up. The app should tell you which.
+The current private staging configuration uses the home Proxmox server and a local model. Hosted
+model allowance is zero. Selected personal notebook context is locked to local model processing.
+This does not mean storage is confined to your phone or unreadable to the server operator.
 
-- **The public demo (cloud).** Your question is sent to an AI provider over the internet. We ask for providers that promise **not to keep or train on** what they receive ("zero data retention"). It is still sent outside your community.
-- **A community node (the goal).** A machine your community runs answers on your own network. **Nothing leaves the network.**
-- **A node that also uses a hosted "chef" (optional).** A small AI on the local machine reads your words and writes a neutral English question with names, phone numbers and similar details removed. Only that goes to the hosted AI. Removal is not perfect, so **please don't type personal details** you don't need to.
+For a future public pilot behind Cloudflare, browser traffic crosses the internet and Cloudflare
+terminates HTTPS. Cloudflare and the server operator are part of the trust boundary. Tailscale
+encrypts the hop to the origin. A local model does not make this an end-to-end encrypted service.
 
-## Your choices
+Other deployments may offer an optional hosted provider for heavy questions. They must disclose the
+provider, what is sent and the applicable policy before enabling that route. Removing names is not
+a guarantee of anonymity. The current private staging service does not enable that route.
 
-- **Delete a conversation** at any time from the conversation list, or **all of them** in Settings. They are deleted from the server straight away.
-- If you have a contributor account, you can **delete it** from the contributor page.
-- To see or correct anything else we hold about you, write to **eddie@afribit.africa**.
-- You can always use the app without an account.
+Voice input is optional. Browser/device speech services may process audio outside the community;
+the app must disclose that and does not promise private or offline speech. Typing remains available.
+
+## Your choices and limits
+
+Delete chats using the conversation controls, remove imported notebooks/sources in My library, and
+remove study notes in My space. Optional AI memory has its own controls. Ask the operator to delete
+your account if no account-deletion control is available. These actions do not recall earlier answers, downloaded material
+or copies already shared and approved elsewhere; reviewed contributions have separate withdrawal
+handling. Contact the operator if a deletion or access request cannot be completed through the app.
+
+**Before inviting participants**, the operator must publish actual retention periods, log handling,
+backup retention and erasure procedures and verify a restore. Current evidence is an access-controlled
+local database dump, not a proven encrypted backup system. We do not claim that deleted information
+disappears from all backups within 14 days. These unresolved details keep this notice in draft.
 
 ## Questions or worries
 
-Write to **eddie@afribit.africa**. If you find an answer that is wrong or unsafe, please tell us — it helps everyone.
+Contact **eddie@afribit.africa** to ask about access, correction, deletion, an unsafe answer or privacy.
+Do not include recovery words, passwords or unnecessary personal data in that message.
 
----
-
-*For maintainers: keep this in step with [data stewardship](data-stewardship.md). Items still open there — legal review and the Kiswahili and Sheng versions — block calling this notice final.*
+Maintainers: keep this notice aligned with [data stewardship](data-stewardship.md), the
+[personal memory guide](../guides/personal-memory.md) and
+[the pilot release gates](../guides/proxmox-education-pilot.md).

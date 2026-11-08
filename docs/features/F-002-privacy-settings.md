@@ -65,14 +65,15 @@ clears report comments and attached text older than N days, unless the report is
 
 ### Deletion
 
-- **`DELETE /api/v1/chat/:sessionId`.** Holding the conversation's ID is the permission, exactly as reading it
-  is today. Deleting removes:
+- **`DELETE /api/v1/chat/:sessionId`.** [F-014](F-014-private-conversation-access.md), built and tested locally
+  26 October, replaces ID-only access with verified account ownership or a separate guest capability.
+  Deployment requires migration 020 and the matching client/API. Authorized deletion removes:
   - the conversation and its messages, with their feedback by cascade;
   - the conversation's link from its safety events (the events stay, with no session).
 
-  It answers `204` even when the ID is unknown, so it reveals nothing.
-- **`POST /api/v1/chat/delete`** with `{ sessionIds: [...] }` (up to 50) removes all of this phone's
-  conversations at once.
+  It answers `204` even when the ID is unknown or inaccessible, so it reveals no conversation existence.
+- **`POST /api/v1/chat/delete`** with `{ sessionIds: [...], sessionTokens: { ... } }` (up to 50) removes only
+  conversations authorized by the caller's account or per-session guest tokens, in the selected pack.
 - **`DELETE /api/v1/me/conversations`** and **`DELETE /api/v1/me`** (signed in): conversations, preferences and
   the account.
   - Contributions (phrases, "say it your way" suggestions) are kept without the person's name, or deleted, as

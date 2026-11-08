@@ -1,5 +1,28 @@
 # Roadmap
 
+**8 November production-workspace update:** the approved green learner/library/My space and AI
+Studio screens now connect to persisted account data and independent publication. Private home
+Proxmox staging is running; `ai.afribit.africa` is the selected hostname. Public ingress, actual-model
+teaching/latency, reviewed Bitcoin101 chapters and participant-release operations remain open.
+The cleaner UI passed35 browser tests (1 configured skip) and7 axe screen audits. A real local
+source answer completed in179.2 seconds; performance remains inadequate for a comfortable pilot.
+Cloudflare DNS access passed; shared-account Tunnel/Zero Trust access was denied and its resolution
+deferred by the operator. The public hostname still points to Vercel.
+See [F-035](docs/features/F-035-community-learning-release.md) and its
+[trial report](docs/evaluation/trials/2026-11-06-community-learning-release.md). No new paid compute.
+
+**28 October proof update:** four real synthetic community-API answers on rented compute are recorded;
+[acceptance preparation](docs/evaluation/trials/2026-10-28-review-and-network-acceptance.md) now adds
+28 offline integrated checks, three human-review copies and a deferred phone/LAN kit. Human quality
+and physical-network gates remain pending. No new rental or additional funding in this follow-up.
+
+**Current proof track (26 October 2026):** [Afribit Mesh: roadmap to prove community-controlled AI](docs/roadmap/2026-10-26-afribit-mesh-proof.md).
+It sequences account privacy, local knowledge, policy-controlled rented compute, Mesh access, governed
+administration, optional training and verified confidential processing. Use it for the next implementation
+work. The stages below preserve the original product plan and recorded results; the proof track identifies
+priority and policy changes to reconcile before a real-data or paid launch. The first rental experiment has
+a proposed USD 10 ceiling and uses synthetic/public test material only.
+
 **Direction:** a community's own AI, starting with Bitcoin education. It feels like any AI chat, but it
 speaks the community's language, answers from knowledge the community's own reviewers approved, and keeps
 the community's data in the community's hands.

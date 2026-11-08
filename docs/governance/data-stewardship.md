@@ -4,12 +4,18 @@ What data the program holds, who owns it, how long it is kept, and what it may b
 
 ## Principles
 
+**Local implementation update, not deployed (26 October, F-017):** members may restrict a conversation
+to local processing before any rewriting, embedding or generation. That restriction persists through
+later history and background work. Approved-cards-only answers use no model and no embeddings. Source
+labels distinguish direct approved text from generated and outage answers. These controls grant no
+training permission and do not establish hardware confidentiality. [Guide](../guides/processing-policy.md).
+
 1. **Collect the least.** If we do not need it, we do not keep it.
 2. **Consent for each purpose.** Using a conversation or a contribution for something other than what the person agreed to needs new consent.
 3. **The AI does not train itself on conversations.** There is no online learning. What everyone hears changes only through review; the model changes only in tested releases ([ADR 0015](../adr/0015-how-the-assistant-learns.md)).
 4. **Training is a separate, opt-in decision** by the people whose language it is.
 5. **Open outputs, private where it matters.** Evaluation sets and public model adapters built from consented data are released openly, with their limits stated. An adapter trained on data a community did not consent to publish stays on that community's own node, because model weights can leak what they were trained on.
-6. **Leaders see aggregates, not people.** A community's leaders and administrators see counts and trends. They see an individual question only when the person reported it, flagged it, or chose to share it.
+6. **Leaders see aggregates, not people.** A community's leaders and administrators see counts and trends. In the new account flow, reporting or automatic flagging does not disclose stored chat text; a member must explicitly attach it for review. The host still controls the underlying database.
 
 ## Data classes
 
@@ -22,6 +28,21 @@ What data the program holds, who owns it, how long it is kept, and what it may b
 | **Operational** | Health, errors, aggregate counts, channel labels | Program | No message content. |
 
 ## Conversations — what the software does today
+
+**F-015 update (26 October, local tests only):** learners may have an account without contribution rights.
+Membership and invitations are scoped to a community; policy can require enrollment for AI and knowledge
+access. Account chat text/drafts stay in browser memory and are cleared on identity changes, while server
+retention remains configured separately. The learner token uses sessionStorage; people sharing a live
+browser profile must still sign out. Public guest history remains device-local and separate. Persistent
+personal memory is not yet implemented. [Membership guide](../guides/community-membership.md).
+
+**26 October local implementation:** [F-014](../features/F-014-private-conversation-access.md) restricts
+conversation reads, continuation, feedback, linked suggestions and deletion to the verified account owner
+or a separate guest token. New guest tokens expire after 30 days and only their hashes are stored on the
+server. The learner browser stores the raw token locally, separately from conversation IDs. Older ownerless
+conversations have no token and cannot be claimed by ID. This is not deployed; migration 020 and a coordinated
+client/API release are required. It does not add personal memory, private-community enrollment, or protection
+against a host administrator. Shared-browser guest history is still shared-device data.
 
 Be precise about the gap between policy and code:
 
@@ -43,7 +64,8 @@ Be precise about the gap between policy and code:
 |---|---|---|---|
 | **"Say it your way"** (built 8 Oct 2026, F-003) | The member's rewrite, the answer it rewrites, and their question if they leave "include my question" ticked. Deleting the conversation clears the shared text; the suggestion stays | The member chooses, per suggestion, whether it may be used for answers (ticked by default), testing and training (never by default). An approved suggestion's `allowed_for_*` flags are that choice AND the reviewer's approval | Reviewers (pilot console, Suggestions tab) |
 | **Gap list** (built 8 Oct 2026, F-004) | Per unanswered question: a short general topic label (written by the waiter model, checked for names, numbers and secrets), the day, the language mode, the nearest card and a rounded score. **No question text; no link to a conversation, message or user.** Shown only at 5 or more per topic | None needed: aggregate only. On the public service the labeller is one more hosted model call (zero-data-retention routing); `GAP_LABELS=off` avoids it | Reviewers, administrators |
-| **Learner memory** | A person's language, level and topics covered | Opt-in, per person; deletable by them at any time | Only that person's assistant |
+| **Learner memory** (built/tested locally 26 Oct 2026, F-011; not deployed) | Up to 20 explicitly saved short notes per account/community; no automatic extraction; independent of chat retention | Off by default; local-only by default; per-note remote permission; inspect/edit/delete | Owner and final answering model under that permission; local infrastructure operator remains trusted |
+| **Reviewed memory snapshot** (built/tested locally 26 Oct 2026, F-016; not deployed) | Only the immutable copy explicitly submitted; approved cards restricted to that community; generic embedding jobs exclude these cards | Separate review/publication consent; two distinct current reviewers; owner may withdraw; no training permission | Reviewers see submitted copies; approved cards reach community retrieval and its configured AI services |
 | **"Ask anything" mode** | The same as any conversation under the node's retention setting; never added to knowledge, never used for training | Off unless the community switches it on | As for any conversation |
 
 ## Afribit Local: who holds what (ADR 0016)

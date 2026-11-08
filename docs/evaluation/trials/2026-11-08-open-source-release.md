@@ -43,9 +43,51 @@ Local evidence: `output/release-typecheck-20261108.log`, `output/release-tests-2
 `output/release-public-frontend-origins-20261108.json`, `output/release-existing-api-20261108.json`,
 and private `internal/release/2026-11-08/secret-audit.json`.
 
-## Unresolved before participant launch
+## Repository publication and final checks
 
-Resolve the [Cloudflare account permission gap](../../guides/cloudflare-pilot-access.md), then qualify
+The repository is now public at
+[Afribit-Kibera/afribit-ai-chatbot](https://github.com/Afribit-Kibera/afribit-ai-chatbot).
+The default branch remains `master`; changes are offered for review, not silently merged:
+
+- [PR1: Kibera community learning pilot](https://github.com/Afribit-Kibera/afribit-ai-chatbot/pull/1),
+  `release/kibera-community-learning` into `master`.
+- [PR2: AGPL licensing and public repository](https://github.com/Afribit-Kibera/afribit-ai-chatbot/pull/2),
+  stacked on PR1. Its [source branch](https://github.com/Afribit-Kibera/afribit-ai-chatbot/tree/release/open-source)
+  contains the updated README and AGPL application license. Until merged, the default branch's
+  previous license and documentation remain as they were.
+
+After licensing/link changes, web units86/86, registry checks35/35, workspace typecheck/build and
+the complete browser regression35 passed/1 configured skip passed locally. The final build also
+updates visible license copy and generated translation-review placeholders. These are not
+community-approved translations. Final index scanning covered625 files with no known-token/
+private-key findings and no private operator/output paths. Actions remained disabled after making
+the repository public. No workflow artifact existed to expose.
+
+Evidence: `output/open-source-web-tests-20261108.log`, `output/open-source-registry-20261108.log`,
+`output/open-source-typecheck-20261108.log`, `output/open-source-browser-20261108.log`,
+`output/open-source-final-build-20261108.log`, and private
+`internal/release/2026-11-08/final-index-audit.json`.
+
+## Fresh live-model attempt — did not start
+
+A single synthetic Bitcoin/Sheng question was prepared for the existing local CPU model. Upload
+failed with an SCP connection closure; subsequent LAN and Tailscale SSH probes each timed out.
+No fresh model result exists, and no paid provider or rental was used. The planned question includes
+an explicit cue about wallet/coin wording; even a successful answer would not constitute a blind
+factual-quality test. The earlier179.2-second source smoke remains the last recorded model evidence.
+
+The user was asked whether Proxmox is powered on/connected. Current private-origin availability
+cannot be inferred from the earlier successful staging smoke. A separate read-only probe of the
+`afribit-backend` alias found no Docker/staged app there; it was not repurposed or changed.
+
+Local preparation files are `output/kibera-sheng-readiness-20261108.mjs` and `.sh`.
+They contain no credentials. Operator credentials would remain on the guest. Retry only after
+reachability returns; record answer content, processing/fallback identity, latency and cleanup.
+
+## Remaining participant gates
+
+Restore and verify home-server reachability. Resolve the
+[Cloudflare account permission gap](../../guides/cloudflare-pilot-access.md), then qualify
 public HTTPS, invitations/account switching and private-data caching from a real phone. Improve the
 measured179.2-second CPU source answer; review actual short Bitcoin lessons and community language;
 finish retention, encrypted backup/restore and the privacy notice. See the

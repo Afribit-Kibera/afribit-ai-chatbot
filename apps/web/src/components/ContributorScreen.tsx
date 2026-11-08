@@ -226,6 +226,11 @@ export default function ContributorScreen() {
               <p className="contributor-note">{t("contribute.accountNote")}</p>
             </form>
           </>
+        ) : profile.role === "learner" ? (
+          <div>
+            <p>{t("member.noContribution")}</p>
+            <button className="button button-ghost" onClick={() => { logout(); setProfile(null); }}>{t("contribute.signOut")}</button>
+          </div>
         ) : (
           <>
             <div className="auth-heading">

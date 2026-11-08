@@ -144,7 +144,7 @@ async function exportPack(out: string, dir: string): Promise<void> {
   const { rows: topics } = await pool.query(`SELECT id, title, domain FROM knowledge_topics WHERE domain = ANY($1::text[]) ORDER BY id`, [pack.domain.retrievalDomains]);
   const { rows: entries } = await pool.query(
     `SELECT id, topic_id AS topic, title, domain, canonical_answer, beginner_answer, safety_notes, status
-     FROM knowledge_entries WHERE status IN ('approved', 'published') AND domain = ANY($1::text[]) ORDER BY id`,
+     FROM knowledge_entries WHERE status IN ('approved', 'published') AND community_pack_id IS NULL AND domain = ANY($1::text[]) ORDER BY id`,
     [pack.domain.retrievalDomains],
   );
   fs.rmSync(path.join(dest, "knowledge"), { recursive: true, force: true });

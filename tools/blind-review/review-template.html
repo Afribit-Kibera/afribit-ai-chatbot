@@ -53,6 +53,7 @@
 
 <script>
 const PACK = /*__PACK__*/null;
+const SINGLE = PACK.reviewMode === "single";
 const STORE = "afribit-review-" + PACK.id;
 const state = (() => { try { return JSON.parse(localStorage.getItem(STORE)) || null; } catch (e) { return null; } })() ||
   { reviewer: { name: "", area: "", age: "" }, startedAt: new Date().toISOString(), ratings: {}, index: -1 };
@@ -72,8 +73,8 @@ function intro() {
   $("#app").innerHTML = `
     <div class="card">
       <h2>Thank you for helping</h2>
-      <p>You will read ${PACK.items.length} questions a learner might ask Afribit AI. For each one you will see several answers written by different AI setups. <b>You will not be told which is which.</b> Tell us, honestly, which sound natural, which are correct, and which you would be happy to show a learner.</p>
-      <p class="muted">There are no right answers to guess. If you are unsure, say so in the notes. It takes about 30–40 minutes; you can stop and come back — your answers are saved on this phone.</p>
+      <p>${SINGLE ? `You will review ${PACK.items.length} answers from a small synthetic demonstration. Each has its approved fictional reference facts. The model and account identities are hidden. This is a single-answer review, not a comparison or proof of community-wide quality.` : `You will read ${PACK.items.length} questions a learner might ask Afribit AI. For each one you will see several answers written by different AI setups. <b>You will not be told which is which.</b> Tell us, honestly, which sound natural, which are correct, and which you would be happy to show a learner.`}</p>
+      <p class="muted">${SINGLE ? "Work independently and use the reference facts. If you are unsure, say so in the notes. No scores have been filled in for you." : "There are no right answers to guess. If you are unsure, say so in the notes. It takes about 30–40 minutes."} You can stop and come back — your answers are saved on this phone.</p>
       <p class="muted small">Do not type any real seed phrase, PIN, password or personal detail anywhere.</p>
     </div>
     <div class="card">
@@ -120,10 +121,12 @@ function render() {
     <p class="muted small">Question ${state.index + 1} of ${PACK.items.length} · ${doneCount()} completed</p>
     <div class="card question"><span class="tag">${esc(MODE[item.mode] || item.mode)}</span>
       <h2>A learner asks:</h2><div class="answer">${esc(item.question)}</div></div>
+    ${item.reference !== undefined ? `<div class="card"><h2>Approved fictional reference facts</h2><div class="answer">${esc(item.reference)}</div><p class="muted">Judge factual claims against this reference. This is invented test data, not a real service listing.</p></div>` : ""}
+    ${item.criteria?.length ? `<div class="card"><h2>Review criteria</h2><ul>${item.criteria.map(p => `<li>${esc(p)}</li>`).join("")}</ul></div>` : ""}
     ${answers}
     <div class="card">
-      <label class="field">Which answer would you be happiest to show a learner?</label>
-      <div class="row">${item.answers.map((a) => opt("best", a.letter, a.letter, r.best === a.letter)).join("")}${opt("best", "none", "None of them", r.best === "none")}</div>
+      <label class="field">${SINGLE ? "Would you show this answer to a learner as written?" : "Which answer would you be happiest to show a learner?"}</label>
+      <div class="row">${item.answers.map((a) => opt("best", a.letter, SINGLE ? "Yes, as written" : a.letter, r.best === a.letter)).join("")}${opt("best", "none", SINGLE ? "Needs revision or rejection" : "None of them", r.best === "none")}</div>
       <label class="field" for="notes">Notes — what is wrong, or what would you say instead? <span class="muted">(any language; optional but very valuable)</span></label>
       <textarea id="notes">${esc(r.notes || "")}</textarea>
     </div>
@@ -163,7 +166,7 @@ function finish() {
   $("#back").onclick = () => { state.index = PACK.items.length - 1; save(); render(); };
   if ($("#fix")) $("#fix").onclick = () => { state.index = PACK.items.findIndex((i) => !done(i)); save(); render(); };
   $("#dl").onclick = () => {
-    const out = { pack: PACK.id, reviewer: state.reviewer, startedAt: state.startedAt, finishedAt: new Date().toISOString(), ratings: state.ratings };
+    const out = { pack: PACK.id, reviewMode:PACK.reviewMode??"comparison", reviewer: state.reviewer, startedAt: state.startedAt, finishedAt: new Date().toISOString(), ratings: state.ratings };
     const blob = new Blob([JSON.stringify(out, null, 2)], { type: "application/json" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);

@@ -117,11 +117,12 @@ export async function retrieveLexical(query: string, limit: number): Promise<Kno
     FROM knowledge_entries
     WHERE status IN ('approved', 'published')
       AND domain = ANY($3::text[])
+      AND (community_pack_id IS NULL OR community_pack_id=$4)
       AND to_tsvector('english', title || ' ' || canonical_answer) @@ to_tsquery('english', $1)
     ORDER BY score DESC
     LIMIT $2
     `,
-    [tsQuery, limit, getPack().domain.retrievalDomains],
+    [tsQuery, limit, getPack().domain.retrievalDomains,getPack().id],
   );
   return rows;
 }
@@ -164,10 +165,11 @@ export async function retrieveSemantic(query: string, limit: number): Promise<Kn
     WHERE kemb.embedding_model = $3
       AND ke.status IN ('approved', 'published')
       AND ke.domain = ANY($4::text[])
+      AND (ke.community_pack_id IS NULL OR ke.community_pack_id=$5)
     ORDER BY kemb.embedding <=> $1::vector
     LIMIT $2
     `,
-    [vectorLiteral, limit, activeEmbeddingModel(), getPack().domain.retrievalDomains],
+    [vectorLiteral, limit, activeEmbeddingModel(), getPack().domain.retrievalDomains,getPack().id],
   );
   return rows;
 }

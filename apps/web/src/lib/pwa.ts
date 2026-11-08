@@ -1,3 +1,4 @@
+import { randomId } from "./randomId.js";
 import {
   deletePushSubscription,
   getVapidPublicKey,
@@ -29,7 +30,7 @@ export function getInstallationId(): string {
     /* A device ID still works in memory. */
   }
   if (existing) return existing;
-  const next = crypto.randomUUID();
+  const next = randomId();
   try {
     localStorage.setItem(INSTALLATION_ID_KEY, next);
   } catch {

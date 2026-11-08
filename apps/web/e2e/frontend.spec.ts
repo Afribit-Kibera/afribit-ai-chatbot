@@ -3,8 +3,11 @@ import AxeBuilder from "@axe-core/playwright";
 const answer =
   "Bitcoin is an open digital money system. People can send value to each other through a network of computers.";
 async function setup(page: Page) {
+  await page.route("**/api/v1/learning/library", route=>route.fulfill({json:{sources:[],paths:[]}}));
+  await page.route("**/api/v1/community/access", (route) => route.fulfill({ json: { packId: "kibera-bitcoin", membersOnly: false, member: false, authenticated: false } }));
   await page.addInitScript(() => {
     localStorage.setItem("afribit.onboarded", "true");
+    sessionStorage.setItem('afribit.learning-chat.v2:guest:default','true');
     if (!localStorage.getItem("afribit.preferences"))
       localStorage.setItem(
         "afribit.preferences",
@@ -90,15 +93,22 @@ test("landing primary journey, draft privacy and complete onboarding", async ({
     .getByRole("link", { name: "Try Afribit AI", exact: true })
     .first()
     .click();
-  const dialog = page.getByRole("dialog");
-  await expect(dialog).toBeVisible();
+  await expect(page.getByRole('heading',{name:'A little curiosity. A world of understanding.'})).toBeVisible();
   await axe(page);
-  await dialog.getByRole("button", { name: "Sheng", exact: true }).click();
-  await dialog.getByRole("button", { name: "Continue", exact: true }).click();
-  await dialog.getByRole("button", { name: "Deep", exact: false }).click();
-  await dialog.getByRole("button", { name: "Continue", exact: true }).click();
-  await expect(dialog).toContainText("hosted AI provider");
-  await dialog.getByRole("button", { name: "Let's start learning" }).click();
+  await page.getByRole('button',{name:'Continue',exact:true}).click();
+  await axe(page);
+  await page.getByRole('button',{name:'Sheng',exact:true}).click();
+  await page.getByRole('button',{name:'Go deeper',exact:true}).click();
+  await page.getByRole('button',{name:'Continue',exact:true}).click();
+  await page.getByRole('button',{name:'Continue',exact:true}).click();
+  await expect(page.getByRole('button',{name:'Open my workspace'})).toBeDisabled();
+  await page.getByRole('checkbox',{name:'I understand where my information is processed.'}).check();
+  await page.getByRole('button',{name:'Open my workspace'}).click();
+  await axe(page);
+  await expect(page.getByText('Coming later',{exact:true})).toHaveCount(2);
+  await page.getByRole('button',{name:/Education Understand/}).click();
+  await axe(page);
+  await page.getByRole('button',{name:'What is Bitcoin?',exact:true}).click();
   await expect(page.getByLabel("Answer language")).toHaveValue("sheng");
   await expect(page.getByLabel("Explanation level")).toHaveValue("deep");
   expect(errors).toEqual([]);
@@ -580,11 +590,9 @@ test("privacy label follows the server, and Delete everywhere deletes on the ser
     .filter({ hasText: "Delete this conversation?" });
   await dialog.getByRole("button", { name: "Delete everywhere" }).click();
   await expect.poll(() => deleted.length).toBe(1);
-  expect(
-    await page.evaluate(() =>
+  await expect.poll(() => page.evaluate(() =>
       JSON.parse(localStorage.getItem("afribit.conversations.v1")!),
-    ),
-  ).toEqual([]);
+    )).toEqual([]);
 });
 test("say it your way: a member suggests wording; nothing is used without a reviewer", async ({
   page,

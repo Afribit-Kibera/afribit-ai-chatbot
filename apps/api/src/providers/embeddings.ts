@@ -1,6 +1,7 @@
 import { env } from "../config/env.js";
 import { embedLocalTexts } from "./localEmbeddings.js";
 import { embedTexts as embedHostedTexts } from "./openRouterEmbeddings.js";
+import { localOnlyProcessing, reviewedOnlyProcessing, localEmbeddingAvailable } from "../privacy/contextPolicy.js";
 
 /**
  * One place that knows where embeddings come from (a hosted model or the node's own), so
@@ -22,6 +23,8 @@ export function activeEmbeddingModel(): string {
  * customer's question to a third party, so in `node` mode it needs an explicit opt-in.
  */
 export function semanticSearchEnabled(): boolean {
+  if (reviewedOnlyProcessing()) return false;
+  if (localOnlyProcessing()) return localEmbeddingAvailable();
   return env.embeddingProvider === "local" || env.cloudEmbeddingsAllowed;
 }
 

@@ -4,6 +4,7 @@ import { authPlugin } from "../auth/plugin.js";
 import { registerTeachRoutes } from "../routes/teach.js";
 import { decide, entryFlags, isSafetyTopic, MAX_SUGGESTION, parseSuggestion, type Decision } from "./rules.js";
 import { TeachError, type TeachStore } from "./store.js";
+import type { SessionAccess } from "../chat/access.js";
 
 /**
  * pnpm --filter @afribit/api test:teach -- "say it your way" (F-003) without a database: validation,
@@ -91,7 +92,10 @@ const store: TeachStore = {
 };
 const app = Fastify();
 await app.register(authPlugin);
-registerTeachRoutes(app, store);
+// Isolate contribution rules here; access control is exercised with real SQL in test:db.
+const accessRow = (id: string) => ({ id, user_id: null, pack_id: null, guest_access_hash: null, guest_access_expires_at: null });
+const access: SessionAccess = { async requireSession(id) { return accessRow(id); }, async requireMessage(id) { return accessRow(id); } };
+registerTeachRoutes(app, store, access);
 await app.ready();
 const as = (id: string, role: "contributor" | "reviewer" | "admin") => ({ authorization: `Bearer ${app.jwt.sign({ id, role })}` });
 const SUG = "66666666-6666-4666-8666-666666666666";

@@ -1,3 +1,4 @@
+import { randomId } from "../lib/randomId.js";
 import {
   lazy,
   Suspense,
@@ -5,6 +6,7 @@ import {
   useEffect,
   useMemo,
   useState,
+  useSyncExternalStore,
 } from "react";
 import {
   Plus,
@@ -24,6 +26,7 @@ import { Dialog } from "./ui/Dialog.js";
 import { I18nProvider, useI18n } from "../lib/i18n.js";
 import {
   loadPreferences,
+  DEFAULT_PREFERENCES,
   PREFERENCES_KEY,
   type Preferences,
 } from "../lib/preferences.js";
@@ -34,7 +37,12 @@ import {
   upsertConversation,
   type Conversation,
 } from "../lib/history.js";
-import { deleteConversation, deleteConversations, getSession } from "../lib/api.js";
+import { API_BASE, deleteConversation, deleteConversations, getSession } from "../lib/api.js";
+import { getLearnerIdentity, sameLearnerIdentity, subscribeLearnerIdentity } from "../lib/learnerSession.js";
+import { accountConversations, type CommunityAccess } from "../lib/member.js";
+import { selectedCommunity } from "../lib/communityScope.js";
+import { LearnerAccount } from "./LearnerAccount.js";
+import { EducationEntry } from "./EducationEntry.js";
 import { PrivacyChip, PrivacyLine } from "./PrivacyLine.js";
 import { applyBranding, resolveMode, titleFor, usePack } from "../lib/pack.js";
 const SettingsScreen = lazy(() => import("./SettingsScreen.js"));
@@ -44,7 +52,12 @@ export type InstallPromptEvent = Event & {
   userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
 };
 export default function LearningApp() {
-  const [stored, setPreferences] = useState(loadPreferences);
+  const identity = useSyncExternalStore(subscribeLearnerIdentity, getLearnerIdentity, () => null);
+  return <LearningProfile key={identity?.token ?? "guest"} />;
+}
+function LearningProfile() {
+  const identity = getLearnerIdentity();
+  const [stored, setPreferences] = useState(() => identity ? { ...DEFAULT_PREFERENCES } : loadPreferences());
   const pack = usePack();
   // A stored mode the pack does not offer (or none yet) follows the pack's default.
   const preferences = useMemo(
@@ -55,10 +68,10 @@ export default function LearningApp() {
     (next: Partial<Preferences>) =>
       setPreferences((previous) => {
         const result = { ...previous, ...next };
-        writeStorage(PREFERENCES_KEY, result);
+        if (!identity && readStorage('afribit.remember-learning-preferences.v2',true)) writeStorage(PREFERENCES_KEY, result);
         return result;
       }),
-    [],
+    [identity],
   );
   useEffect(() => {
     document.documentElement.dataset.theme = preferences.theme;
@@ -73,26 +86,46 @@ export default function LearningApp() {
   }, [preferences]);
   return (
     <I18nProvider locale={preferences.locale}>
-      <LearningWorkspace preferences={preferences} update={update} />
+      <EducationEntry key={pack.id??selectedCommunity()??'default'} preferences={preferences} update={update}>{(notebookId,question)=><LearningWorkspace key={`${pack.id ?? selectedCommunity() ?? 'default'}:${notebookId??'bitcoin'}`} notebookId={notebookId} starterQuestion={question} preferences={preferences} update={update} />}</EducationEntry>
     </I18nProvider>
   );
 }
 function LearningWorkspace({
+  notebookId,
+  starterQuestion,
   preferences,
   update,
 }: {
+  notebookId?: string;
+  starterQuestion?: string;
   preferences: Preferences;
   update: (next: Partial<Preferences>) => void;
 }) {
   const { t, reviewPending } = useI18n();
   const pack = usePack();
+  const identity = getLearnerIdentity();
+  const identityToken = identity?.token ?? null;
+  const scope = identity ? `account:${identity.id}:${API_BASE}:${pack.id ?? selectedCommunity() ?? "default"}`
+    : selectedCommunity() || API_BASE ? `guest:${API_BASE}:${selectedCommunity() ?? "default"}` : "guest";
+  const historyScope=notebookId?`${scope}:notebook:${notebookId}`:scope;
+  const [access, setAccess] = useState<CommunityAccess | null>(null);
   const [path, setPath] = useState(window.location.pathname);
   const view = path.includes("/settings")
     ? "settings"
     : path.includes("/contribute")
       ? "contribute"
       : "chat";
-  const [history, setHistory] = useState(loadHistory);
+  const [history, setHistory] = useState(() => loadHistory(historyScope));
+  useEffect(() => {
+    if (!identity) return;
+    const controller = new AbortController();
+    accountConversations(controller.signal).then((result) => {
+      if (!controller.signal.aborted && sameLearnerIdentity(identityToken)) setHistory((previous) =>
+        [...previous, ...result.conversations.filter((item) => (item.notebookId??undefined)===notebookId && !previous.some((old) => old.sessionId === item.sessionId))
+          .map((item) => ({ ...item, notebookId:item.notebookId??undefined, localId: item.sessionId, messages: [] }))].sort((a,b) => b.updatedAt-a.updatedAt).slice(0,30));
+    }).catch(() => { /* Access panel reports membership/connectivity failures; no other identity's cache is used. */ });
+    return () => controller.abort();
+  }, [identityToken, access?.member,notebookId]);
   const [selected, setSelected] = useState<Conversation | null>(null);
   const [chatKey, setChatKey] = useState(0);
   const [busy, setBusy] = useState(false);
@@ -118,7 +151,8 @@ function LearningWorkspace({
     }
     const next = history.filter((c) => c.localId !== target.localId);
     setHistory(next);
-    saveHistory(next);
+    if (!sameLearnerIdentity(identityToken)) return;
+    saveHistory(next, scope);
     if (selected?.localId === target.localId) newChat();
     setDeleteTarget(null);
   }
@@ -131,7 +165,8 @@ function LearningWorkspace({
       return false;
     }
     setHistory([]);
-    saveHistory([]);
+    if (!sameLearnerIdentity(identityToken)) return false;
+    saveHistory([], scope);
     newChat();
     return true;
   }
@@ -148,7 +183,7 @@ function LearningWorkspace({
   const [loading, setLoading] = useState(false);
   const [note, setNote] = useState("");
   const [initialQuestion, setInitialQuestion] = useState(() =>
-    new URLSearchParams(window.location.search).get("question"),
+    starterQuestion ?? new URLSearchParams(window.location.search).get("question"),
   );
   const navigate = (next: string) => {
     window.history.pushState({}, "", next);
@@ -196,12 +231,13 @@ function LearningWorkspace({
     return () => applyBranding(root, { ...pack.branding, accentColor: null });
   }, [pack.branding]);
   const commit = useCallback((conversation: Conversation) => {
+    if (!sameLearnerIdentity(identityToken)) return;
     setHistory((previous) => {
       const next = upsertConversation(previous, conversation);
-      saveHistory(next);
+      saveHistory(next, historyScope);
       return next;
     });
-  }, []);
+  }, [identityToken, historyScope]);
   const newChat = () => {
     if (busy) return;
     setSelected(null);
@@ -223,6 +259,7 @@ function LearningWorkspace({
         const response = await getSession(conversation.sessionId);
         const refreshed = {
           ...conversation,
+          processingPolicy:response.processingPolicy??conversation.processingPolicy,
           messages: response.messages.map((m) => ({ ...m, clientId: m.id })),
         };
         commit(refreshed);
@@ -242,8 +279,9 @@ function LearningWorkspace({
     try {
       const response = await getSession(sessionInput.trim());
       const conversation: Conversation = {
-        localId: crypto.randomUUID(),
+        localId: randomId(),
         sessionId: response.sessionId,
+        processingPolicy:response.processingPolicy,
         title: (
           response.messages.find((m) => m.role === "user")?.content ??
           t("history.new")
@@ -265,7 +303,7 @@ function LearningWorkspace({
     }
   }
   const sidebar = (
-    <aside className="sidebar" aria-label={t("history.title")}>
+    <aside className="sidebar" aria-label={t(identity ? "member.history" : "history.title")}>
       <a href="/" className="sidebar-brand" aria-label={t("nav.home")}>
         <BrandMark
           size="sm"
@@ -282,7 +320,7 @@ function LearningWorkspace({
         {t("history.new")}
       </button>
       <div className="history-section">
-        <p className="sidebar-label">{t("history.title")}</p>
+        <p className="sidebar-label">{t(identity ? "member.history" : "history.title")}</p>
         {history.length === 0 ? (
           <p className="history-empty">{t("history.empty")}</p>
         ) : (
@@ -345,7 +383,7 @@ function LearningWorkspace({
           <ArrowUpRight size={16} />
           {t("nav.home")}
         </a>
-        <p className="sidebar-note">{t("history.shared")}</p>
+        <p className="sidebar-note">{t(identity ? "member.privateHistory" : "history.shared")}</p>
       </div>
     </aside>
   );
@@ -399,6 +437,7 @@ function LearningWorkspace({
             )}
           </div>
         </header>
+        {view !== "contribute" && <LearnerAccount onAccess={setAccess} />}
         {!online && (
           <div className="offline-banner" role="status">
             <WifiOff size={16} />
@@ -417,15 +456,18 @@ function LearningWorkspace({
         )}
         <div className="chat-holder" hidden={view !== "chat"}>
           <ChatScreen
+            notebookId={notebookId}
             key={chatKey}
+            scope={historyScope}
             preferences={preferences}
             update={update}
             conversation={selected}
             commit={commit}
             online={online}
-            ready={!setup && !loading}
+            ready={!setup && !loading && access !== null && (!access.membersOnly || access.member)}
             busyChanged={setBusy}
             initialQuestion={initialQuestion}
+            autoSendInitial={!!starterQuestion}
           />
         </div>
         <Suspense
@@ -455,8 +497,8 @@ function LearningWorkspace({
       <Dialog
         open={drawer}
         onOpenChange={setDrawer}
-        title={t("history.title")}
-        description={t("history.shared")}
+        title={t(identity ? "member.history" : "history.title")}
+        description={t(identity ? "member.privateHistory" : "history.shared")}
         className="drawer-content"
       >
         {sidebar}
@@ -468,6 +510,7 @@ function LearningWorkspace({
         description={t("privacy.dialogBody")}
       >
         <PrivacyLine />
+        <p>{t("processing.defaultNotice")}</p>
         <a className="text-link" href="/privacy">
           {t("privacy.more")}
           <ArrowUpRight size={16} />

@@ -5,6 +5,7 @@ import { isUuid } from "../pilot/rules.js";
 import { detectSecret } from "../safety/secretDetector.js";
 import { DECISIONS, parseSuggestion, type Decision } from "../teach/rules.js";
 import { TeachError, teachStore, type TeachStore } from "../teach/store.js";
+import { actorOf, sessionAccess, SessionAccessError, type SessionAccess } from "../chat/access.js";
 
 /**
  * "Say it your way" (docs/features/F-003-say-it-your-way.md).
@@ -14,7 +15,7 @@ import { TeachError, teachStore, type TeachStore } from "../teach/store.js";
  *   role, so demoting someone takes effect at once). Self-approval and a lone approval of a safety topic
  *   are refused (teach/rules.ts).
  */
-export function registerTeachRoutes(app: FastifyInstance, store: TeachStore = teachStore): void {
+export function registerTeachRoutes(app: FastifyInstance, store: TeachStore = teachStore, access: SessionAccess = sessionAccess): void {
   const reviewer = {
     preHandler: [
       app.requireReviewer,
@@ -38,6 +39,13 @@ export function registerTeachRoutes(app: FastifyInstance, store: TeachStore = te
       return reply.status(400).send({ error: getPack().prompts.secretWarning, secret: true });
     }
     try {
+      const actor = actorOf(request);
+      if (s.sessionId) await access.requireSession(s.sessionId, actor, getPack().id);
+      if (s.messageId) {
+        const session = await access.requireMessage(s.messageId, actor);
+        if (s.sessionId && session.id !== s.sessionId) throw new SessionAccessError();
+        s.sessionId = session.id;
+      }
       const created = await store.create({ ...s, packId: getPack().id, createdBy: (request.user as { id?: string } | undefined)?.id ?? null });
       return reply.status(201).send({ ok: true, id: created.id });
     } catch (err) {

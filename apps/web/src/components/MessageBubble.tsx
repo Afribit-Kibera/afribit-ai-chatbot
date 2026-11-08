@@ -40,7 +40,6 @@ export function MessageBubble({
     )
       return;
     const animation = animate(root.current, {
-      opacity: [0, 1],
       translateY: [7, 0],
       duration: 240,
       ease: "outQuad",
@@ -107,6 +106,7 @@ export function MessageBubble({
             {message.incomplete && (
               <p className="status-note">{t("chat.interrupted")}</p>
             )}
+            {message.answerSource && message.answerSource!=="model" && <p className="status-note">{t(message.answerSource==="reviewed-card"?"processing.badge.reviewed":message.answerSource==="reviewed-fallback"?"processing.badge.fallback":"processing.badge.unavailable")}</p>}
             {message.answeredBy === "outside" && (
               <p className="status-note answered-outside">
                 {t("chat.answeredOutside")}
@@ -119,7 +119,7 @@ export function MessageBubble({
                   {t("chat.howMade")}
                   <ChevronDown size={13} />
                 </summary>
-                <p>{t("chat.howMadeBody")}</p>
+                <p>{t(message.answerSource==="reviewed-card"?"processing.source.reviewed":message.answerSource==="reviewed-fallback"?"processing.source.fallback":message.answerSource==="unavailable"?"processing.source.unavailable":"chat.howMadeBody")}</p>
                 {message.conceptTitles?.length ? (
                   <ul>
                     {message.conceptTitles.map((title) => (
@@ -127,7 +127,7 @@ export function MessageBubble({
                     ))}
                   </ul>
                 ) : null}
-                {message.usedFallback && <p>{t("chat.fallback")}</p>}
+                {message.usedFallback && !message.answerSource && <p>{t("chat.fallback")}</p>}
               </details>
             )}
             <div className="message-actions">

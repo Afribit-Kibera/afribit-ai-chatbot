@@ -7,6 +7,9 @@ import type {
 } from "@afribit/shared";
 import { getModelProfile } from "../config/modelProfiles.js";
 import { env } from "../config/env.js";
+import { assertContextPolicy } from "../privacy/contextPolicy.js";
+import { computeCall,computeStream,openRouterPreferences } from "../compute/admission.js";
+import type { ComputeRoute } from "../compute/policy.js";
 
 interface OpenRouterChoice {
   message: { content: string };
@@ -28,10 +31,10 @@ interface OpenRouterResponse {
 interface OpenRouterStreamChunk {
   model?: string;
   choices?: { delta?: { content?: string }; finish_reason?: string | null }[];
-  usage?: { prompt_tokens: number; completion_tokens: number; total_tokens: number } | null;
+  usage?: { prompt_tokens: number; completion_tokens: number; total_tokens: number; cost?: number } | null;
 }
 
-function buildRequestBody(request: AfribitChatRequest, model: string, stream: boolean) {
+function buildRequestBody(request: AfribitChatRequest, model: string, stream: boolean,route:ComputeRoute|null=null) {
   return {
     model,
     messages: request.messages,
@@ -45,10 +48,7 @@ function buildRequestBody(request: AfribitChatRequest, model: string, stream: bo
     ...(stream ? { stream_options: { include_usage: true } } : {}),
     // PRD §17.2 — enforce zero-data-retention / no third-party training
     // wherever the caller's privacy profile requires it.
-    provider:
-      request.privacyProfile === "strict" && env.openRouterZdrOnly
-        ? { zdr: true, data_collection: "deny" }
-        : undefined,
+    provider:{...(request.privacyProfile === "strict" && env.openRouterZdrOnly?{zdr:true,data_collection:"deny"}:{}),...openRouterPreferences(route)},
     // Dataset Architecture doc §14 — structured JSON output instead of a
     // free-form blob needing fragile parsing. Only set by Dataset Lab
     // callers; the chatbot's chat()/chatStream() calls never pass this.
@@ -74,6 +74,11 @@ export class OpenRouterProvider implements InferenceProvider {
   readonly name = "openrouter";
 
   async chat(request: AfribitChatRequest): Promise<AfribitChatResponse> {
+    assertContextPolicy(request, this.name);
+    return computeCall({kind:"chat",provider:"openrouter",model:getModelProfile(request.modelProfile).model,baseUrl:env.openRouterBaseUrl},
+      {messages:request.messages,responseFormat:request.responseFormat},request.maxOutputTokens,(route)=>this.chatTransport(request,route),(r)=>r.estimatedCostUsd);
+  }
+  private async chatTransport(request:AfribitChatRequest,route:ComputeRoute|null):Promise<AfribitChatResponse>{
     const profile = getModelProfile(request.modelProfile);
     const startedAt = Date.now();
 
@@ -81,10 +86,12 @@ export class OpenRouterProvider implements InferenceProvider {
       throw new Error("OPENROUTER_API_KEY is not configured");
     }
 
-    const body = buildRequestBody(request, profile.model, false);
+    const body = buildRequestBody(request, profile.model, false,route);
 
     const response = await fetch(`${env.openRouterBaseUrl}/chat/completions`, {
       method: "POST",
+      redirect: "error",
+      signal: request.signal instanceof AbortSignal ? request.signal : undefined,
       headers: {
         Authorization: `Bearer ${env.openRouterApiKey}`,
         "Content-Type": "application/json",
@@ -141,6 +148,11 @@ export class OpenRouterProvider implements InferenceProvider {
   }
 
   async *chatStream(request: AfribitChatRequest): AsyncGenerator<string, AfribitChatResponse, void> {
+    assertContextPolicy(request, this.name);
+    return yield*computeStream({kind:"chat",provider:"openrouter",model:getModelProfile(request.modelProfile).model,baseUrl:env.openRouterBaseUrl},
+      {messages:request.messages,responseFormat:request.responseFormat},request.maxOutputTokens,(route)=>this.streamTransport(request,route));
+  }
+  private async *streamTransport(request:AfribitChatRequest,route:ComputeRoute|null):AsyncGenerator<string,AfribitChatResponse,void>{
     const profile = getModelProfile(request.modelProfile);
     const startedAt = Date.now();
 
@@ -150,13 +162,15 @@ export class OpenRouterProvider implements InferenceProvider {
 
     const response = await fetch(`${env.openRouterBaseUrl}/chat/completions`, {
       method: "POST",
+      redirect: "error",
+      signal: request.signal instanceof AbortSignal ? request.signal : undefined,
       headers: {
         Authorization: `Bearer ${env.openRouterApiKey}`,
         "Content-Type": "application/json",
         "HTTP-Referer": "https://afribit.africa",
         "X-Title": "Afribit AI",
       },
-      body: JSON.stringify(buildRequestBody(request, profile.model, true)),
+      body: JSON.stringify(buildRequestBody(request, profile.model, true,route)),
     });
 
     if (!response.ok || !response.body) {
@@ -173,6 +187,7 @@ export class OpenRouterProvider implements InferenceProvider {
     let finishReason: "stop" | "length" | "error" = "stop";
     let model = profile.model;
     let usage = { promptTokens: 0, completionTokens: 0, totalTokens: 0 };
+    let estimatedCostUsd:number|null=null;
 
     try {
       while (true) {
@@ -205,6 +220,7 @@ export class OpenRouterProvider implements InferenceProvider {
           }
           if (choice?.finish_reason === "length") finishReason = "length";
           if (chunk.usage) {
+            if(typeof chunk.usage.cost==="number")estimatedCostUsd=chunk.usage.cost;
             usage = {
               promptTokens: chunk.usage.prompt_tokens,
               completionTokens: chunk.usage.completion_tokens,
@@ -214,6 +230,7 @@ export class OpenRouterProvider implements InferenceProvider {
         }
       }
     } finally {
+      await reader.cancel().catch(()=>{});
       reader.releaseLock();
     }
 
@@ -225,7 +242,7 @@ export class OpenRouterProvider implements InferenceProvider {
       usage,
       latencyMs: Date.now() - startedAt,
       finishReason,
-      estimatedCostUsd: null,
+      estimatedCostUsd,
     };
   }
 

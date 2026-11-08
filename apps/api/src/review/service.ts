@@ -38,13 +38,13 @@ function domains(): string[] {
 }
 
 export async function counts(): Promise<Record<string, number>> {
-  const { rows } = await pool.query<{ status: string; n: string }>(`SELECT status, count(*) AS n FROM knowledge_entries WHERE domain = ANY($1::text[]) GROUP BY status`, [domains()]);
+  const { rows } = await pool.query<{ status: string; n: string }>(`SELECT status, count(*) AS n FROM knowledge_entries WHERE community_pack_id IS NULL AND domain = ANY($1::text[]) GROUP BY status`, [domains()]);
   return Object.fromEntries(rows.map((r) => [r.status, Number(r.n)]));
 }
 
 export async function listCards(opts: { status?: string; q?: string; limit?: number }): Promise<CardRow[]> {
   const params: unknown[] = [domains()];
-  let where = "domain = ANY($1::text[])";
+  let where = "community_pack_id IS NULL AND domain = ANY($1::text[])";
   if (opts.status) {
     if (!isStatus(opts.status)) throw new ReviewError(400, "unknown status");
     params.push(opts.status);
@@ -65,7 +65,7 @@ export async function listTopics(): Promise<{ id: string; title: string }[]> {
 }
 
 export async function getCard(id: string) {
-  const { rows } = await pool.query<CardRow>(`SELECT ${COLUMNS} FROM knowledge_entries WHERE id = $1 AND domain = ANY($2::text[])`, [id, domains()]);
+  const { rows } = await pool.query<CardRow>(`SELECT ${COLUMNS} FROM knowledge_entries WHERE id = $1 AND community_pack_id IS NULL AND domain = ANY($2::text[])`, [id, domains()]);
   const card = rows[0];
   if (!card) throw new ReviewError(404, "Card not found");
   const [versions, log] = await Promise.all([
@@ -149,7 +149,7 @@ export async function editCard(actor: string, id: string, rawInput: CardInput): 
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
-    const { rows } = await client.query<CardRow>(`SELECT ${COLUMNS} FROM knowledge_entries WHERE id = $1 AND domain = ANY($2::text[]) FOR UPDATE`, [id, domains()]);
+    const { rows } = await client.query<CardRow>(`SELECT ${COLUMNS} FROM knowledge_entries WHERE id = $1 AND community_pack_id IS NULL AND domain = ANY($2::text[]) FOR UPDATE`, [id, domains()]);
     const current = rows[0];
     if (!current) throw new ReviewError(404, "Card not found");
     const next = {
@@ -192,7 +192,7 @@ export async function transitionCard(actor: string, id: string, to: string, note
   let card: CardRow;
   try {
     await client.query("BEGIN");
-    const { rows } = await client.query<CardRow>(`SELECT ${COLUMNS} FROM knowledge_entries WHERE id = $1 AND domain = ANY($2::text[]) FOR UPDATE`, [id, domains()]);
+    const { rows } = await client.query<CardRow>(`SELECT ${COLUMNS} FROM knowledge_entries WHERE id = $1 AND community_pack_id IS NULL AND domain = ANY($2::text[]) FOR UPDATE`, [id, domains()]);
     const current = rows[0];
     if (!current) throw new ReviewError(404, "Card not found");
     if (!canTransition(current.status, to)) throw new ReviewError(409, `A card in "${current.status}" cannot move to "${to}". Allowed: ${allowedTransitions(current.status).join(", ")}`);

@@ -1,6 +1,16 @@
-import type { LanguageModeId, ExplanationLevel } from "@afribit/shared";
+import type { LanguageModeId, ExplanationLevel, ProcessingPolicy, AnswerMode, AnswerSource } from "@afribit/shared";
 import { getSource } from "./source.js";
+import { createChatAccess } from "./chatAccess.js";
+import { getLearnerIdentity, learnerHeaders, sameLearnerIdentity } from "./learnerSession.js";
+import { communityHeaders, selectedCommunity } from "./communityScope.js";
 export const API_BASE = import.meta.env.VITE_API_URL ?? "";
+const chatAccess = createChatAccess(API_BASE + (selectedCommunity() ? `:${selectedCommunity()}` : ""));
+function chatHeaders(sessionId: string | null): Record<string, string> {
+  return { ...communityHeaders(), ...(getLearnerIdentity() ? learnerHeaders() : chatAccess.headers(sessionId)) };
+}
+function feedbackHeaders(messageId: string): Record<string, string> {
+  return { ...communityHeaders(), ...(getLearnerIdentity() ? learnerHeaders() : chatAccess.messageHeaders(messageId)) };
+}
 export class ApiError extends Error {
   constructor(
     public status: number,
@@ -14,15 +24,20 @@ export async function readResponse<T>(response: Response): Promise<T> {
   if (!response.ok) {
     const body = (await response.json().catch(() => ({}))) as {
       error?: string;
+      message?: string;
     };
     throw new ApiError(
       response.status,
-      body.error ?? `Request failed (${response.status})`,
+      response.status===500 ? 'The service could not complete this request. Please retry.' :
+        (typeof body.message==='string' ? body.message : typeof body.error==='string' ? body.error : `Request failed (${response.status})`),
     );
   }
   return response.json() as Promise<T>;
 }
 export interface ChatParams {
+  notebookId?: string;
+  processingPolicy?: ProcessingPolicy;
+  answerMode?: AnswerMode;
   sessionId: string | null;
   message: string;
   languageMode: LanguageModeId;
@@ -38,7 +53,10 @@ function chatBody(params: ChatParams): string {
   return JSON.stringify({ ...params, source: params.source ?? getSource() ?? undefined });
 }
 export interface SendMessageResponse {
+  processingPolicy?: ProcessingPolicy;
+  answerSource?: AnswerSource;
   sessionId: string;
+  sessionToken?: string;
   messageId: string;
   content: string;
   languageMode: LanguageModeId;
@@ -52,13 +70,16 @@ export interface SendMessageResponse {
 export type ChatStreamEvent =
   | {
       type: "meta";
+      processingPolicy?: ProcessingPolicy;
       sessionId: string | null;
+      sessionToken?: string;
       safetyFlag: string | null;
       conceptTitles?: string[];
     }
   | { type: "delta"; text: string }
   | {
       type: "done";
+      answerSource?: AnswerSource;
       messageId: string;
       usedFallback: boolean;
       answeredBy?: "local" | "outside";
@@ -83,6 +104,7 @@ export function parseStreamEvent(line: string): ChatStreamEvent {
       type: "done",
       messageId: e.messageId,
       usedFallback: e.usedFallback,
+      answerSource: e.answerSource === "model" || e.answerSource === "reviewed-card" || e.answerSource === "reviewed-fallback" || e.answerSource === "unavailable" ? e.answerSource : undefined,
       answeredBy:
         e.answeredBy === "outside" || e.answeredBy === "local"
           ? e.answeredBy
@@ -136,34 +158,40 @@ export async function sendChatMessage(
   params: ChatParams,
   signal?: AbortSignal,
 ): Promise<SendMessageResponse> {
-  return readResponse(
+  const result = await readResponse<SendMessageResponse>(
     await fetch(`${API_BASE}/api/v1/chat`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", ...chatHeaders(params.sessionId) },
       body: chatBody(params),
       signal,
     }),
   );
+  chatAccess.remember(result.sessionId, result.sessionToken, [result.messageId]);
+  return result;
 }
 export async function streamChatMessage(
   params: ChatParams,
   onEvent: (event: ChatStreamEvent) => void,
   signal?: AbortSignal,
 ): Promise<void> {
+  const accountToken = getLearnerIdentity()?.token ?? null;
   const response = await fetch(`${API_BASE}/api/v1/chat/stream`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...chatHeaders(params.sessionId) },
     body: chatBody(params),
     signal,
   });
   // Unsupported endpoints only: never silently repeat a partial request or 429.
-  if ([404, 405, 501].includes(response.status)) {
+  if ([405, 501].includes(response.status) || (response.status === 404 && !params.sessionId)) {
+    if (!sameLearnerIdentity(accountToken)) throw new Error("Account changed. Start a new conversation.");
     const result = await sendChatMessage(params, signal);
     onEvent({
       type: "meta",
       sessionId: result.sessionId,
+      sessionToken: result.sessionToken,
       safetyFlag: result.safetyFlag,
       conceptTitles: result.conceptTitles,
+      processingPolicy: result.processingPolicy,
     });
     onEvent({ type: "delta", text: result.content });
     onEvent({
@@ -171,32 +199,47 @@ export async function streamChatMessage(
       messageId: result.messageId,
       usedFallback: result.usedFallback,
       answeredBy: result.answeredBy,
+      answerSource: result.answerSource,
     });
     return;
   }
   if (!response.ok) await readResponse(response);
   if (!response.body)
     throw new Error("The reply stream is unavailable. Please try again.");
-  await consumeChatStream(response.body, onEvent);
+  let sessionId = params.sessionId;
+  await consumeChatStream(response.body, (event) => {
+    if (event.type === "meta" && event.sessionId) {
+      sessionId = event.sessionId;
+      chatAccess.remember(sessionId, event.sessionToken);
+    }
+    if (event.type === "done" && sessionId) chatAccess.remember(sessionId, undefined, [event.messageId]);
+    onEvent(event);
+  });
 }
 export interface SessionResponse {
+  processingPolicy?: ProcessingPolicy;
   sessionId: string;
   messages: {
     id: string;
     role: "user" | "assistant";
     content: string;
     created_at: string;
+    answerSource?: AnswerSource;
+    incomplete?: boolean;
   }[];
 }
 export async function getSession(
   sessionId: string,
   signal?: AbortSignal,
 ): Promise<SessionResponse> {
-  return readResponse(
+  const result = await readResponse<SessionResponse>(
     await fetch(`${API_BASE}/api/v1/chat/${encodeURIComponent(sessionId)}`, {
+      headers: chatHeaders(sessionId),
       signal,
     }),
   );
+  chatAccess.remember(result.sessionId, undefined, result.messages.map((m) => m.id));
+  return result;
 }
 export async function sendFeedback(
   messageId: string,
@@ -210,29 +253,33 @@ export async function sendFeedback(
     `${API_BASE}/api/v1/messages/${encodeURIComponent(messageId)}/feedback`,
     {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", ...feedbackHeaders(messageId) },
       body: JSON.stringify({ rating, reason, comment, ...shared }),
     },
   );
   if (!response.ok) await readResponse(response);
 }
-/** F-002: delete one conversation from the server (holding its id is the permission). */
+/** Delete using the separately stored guest capability; the ID grants no authority. */
 export async function deleteConversation(sessionId: string): Promise<void> {
   const response = await fetch(
     `${API_BASE}/api/v1/chat/${encodeURIComponent(sessionId)}`,
-    { method: "DELETE" },
+    { method: "DELETE", headers: chatHeaders(sessionId) },
   );
   if (!response.ok) await readResponse(response);
+  chatAccess.forget([sessionId]);
 }
 /** F-002: delete every conversation this phone started, 50 at a time (the API's limit). */
 export async function deleteConversations(sessionIds: string[]): Promise<void> {
+  const accountToken = getLearnerIdentity()?.token ?? null;
   for (let i = 0; i < sessionIds.length; i += 50) {
+    if (!sameLearnerIdentity(accountToken)) throw new Error("Account changed. Please retry deletion.");
     const response = await fetch(`${API_BASE}/api/v1/chat/delete`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ sessionIds: sessionIds.slice(i, i + 50) }),
+      headers: { "Content-Type": "application/json", ...communityHeaders(), ...learnerHeaders() },
+      body: JSON.stringify({ sessionIds: sessionIds.slice(i, i + 50), sessionTokens: getLearnerIdentity() ? {} : chatAccess.tokens(sessionIds.slice(i, i + 50)) }),
     });
     if (!response.ok) await readResponse(response);
+    chatAccess.forget(sessionIds.slice(i, i + 50));
   }
 }
 /** F-002: delete the signed-in account; contributions are kept without the name, or deleted. */
@@ -308,7 +355,7 @@ export interface SuggestionParams {
 export async function sendSuggestion(params: SuggestionParams): Promise<void> {
   const response = await fetch(`${API_BASE}/api/v1/teach`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...(params.sessionId ? chatHeaders(params.sessionId) : params.messageId ? feedbackHeaders(params.messageId) : chatHeaders(null)) },
     body: JSON.stringify(params),
   });
   await readResponse(response);

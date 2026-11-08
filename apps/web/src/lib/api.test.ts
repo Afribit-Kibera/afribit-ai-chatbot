@@ -3,6 +3,7 @@ import {
   ApiError,
   consumeChatStream,
   parseStreamEvent,
+  readResponse,
   sendFeedback,
   streamChatMessage,
   type ChatStreamEvent,
@@ -17,7 +18,22 @@ function stream(chunks: Uint8Array[]) {
   });
 }
 afterEach(() => vi.unstubAllGlobals());
+describe('actionable service errors',()=>{
+ it('preserves the explanation for a stale Studio revision',async()=>{
+  await expect(readResponse(new Response(JSON.stringify({statusCode:409,error:'Conflict',message:'This draft changed. Reload before saving.'}),{status:409}))).rejects.toThrow('This draft changed. Reload before saving.');
+ });
+ it('does not show internal server error details in learner screens',async()=>{
+  await expect(readResponse(new Response(JSON.stringify({error:'Internal Server Error',message:'Synthetic database diagnostic'}),{status:500}))).rejects.toThrow('The service could not complete this request. Please retry.');
+ });
+});
 describe("NDJSON chat", () => {
+  it("preserves effective processing policy and approved-card source through streaming",async()=>{
+    const events:ChatStreamEvent[]=[];
+    await consumeChatStream(stream([encoder.encode('{"type":"meta","sessionId":"s","safetyFlag":null,"processingPolicy":"local-only"}\n{"type":"delta","text":"Approved text"}\n{"type":"done","messageId":"m","usedFallback":false,"answerSource":"reviewed-card"}\n')]),(e)=>events.push(e));
+    expect(events[0]).toMatchObject({processingPolicy:"local-only"});
+    expect(events.at(-1)).toMatchObject({answerSource:"reviewed-card"});
+    expect(parseStreamEvent('{"type":"done","messageId":"m","usedFallback":false,"answerSource":"made-up"}')).toMatchObject({answerSource:undefined});
+  });
   it("reads split UTF-8, CRLF, blank lines and a final line without newline", async () => {
     const bytes = encoder.encode(
       '\n{"type":"meta","sessionId":"s1","safetyFlag":null}\r\n{"type":"delta","text":"Karibu — Bitcoin"}\n{"type":"done","messageId":"m1","usedFallback":false}',

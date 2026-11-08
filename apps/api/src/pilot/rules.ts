@@ -98,7 +98,7 @@ export function checkResolve(body: unknown): ResolveCheck {
 }
 
 // ── Team roles ──────────────────────────────────────────────────────────────────────────────────
-export const ROLES = ["contributor", "reviewer", "admin"] as const;
+export const ROLES = ["learner", "contributor", "reviewer", "admin"] as const;
 export type Role = (typeof ROLES)[number];
 export const isRole = (v: unknown): v is Role => typeof v === "string" && (ROLES as readonly string[]).includes(v);
 

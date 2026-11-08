@@ -1,5 +1,9 @@
 import type { ExplanationLevel, LanguageModeId } from "./language.js";
 
+export type ProcessingPolicy = "configured" | "local-only";
+export type AnswerMode = "generate" | "reviewed-only";
+export type AnswerSource = "model" | "reviewed-card" | "reviewed-fallback" | "unavailable";
+
 /**
  * PRD §16.3 — the provider interface. Nothing outside the Afribit AI Gateway
  * should need to know which concrete provider (OpenRouter, future local
@@ -23,6 +27,8 @@ export interface AfribitResponseFormat {
 }
 
 export interface AfribitChatRequest {
+  /** Internal cancellation only; API bodies never supply it. Concrete providers check the platform signal. */
+  signal?: unknown;
   requestId: string;
   messages: AfribitChatMessage[];
   languageMode: LanguageModeId;
@@ -33,6 +39,8 @@ export interface AfribitChatRequest {
   /** PRD §17.2 — enforced by the gateway, not left to the caller. */
   privacyProfile: "strict" | "standard";
   responseFormat?: AfribitResponseFormat;
+  /** Must remain on the community box on every attempt, including fallback. */
+  contextPrivacy?: "personal-local-only";
 }
 
 export interface AfribitChatUsage {
@@ -96,7 +104,7 @@ export interface ModelProfile {
   temperature: number;
   privacyProfile: "strict" | "standard";
   /**
-   * Max time to wait for a response (for streaming: for the first chunk).
+   * Maximum duration of an attempt, including the whole stream. The gateway aborts its transport.
    * Defaults to the gateway's 15s, which suits hosted APIs. A community node
    * on modest hardware needs minutes -- it must read a multi-thousand-token
    * prompt before it can emit anything -- so node profiles set this higher.

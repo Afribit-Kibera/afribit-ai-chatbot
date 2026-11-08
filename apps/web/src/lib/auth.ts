@@ -5,7 +5,7 @@ const TOKEN_KEY = "afribit.authToken";
 export interface AuthedProfile {
   id: string;
   email: string;
-  role: "contributor" | "reviewer" | "admin";
+  role: "learner" | "contributor" | "reviewer" | "admin";
   displayName: string | null;
 }
 

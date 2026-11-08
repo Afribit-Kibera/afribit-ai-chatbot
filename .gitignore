@@ -11,6 +11,7 @@ coverage/
 # Local config and secrets -- only the example file is committed
 .env
 .env.*
+*.env
 !.env.example
 
 # Tooling state
@@ -26,6 +27,10 @@ coverage/
 /apps/api/src/db/data/extract/
 
 # Frontend build intermediates and locally generated QA results
+# Downloaded weights and extracted executables are reproducible artifacts, not source files.
+/output/local-model-cache/
+/output/open-notebook-runtime/
+/output/local-cpu/*/runtime/
 apps/web/dist-ssr/
 apps/web/.lighthouseci/
 # Written by `pnpm --filter @afribit/web brand` for a white-labelled build
@@ -34,3 +39,11 @@ apps/web/brand.local.json
 # Afribit GPU server: keys (hashes) and usage counts live on the server only.
 deploy/gpu-server/keys/
 deploy/gpu-server/usage/
+
+# Generated trials, local operator tools and browser sessions
+/output/
+/tmp/
+/.playwright-cli/
+/tools/cloudflare/
+__pycache__/
+*.pyc

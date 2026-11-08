@@ -44,6 +44,6 @@ export function deriveModelLocation(input: {
 }
 
 /** Which kind of server produced an answer, for the per-answer marker ("Answered by an outside AI service"). */
-export function answeredBy(provider: string | null | undefined): "local" | "outside" {
-  return provider === "openrouter" ? "outside" : "local";
+export function answeredBy(provider: string | null | undefined, localEndpoint?: string): "local" | "outside" {
+  return provider === "openrouter" || provider === "local" && localEndpoint !== undefined && !isOnThisMachine(localEndpoint) ? "outside" : "local";
 }

@@ -33,12 +33,23 @@ const reviews = [];
 let failed = 0;
 
 const headers = (extra = {}) => ({ "content-type": "application/json", ...(PACK ? { "x-pack": PACK } : {}), ...extra });
+// Guest credentials stay in memory, never URLs, printed results or saved review artifacts.
+const sessionTokens = new Map();
+const messageTokens = new Map();
 async function call(method, path, body, extraHeaders = {}) {
   const started = Date.now();
-  const res = await fetch(BASE + path, { method, headers: headers(extraHeaders), body: body === undefined ? undefined : JSON.stringify(body) });
+  const session = body?.sessionId ?? path.match(/^\/api\/v1\/chat\/([0-9a-f-]{36})(?:\/|$)/)?.[1];
+  const message = path.match(/^\/api\/v1\/messages\/([0-9a-f-]{36})\/feedback/)?.[1];
+  const token = sessionTokens.get(session) ?? messageTokens.get(message);
+  const res = await fetch(BASE + path, { method, headers: headers({ ...(token ? { "x-chat-token": token } : {}), ...extraHeaders }), body: body === undefined ? undefined : JSON.stringify(body) });
   const text = await res.text();
   let json = null;
   try { json = JSON.parse(text); } catch { /* not JSON */ }
+  if (json?.sessionId) {
+    if (json.sessionToken) sessionTokens.set(json.sessionId, json.sessionToken);
+    const credential = sessionTokens.get(json.sessionId);
+    if (credential && json.messageId) messageTokens.set(json.messageId, credential);
+  }
   return { status: res.status, json, text, ms: Date.now() - started, headers: res.headers };
 }
 

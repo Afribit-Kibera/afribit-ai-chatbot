@@ -1,4 +1,6 @@
 import { env } from "../config/env.js";
+import { assertEmbeddingPolicy } from "../privacy/contextPolicy.js";
+import { computeCall } from "../compute/admission.js";
 
 /**
  * Embeddings from a community node's own model server (Ollama, or any OpenAI-compatible server
@@ -28,10 +30,17 @@ function headers(key: string): Record<string, string> {
 }
 
 async function embedBatch(texts: string[]): Promise<number[][]> {
-  const { base, api, key } = target();
+  const endpoint=target();
+  assertEmbeddingPolicy("local",endpoint.base);
+  return computeCall({kind:"embeddings",provider:"local",model:env.localEmbeddingModel,baseUrl:endpoint.base},{texts},0,()=>embedTransport(texts,endpoint));
+}
+async function embedTransport(texts:string[],endpoint:ReturnType<typeof target>):Promise<number[][]>{
+  const { base, api, key } = endpoint;
+  assertEmbeddingPolicy("local",base);
   const ollama = api === "ollama";
   const response = await fetch(`${base}${ollama ? "/api/embed" : "/v1/embeddings"}`, {
     method: "POST",
+    redirect: "error",
     headers: headers(key),
     signal: AbortSignal.timeout(120_000),
     body: JSON.stringify(

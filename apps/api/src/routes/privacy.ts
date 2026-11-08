@@ -1,13 +1,13 @@
 import type { FastifyInstance } from "fastify";
 import { isUuid } from "../pilot/rules.js";
 import { PrivacyError, privacyStore, type PrivacyStore } from "../privacy/store.js";
+import { actorOf } from "../chat/access.js";
 
 /**
  * Deleting your data (docs/features/F-002-privacy-settings.md).
  *
- * - DELETE /api/v1/chat/:sessionId and POST /api/v1/chat/delete: holding a conversation's id is the
- *   permission, exactly as reading it is. Both always answer 204, whether the id existed or not, so they
- *   reveal nothing.
+ * - Single/bulk deletion requires account ownership or a guest capability. Always answer 204, whether
+ *   the conversation was missing, inaccessible or deleted, without exposing another member's IDs.
  * - DELETE /api/v1/me/conversations and DELETE /api/v1/me: signed in; the account comes from the verified
  *   token only, never from the request body.
  */
@@ -16,18 +16,21 @@ export const MAX_BULK_DELETE = 50;
 export function registerPrivacyRoutes(app: FastifyInstance, store: PrivacyStore = privacyStore): void {
   const limit = { rateLimit: { max: 30, timeWindow: "1 minute" } };
 
-  app.delete<{ Params: { sessionId: string } }>("/api/v1/chat/:sessionId", { config: limit }, async (request, reply) => {
+  app.delete<{ Params: { sessionId: string } }>("/api/v1/chat/:sessionId", { config: limit, preHandler: app.optionalAuth }, async (request, reply) => {
     const id = request.params.sessionId;
-    if (isUuid(id)) await store.deleteSessions([id]);
+    if (isUuid(id)) await store.deleteSessions([id], actorOf(request));
     return reply.status(204).send();
   });
 
-  app.post<{ Body: { sessionIds?: unknown } }>("/api/v1/chat/delete", { config: limit }, async (request, reply) => {
+  app.post<{ Body: { sessionIds?: unknown; sessionTokens?: unknown } }>("/api/v1/chat/delete", { config: limit, preHandler: app.optionalAuth }, async (request, reply) => {
     const ids = request.body?.sessionIds;
     if (!Array.isArray(ids)) return reply.status(400).send({ error: "sessionIds must be a list" });
     if (ids.length > MAX_BULK_DELETE) return reply.status(400).send({ error: `At most ${MAX_BULK_DELETE} conversations at a time` });
     const valid = [...new Set(ids.filter((v): v is string => typeof v === "string" && isUuid(v)))];
-    await store.deleteSessions(valid);
+    const supplied = request.body?.sessionTokens;
+    const tokens = supplied && typeof supplied === "object" && !Array.isArray(supplied) ? supplied as Record<string, unknown> : {};
+    const guestTokens = Object.fromEntries(valid.filter((id) => typeof tokens[id] === "string").map((id) => [id, tokens[id] as string]));
+    await store.deleteSessions(valid, actorOf(request), guestTokens);
     return reply.status(204).send();
   });
 

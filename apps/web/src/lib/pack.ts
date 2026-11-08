@@ -3,6 +3,7 @@ import type { LanguageModeId } from "@afribit/shared";
 import { API_BASE } from "./api.js";
 import { readStorage, writeStorage } from "./storage.js";
 import { parseService, type ServiceInfo } from "./privacy.js";
+import { communityHeaders } from "./communityScope.js";
 
 /** What the app needs to know about the community pack the API serves (GET /api/v1/pack). */
 export interface PackMode {
@@ -27,6 +28,7 @@ export interface PackBranding {
   poweredBy: { show: boolean; label: string; url: string };
 }
 export interface PackInfo {
+  id?: string;
   name: string;
   /** What the pack is about ("bitcoin", "library", ...). The built-in starter questions and scam shortcut are Bitcoin ones. */
   domainId: string;
@@ -276,6 +278,7 @@ export function parsePack(value: unknown): PackInfo | null {
   }
   const domain = isObject(value.domain) ? value.domain : {};
   return {
+    ...(nonEmpty(value.id) ? { id: value.id } : {}),
     name: nonEmpty(value.name) ? value.name : BUILTIN_PACK.name,
     // An older API says nothing about its domain: keep the app as it has always been (Bitcoin).
     domainId: nonEmpty(domain.id) ? domain.id : BUILTIN_PACK.domainId,
@@ -320,7 +323,7 @@ export async function fetchPack(
   signal?: AbortSignal,
 ): Promise<PackInfo | null> {
   try {
-    const response = await fetch(`${API_BASE}/api/v1/pack`, { signal });
+    const response = await fetch(`${API_BASE}/api/v1/pack`, { signal, headers: communityHeaders() });
     if (!response.ok) return null;
     return parsePack(await response.json());
   } catch {

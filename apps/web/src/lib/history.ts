@@ -1,5 +1,8 @@
 import { readStorage, writeStorage } from "./storage.js";
+import { onLearnerIdentityChange } from "./learnerSession.js";
+import type { AnswerSource,ProcessingPolicy } from "@afribit/shared";
 export interface ChatMessageView {
+  answerSource?: AnswerSource;
   clientId: string;
   id: string;
   role: "user" | "assistant";
@@ -13,6 +16,8 @@ export interface ChatMessageView {
   answeredBy?: "local" | "outside";
 }
 export interface Conversation {
+  notebookId?: string;
+  processingPolicy?: ProcessingPolicy;
   localId: string;
   sessionId: string | null;
   title: string;
@@ -20,8 +25,11 @@ export interface Conversation {
   messages: ChatMessageView[];
 }
 export const HISTORY_KEY = "afribit.conversations.v1";
-export function loadHistory(): Conversation[] {
-  const raw = readStorage<unknown>(HISTORY_KEY, []);
+const accountHistory = new Map<string, Conversation[]>();
+const accountDrafts = new Map<string, string>();
+onLearnerIdentityChange(() => { accountHistory.clear(); accountDrafts.clear(); });
+export function loadHistory(scope?: string): Conversation[] {
+  const raw = scope?.startsWith("account:") ? accountHistory.get(scope) ?? [] : readStorage<unknown>(scope && scope !== "guest" ? `${HISTORY_KEY}:${scope}` : HISTORY_KEY, []);
   if (!Array.isArray(raw)) return [];
   return raw
     .filter(
@@ -44,17 +52,25 @@ export function loadHistory(): Conversation[] {
     )
     .slice(0, 30);
 }
-export function saveHistory(history: Conversation[]) {
-  writeStorage(
-    HISTORY_KEY,
-    history.slice(0, 30).map((c) => ({
+export function saveHistory(history: Conversation[], scope?: string) {
+  const safe = history.slice(0, 30).map((c) => ({
       ...c,
       messages: c.messages
         .filter((m) => !m.safetyFlag)
         .slice(-100)
         .map((m) => ({ ...m, streaming: false })),
-    })),
-  );
+    }));
+  if (scope?.startsWith("account:")) accountHistory.set(scope, safe);
+  else writeStorage(scope && scope !== "guest" ? `${HISTORY_KEY}:${scope}` : HISTORY_KEY, safe);
+}
+
+export function loadDraft(scope: string): string {
+  const draft = scope.startsWith("account:") ? accountDrafts.get(scope) ?? "" : readStorage<unknown>(scope === "guest" ? "afribit.draft" : `afribit.draft:${scope}`, "");
+  return typeof draft === "string" ? draft.slice(0,6000) : "";
+}
+export function saveDraft(scope: string, draft: string) {
+  if (scope.startsWith("account:")) { if (draft) accountDrafts.set(scope,draft); else accountDrafts.delete(scope); }
+  else writeStorage(scope === "guest" ? "afribit.draft" : `afribit.draft:${scope}`, draft || null);
 }
 export function upsertConversation(
   history: Conversation[],

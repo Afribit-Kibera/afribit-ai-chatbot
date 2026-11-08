@@ -4,7 +4,8 @@ import { pool } from "../db/pool.js";
 import { activeEmbeddingModel, embedDocuments } from "../providers/embeddings.js";
 
 /**
- * One-time/rerunnable backfill: ensures every approved/published
+ * One-time/rerunnable backfill for ordinary shared pack cards (immutable community snapshots are
+ * lexical-only until a scoped indexing workflow is added): ensures every approved/published
  * knowledge_entries row has exactly one knowledge_chunks row (title +
  * canonical_answer, matching what the lexical search in retrieval.ts
  * already indexes -- chunking isn't needed yet at this content size) and
@@ -24,7 +25,7 @@ interface ConceptRow {
 
 export async function backfillEmbeddings(): Promise<{ chunksCreated: number; embeddingsCreated: number }> {
   const { rows: concepts } = await pool.query<ConceptRow>(
-    `SELECT id, title, canonical_answer FROM knowledge_entries WHERE status IN ('approved', 'published') ORDER BY id`,
+    `SELECT id, title, canonical_answer FROM knowledge_entries WHERE status IN ('approved', 'published') AND community_pack_id IS NULL ORDER BY id`,
   );
   console.log(`${concepts.length} approved/published knowledge_entries found.`);
 

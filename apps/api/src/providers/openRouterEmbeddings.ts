@@ -1,4 +1,6 @@
 import { env } from "../config/env.js";
+import { assertEmbeddingPolicy } from "../privacy/contextPolicy.js";
+import { computeCall } from "../compute/admission.js";
 
 /**
  * PRD §18.4 — embedding provider, abstracted the same way chat inference is
@@ -21,6 +23,10 @@ interface OpenRouterEmbeddingResponse {
 
 export async function embedTexts(texts: string[]): Promise<number[][]> {
   if (texts.length === 0) return [];
+  assertEmbeddingPolicy("openrouter",env.openRouterBaseUrl);
+  return computeCall({kind:"embeddings",provider:"openrouter",model:env.embeddingModel,baseUrl:env.openRouterBaseUrl},{texts},0,()=>embedTransport(texts));
+}
+async function embedTransport(texts:string[]):Promise<number[][]>{
   if (!env.openRouterApiKey) {
     throw new Error("OPENROUTER_API_KEY is not configured");
   }

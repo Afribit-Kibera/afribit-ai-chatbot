@@ -6,7 +6,10 @@ import type {
   ProviderHealth,
 } from "@afribit/shared";
 import { env } from "../config/env.js";
-import { getModelProfile } from "../config/modelProfiles.js";
+import { getModelProfile, scopedModelProfile } from "../config/modelProfiles.js";
+import { assertContextPolicy } from "../privacy/contextPolicy.js";
+import { computeCall,computeStream } from "../compute/admission.js";
+import { assertNativeContext, assertNativeCompletion } from "../prompt/nativeContext.js";
 
 /**
  * Inference on a community node: a model server running on hardware the
@@ -55,7 +58,7 @@ function headers(): Record<string, string> {
 }
 
 function modelFor(request: AfribitChatRequest): string {
-  return env.localLlmModel || getModelProfile(request.modelProfile).model;
+  return scopedModelProfile(request.modelProfile)?.model || env.localLlmModel || getModelProfile(request.modelProfile).model;
 }
 
 function ollamaBody(request: AfribitChatRequest, stream: boolean): Record<string, unknown> {
@@ -98,13 +101,20 @@ export class LocalProvider implements InferenceProvider {
   readonly name = "local";
 
   async chat(request: AfribitChatRequest): Promise<AfribitChatResponse> {
+    assertContextPolicy(request, this.name);
+    assertNativeContext(request.messages,request.maxOutputTokens,env.localLlmApi,env.localLlmNumCtx);
     const startedAt = Date.now();
-    return env.localLlmApi === "ollama" ? this.ollamaChat(request, startedAt) : this.openAIChat(request, startedAt);
+    return computeCall({kind:"chat",provider:"local",model:modelFor(request),baseUrl:env.localLlmBaseUrl},
+      {messages:request.messages,responseFormat:request.responseFormat},request.maxOutputTokens,
+      async()=>{const response=await (env.localLlmApi === "ollama" ? this.ollamaChat(request, startedAt) : this.openAIChat(request, startedAt));
+        assertNativeCompletion(response.finishReason);return response;},(r)=>r.estimatedCostUsd);
   }
 
   private async ollamaChat(request: AfribitChatRequest, startedAt: number): Promise<AfribitChatResponse> {
     const response = await fetch(`${env.localLlmBaseUrl}/api/chat`, {
       method: "POST",
+      signal: request.signal instanceof AbortSignal ? request.signal : undefined,
+      redirect: "error",
       headers: headers(),
       body: JSON.stringify(ollamaBody(request, false)),
     });
@@ -132,6 +142,8 @@ export class LocalProvider implements InferenceProvider {
   private async openAIChat(request: AfribitChatRequest, startedAt: number): Promise<AfribitChatResponse> {
     const response = await fetch(`${env.localLlmBaseUrl}/v1/chat/completions`, {
       method: "POST",
+      signal: request.signal instanceof AbortSignal ? request.signal : undefined,
+      redirect: "error",
       headers: headers(),
       body: JSON.stringify(openAIBody(request, false)),
     });
@@ -159,10 +171,18 @@ export class LocalProvider implements InferenceProvider {
   }
 
   async *chatStream(request: AfribitChatRequest): AsyncGenerator<string, AfribitChatResponse, void> {
+    assertContextPolicy(request, this.name);
+    assertNativeContext(request.messages,request.maxOutputTokens,env.localLlmApi,env.localLlmNumCtx);
+    return yield*computeStream({kind:"chat",provider:"local",model:modelFor(request),baseUrl:env.localLlmBaseUrl},
+      {messages:request.messages,responseFormat:request.responseFormat},request.maxOutputTokens,()=>this.streamTransport(request));
+  }
+  private async *streamTransport(request:AfribitChatRequest):AsyncGenerator<string,AfribitChatResponse,void>{
     const startedAt = Date.now();
     const ollama = env.localLlmApi === "ollama";
     const response = await fetch(`${env.localLlmBaseUrl}${ollama ? "/api/chat" : "/v1/chat/completions"}`, {
       method: "POST",
+      signal: request.signal instanceof AbortSignal ? request.signal : undefined,
+      redirect: "error",
       headers: headers(),
       body: JSON.stringify(ollama ? ollamaBody(request, true) : openAIBody(request, true)),
     });
@@ -241,10 +261,12 @@ export class LocalProvider implements InferenceProvider {
         }
       }
     } finally {
+      await reader.cancel().catch(()=>{});
       reader.releaseLock();
     }
 
     if (!content) throw new Error("Local model returned an empty stream");
+    assertNativeCompletion(finishReason);
     return {
       requestId: request.requestId,
       content,

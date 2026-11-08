@@ -14,6 +14,12 @@ if (!keyPath || files.length === 0) {
 }
 const key = JSON.parse(fs.readFileSync(keyPath, "utf-8"));
 const reviews = files.map((f) => JSON.parse(fs.readFileSync(f, "utf-8")));
+for (const review of reviews) {
+  if (String(review?.reviewer?.name??"").startsWith("AUTOMATED-FIXTURE")) throw new Error("Automated UI fixture is not a human review");
+  if (!review || typeof review.ratings !== "object" || Array.isArray(review.ratings) || !review.ratings ||
+      key.pack && review.pack !== key.pack || key.reviewMode && (review.reviewMode ?? "comparison") !== key.reviewMode)
+    throw new Error("Review does not match the pack/mode or has invalid ratings");
+}
 
 const variants = [...new Set(Object.values(key.items).flatMap((m) => Object.values(m)))];
 const stat = Object.fromEntries(variants.map((v) => [v, { n: 0, natural: 0, yes: 0, mostly: 0, no: 0, unsafe: 0, best: 0 }]));
@@ -50,15 +56,16 @@ for (const rv of reviews) {
 
 const pct = (x, n) => (n ? `${Math.round((x / n) * 100)}%` : "-");
 console.log(`# Blind review results — ${key.title ?? ""}\n`);
+if(key.reviewMode==="single")console.log("Single-answer review only. Selection means acceptable as written; it is not a model comparison or an E-002 result.\n");
 console.log(`Reviewers: ${reviews.map((r) => `${r.reviewer?.name ?? "?"}${r.reviewer?.area ? ` (${r.reviewer.area}${r.reviewer.age ? ", " + r.reviewer.age : ""})` : ""}`).join("; ")}`);
 console.log(`Questions rated: ${rankedItems} (reviewer × question)\n`);
-console.log("| Variant | Answers rated | Natural (1–5) | Correct: yes | mostly | no | Flagged risky | Picked best |");
+console.log(`| Variant | Answers rated | Natural (1–5) | Correct: yes | mostly | no | Flagged risky | ${key.reviewMode==="single"?"Acceptable as written":"Picked best"} |`);
 console.log("|---|---|---|---|---|---|---|---|");
 for (const v of variants) {
   const s = stat[v];
   console.log(`| ${v} | ${s.n} | ${s.n ? (s.natural / s.n).toFixed(2) : "-"} | ${pct(s.yes, s.n)} | ${pct(s.mostly, s.n)} | ${pct(s.no, s.n)} | ${s.unsafe} (${pct(s.unsafe, s.n)}) | ${s.best} (${pct(s.best, rankedItems)}) |`);
 }
-console.log(`\n"None of them" was chosen as best ${noneBest} time(s) (${pct(noneBest, rankedItems)}).`);
+console.log(`\n${key.reviewMode==="single"?"Needs revision or rejection":"None of them"} was chosen ${noneBest} time(s) (${pct(noneBest, rankedItems)}).`);
 
 // Agreement: for questions with 2+ reviewers, how often did a pair choose the same variant?
 let pairs = 0;
@@ -69,9 +76,9 @@ for (const picks of Object.values(bestByItem)) {
     if (picks[i] === picks[j]) agree += 1;
   }
 }
-if (pairs) console.log(`\nAgreement on the best answer: ${agree}/${pairs} reviewer pairs (${pct(agree, pairs)}). With ${variants.length} variants, chance agreement is about ${Math.round(100 / variants.length)}%.`);
+if (pairs) console.log(`\nAgreement on ${key.reviewMode==="single"?"acceptance":"the best answer"}: ${agree}/${pairs} reviewer pairs (${pct(agree, pairs)}).${key.reviewMode==="single"?"":` With ${variants.length} variants, chance agreement is about ${Math.round(100 / variants.length)}%.`}`);
 
 if (notes.length) {
-  console.log("\n## Reviewers' notes (use these as corrections and for the language corpus)\n");
+  console.log("\n## Reviewers' notes (evaluation feedback; corpus or training use needs separate permission)\n");
   for (const n of notes) console.log(`- **${n.item}** (${n.reviewer}; their pick: ${n.best}): ${n.text.replace(/\n/g, " ")}`);
 }

@@ -1,5 +1,6 @@
 import type { AfribitChatRequest, AfribitChatResponse, InferenceProvider } from "@afribit/shared";
 import { getModelProfile } from "../config/modelProfiles.js";
+import { assertContextPolicy } from "../privacy/contextPolicy.js";
 
 /** Default for hosted APIs. A profile can override it with `timeoutMs` (community nodes need far longer). */
 const CHAT_TIMEOUT_MS = 15_000;
@@ -36,14 +37,15 @@ export class GatewayError extends Error {
   }
 }
 
-async function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
+async function withTimeout<T>(promise: Promise<T>, ms: number, onTimeout: () => void = () => { }): Promise<T> {
   let timer: NodeJS.Timeout;
   const timeout = new Promise<never>((_, reject) => {
-    timer = setTimeout(() => reject(new GatewayError(`Request timed out after ${ms}ms`)), ms);
+    timer = setTimeout(() => { onTimeout(); reject(new GatewayError(`Request timed out after ${ms}ms`)); }, ms);
   });
   try {
     return await Promise.race([promise, timeout]);
-  } finally {
+  }
+  finally {
     clearTimeout(timer!);
   }
 }
@@ -105,6 +107,7 @@ export class AfribitAIGateway {
     try {
       return await this.attempt(request, request.modelProfile);
     } catch (primaryError) {
+      if(request.signal instanceof AbortSignal && request.signal.aborted)throw primaryError;
       const primaryProfile = getModelProfile(request.modelProfile);
       if (!primaryProfile.fallbackProfile) {
         throw new GatewayError("Primary model failed and no fallback is configured", primaryError);
@@ -127,6 +130,7 @@ export class AfribitAIGateway {
 
   private resolve(request: AfribitChatRequest, profileName: string): { provider: InferenceProvider; scopedRequest: AfribitChatRequest } {
     const profile = getModelProfile(profileName);
+    assertContextPolicy(request, profile.provider);
     const provider = this.providers.get(profile.provider);
     if (!provider) {
       throw new GatewayError(`No provider registered for "${profile.provider}"`);
@@ -143,13 +147,19 @@ export class AfribitAIGateway {
 
   private async attempt(request: AfribitChatRequest, profileName: string): Promise<AfribitChatResponse> {
     const { provider, scopedRequest } = this.resolve(request, profileName);
+    const controller = new AbortController();
+    const signal = request.signal instanceof AbortSignal ? AbortSignal.any([request.signal, controller.signal]) : controller.signal;
     try {
-      const response = await withTimeout(provider.chat(scopedRequest), timeoutFor(profileName));
+      const response = await withTimeout(provider.chat({ ...scopedRequest, signal }), timeoutFor(profileName), () => controller.abort());
       await this.record(request, profileName, { response });
       return response;
-    } catch (error) {
+    }
+    catch (error) {
       await this.record(request, profileName, { error });
       throw error;
+    }
+    finally {
+      controller.abort();
     }
   }
 
@@ -162,56 +172,54 @@ export class AfribitAIGateway {
    * arrived and surfaces the error to the client.
    */
   async *chatStream(request: AfribitChatRequest): AsyncGenerator<string, AfribitChatResponse, void> {
+    let started = false;
     try {
-      return yield* this.attemptStream(request, request.modelProfile);
-    } catch (primaryError) {
+      return yield* this.attemptStream(request, request.modelProfile, () => { started = true; });
+    }
+    catch (primaryError) {
+      if(request.signal instanceof AbortSignal && request.signal.aborted)throw primaryError;
+      if (started)
+        throw new GatewayError("Model stream interrupted after output started", primaryError);
       const primaryProfile = getModelProfile(request.modelProfile);
       if (!primaryProfile.fallbackProfile) {
         throw new GatewayError("Primary model failed and no fallback is configured", primaryError);
       }
-      console.warn(
-        `[gateway] ${request.modelProfile} failed (stream), falling back to ${primaryProfile.fallbackProfile}: ${primaryError instanceof Error ? primaryError.message : String(primaryError)}`,
-      );
+      console.warn(`[gateway] ${request.modelProfile} failed (stream), falling back to ${primaryProfile.fallbackProfile}: ${primaryError instanceof Error ? primaryError.message : String(primaryError)}`);
       try {
         return yield* this.attemptStream(request, primaryProfile.fallbackProfile);
-      } catch (fallbackError) {
+      }
+      catch (fallbackError) {
         throw new GatewayError("Primary and fallback models both failed", fallbackError);
       }
     }
   }
 
-  private async *attemptStream(request: AfribitChatRequest, profileName: string): AsyncGenerator<string, AfribitChatResponse, void> {
+  private async *attemptStream(request: AfribitChatRequest, profileName: string, onStarted: () => void = () => { }): AsyncGenerator<string, AfribitChatResponse, void> {
     const { provider, scopedRequest } = this.resolve(request, profileName);
-    const generator = provider.chatStream(scopedRequest);
-
-    // Only the time-to-first-chunk is bounded — once tokens are flowing,
-    // total response time depends on length, not a fixed idle timeout.
-    let first: IteratorResult<string, AfribitChatResponse>;
+    const controller = new AbortController(), deadline = Date.now() + timeoutFor(profileName);
+    const signal = request.signal instanceof AbortSignal ? AbortSignal.any([request.signal, controller.signal]) : controller.signal;
+    const generator = provider.chatStream({ ...scopedRequest, signal });
+    let complete = false;
     try {
-      first = await withTimeout(generator.next(), timeoutFor(profileName));
-    } catch (error) {
+      while (true) {
+        const next = await withTimeout(generator.next(), Math.max(1, deadline - Date.now()), () => controller.abort());
+        if (next.done) {
+          complete = true;
+          await this.record(request, profileName, { response: next.value });
+          return next.value;
+        }
+        onStarted();
+        yield next.value;
+      }
+    }
+    catch (error) {
       await this.record(request, profileName, { error });
       throw error;
     }
-    if (first.done) {
-      await this.record(request, profileName, { response: first.value });
-      return first.value;
-    }
-    yield first.value;
-
-    while (true) {
-      let next: IteratorResult<string, AfribitChatResponse>;
-      try {
-        next = await generator.next();
-      } catch (error) {
-        await this.record(request, profileName, { error });
-        throw error;
-      }
-      if (next.done) {
-        await this.record(request, profileName, { response: next.value });
-        return next.value;
-      }
-      yield next.value;
+    finally {
+      controller.abort();
+      if (!complete)
+        void generator.return(undefined as never).catch(() => { });
     }
   }
 

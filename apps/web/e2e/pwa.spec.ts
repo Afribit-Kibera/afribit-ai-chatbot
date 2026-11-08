@@ -4,8 +4,10 @@ test("installed shell reloads offline with its CSS and draft", async ({
   page,
   context,
 }) => {
+  await page.route("**/api/v1/community/access", (route) => route.fulfill({ json: { packId: "kibera-bitcoin", membersOnly: false, member: false, authenticated: false } }));
   await page.addInitScript(() => {
     localStorage.setItem("afribit.onboarded", "true");
+    sessionStorage.setItem('afribit.learning-chat.v2:guest:default','true');
   });
   await page.goto("/app");
   await page.getByRole("textbox", { name: "Your question" }).waitFor();

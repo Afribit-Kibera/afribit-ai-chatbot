@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import type { AfribitAIGateway } from "../gateway/gateway.js";
 import { env } from "../config/env.js";
 import { getPack } from "../pack/active.js";
+import { localOnlyProcessing } from "../privacy/contextPolicy.js";
 
 /**
  * The waiter's order ticket.
@@ -70,6 +71,7 @@ export function parseTicket(text: string): OrderTicket | null {
 
 /** Which waiter model to use: the node's own in node/hybrid mode, the hosted one in cloud mode. */
 export function waiterProfile(): string {
+  if (localOnlyProcessing()) return "waiter_local";
   return env.inferenceMode === "cloud" ? "waiter_cloud" : "waiter_local";
 }
 

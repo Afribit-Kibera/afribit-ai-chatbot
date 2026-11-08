@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import type { AfribitChatMessage, ExplanationLevel, LanguageModeId, RetrievalResult } from "@afribit/shared";
+import type { AfribitChatMessage, ExplanationLevel, LanguageModeId, RetrievalResult, ProcessingPolicy, AnswerMode, AnswerSource } from "@afribit/shared";
 import { env } from "../config/env.js";
 import { pool } from "../db/pool.js";
 import { retrieveKnowledge } from "../knowledge/retrieval.js";
@@ -22,10 +22,25 @@ import { answeredBy } from "../privacy/location.js";
 import { storedContent } from "../privacy/retention.js";
 import { noteGap } from "../gaps/recorder.js";
 import { semanticSearchEnabled } from "../providers/embeddings.js";
+import { newGuestAccess, sessionAccess, type SessionActor } from "./access.js";
+import { communityStore } from "../community/store.js";
+import { memoryStore } from "../memory/store.js";
+import { localMemoryAvailable, withPersonalMemory, withProcessingPolicy, localOnlyProcessing, reviewedOnlyProcessing } from "../privacy/contextPolicy.js";
+import type { MemoryItem } from "../memory/store.js";
+import { notebooks } from "../notebooks/service.js";
+import { buildNotebookPrompt } from "../notebooks/prompt.js";
+import { learningContext } from "../learning/context.js";
 
 export interface SendMessageInput {
+  /** Internal transport cancellation, never deserialized from an API body. */
+  signal?: AbortSignal;
+  notebookId?: string;
+  processingPolicy?: ProcessingPolicy;
+  answerMode?: AnswerMode;
   sessionId: string | null;
   userId: string | null;
+  /** Guest capability from x-chat-token, never part of the model prompt. */
+  sessionToken?: string | null;
   message: string;
   languageMode?: LanguageModeId;
   explanationLevel?: ExplanationLevel;
@@ -51,7 +66,10 @@ export interface SendMessageInput {
 }
 
 export interface SendMessageOutput {
+  processingPolicy?: ProcessingPolicy;
+  answerSource?: AnswerSource;
   sessionId: string;
+  sessionToken?: string;
   messageId: string;
   content: string;
   languageMode: LanguageModeId;
@@ -100,12 +118,11 @@ export function selectModelProfile(languageMode: LanguageModeId, explanationLeve
 }
 
 /**
- * The pack a stored conversation belongs to: its id, null for a conversation older than multi-pack
- * support (the default pack's), or undefined when there is no such conversation.
+ * The authorized conversation's pack (NULL means the default pack). Missing/inaccessible IDs throw
+ * before pack details or history can be disclosed.
  */
-export async function sessionPackId(sessionId: string): Promise<string | null | undefined> {
-  const { rows } = await pool.query<{ pack_id: string | null }>("SELECT pack_id FROM chat_sessions WHERE id = $1", [sessionId]);
-  return rows.length > 0 ? rows[0]!.pack_id : undefined;
+export async function sessionPackId(sessionId: string, actor: SessionActor): Promise<string | null> {
+  return (await sessionAccess.requireSession(sessionId, actor)).pack_id;
 }
 
 async function ensureSession(
@@ -114,28 +131,70 @@ async function ensureSession(
   languageMode: LanguageModeId,
   explanationLevel: ExplanationLevel,
   source: string | null,
-): Promise<string> {
-  if (sessionId) {
-    const { rows } = await pool.query("SELECT id FROM chat_sessions WHERE id = $1", [sessionId]);
-    if (rows.length > 0) return sessionId;
+  sessionToken?: string | null,
+): Promise<{ sessionId: string; sessionToken?: string }> {
+  if (sessionId !== null) {
+    await sessionAccess.requireSession(sessionId, { userId, guestToken: sessionToken }, getPack().id);
+    return { sessionId };
   }
+  await communityStore.requireAccess(getPack().id, userId);
+  const guest = userId ? null : newGuestAccess();
   const { rows } = await pool.query<{ id: string }>(
-    `INSERT INTO chat_sessions (user_id, language_mode, explanation_level, pack_id, source) VALUES ($1, $2, $3, $4, $5) RETURNING id`,
-    [userId, languageMode, explanationLevel, getPack().id, source],
+    `INSERT INTO chat_sessions (user_id, language_mode, explanation_level, pack_id, source, guest_access_hash, guest_access_expires_at)
+     VALUES ($1, $2, $3, $4, $5, $6, CASE WHEN $6::text IS NOT NULL THEN now() + interval '30 days' ELSE NULL END) RETURNING id`,
+    [userId, languageMode, explanationLevel, getPack().id, source, guest?.hash ?? null],
   );
   const id = rows[0]?.id;
   if (!id) throw new Error("Failed to create chat session");
-  return id;
+  return { sessionId: id, ...(guest ? { sessionToken: guest.sessionToken } : {}) };
 }
 
-async function loadHistory(sessionId: string, limit = 8) {
-  const { rows } = await pool.query<{ role: "user" | "assistant"; content: string }>(
-    `SELECT role, content FROM chat_messages
-     WHERE session_id = $1 AND role IN ('user', 'assistant')
-     ORDER BY created_at DESC LIMIT $2`,
-    [sessionId, limit],
-  );
-  return rows.reverse();
+interface ChatRequestScope {
+  notebookId?: string;
+  studySources: {content:string}[];
+  sessionId: string;
+  sessionToken?: string;
+  languageMode: LanguageModeId;
+  explanationLevel: ExplanationLevel;
+  localOnly: boolean;
+  notes: MemoryItem[];
+  history: AfribitChatMessage[];
+}
+
+async function withChatRequest<T>(input: SendMessageInput, work: (scope: ChatRequestScope) => Promise<T>): Promise<T> {
+  if(typeof input.message!=="string"||!input.message.trim())throw Object.assign(new Error("Question is required"),{statusCode:400});
+  if(Buffer.byteLength(input.message,"utf8")>8000)throw Object.assign(new Error("Your question is too long. Please shorten it."),{statusCode:413});
+  if (input.processingPolicy !== undefined && input.processingPolicy !== "configured" && input.processingPolicy !== "local-only")
+    throw Object.assign(new Error("Invalid processing policy"),{statusCode:400});
+  if (input.answerMode !== undefined && input.answerMode !== "generate" && input.answerMode !== "reviewed-only")
+    throw Object.assign(new Error("Invalid answer mode"),{statusCode:400});
+  const pack=getPack();
+  const languageMode=input.languageMode && isKnownMode(input.languageMode)?input.languageMode:pack.defaultMode;
+  const explanationLevel=input.explanationLevel??DEFAULT_LEVEL;
+  if(input.notebookId!==undefined)await notebooks.owned(input.userId,pack.id,input.notebookId);
+  const session=await ensureSession(input.sessionId,input.userId,languageMode,explanationLevel,input.source??null,input.sessionToken);
+  if(input.notebookId){
+    const binding=await pool.query(`UPDATE chat_sessions SET study_notebook_id=$2 WHERE id=$1 AND (study_notebook_id IS NULL OR study_notebook_id=$2) RETURNING id`,[session.sessionId,input.notebookId]);
+    if(!binding.rows.length)throw Object.assign(new Error('Start a new conversation for a different notebook'),{statusCode:409});
+  }
+  const reviewedOnly=input.answerMode==="reviewed-only" || reviewedOnlyProcessing();
+  const notes=reviewedOnly?[]:await memoryStore.forPrompt(input.userId,pack.id,localMemoryAvailable());
+  // Capture history with policy, before inserting this question. Never load later turns after waiting
+  // for auxiliary model calls: another request might have made those turns local-only in the meantime.
+  const {rows}=await pool.query<{personal_local_context:boolean; study_notebook_id:string|null; history:AfribitChatMessage[]}>(
+    `UPDATE chat_sessions s SET personal_local_context=personal_local_context OR $2 OR study_notebook_id IS NOT NULL WHERE id=$1
+     RETURNING personal_local_context,study_notebook_id,
+       (SELECT COALESCE(jsonb_agg(jsonb_build_object('role',h.role,'content',h.content) ORDER BY h.created_at,h.id),'[]'::jsonb)
+        FROM (SELECT id,role,content,created_at FROM chat_messages WHERE session_id=$1
+          AND role IN ('user','assistant') AND content_deleted_at IS NULL AND content<>''
+          ORDER BY created_at DESC,id DESC LIMIT 7) h) AS history`,
+    [session.sessionId,reviewedOnly || localOnlyProcessing() || input.processingPolicy==="local-only" || notes.some((n)=>!n.allow_remote)]);
+  if (!rows[0]) throw new Error("Conversation disappeared before processing");
+  const localOnly=rows[0].personal_local_context;
+  const notebookId=rows[0].study_notebook_id??undefined;
+  const studySources=notebookId && !reviewedOnly ? await notebooks.context(input.userId,pack.id,notebookId,input.message) : [];
+  return withProcessingPolicy({localOnly,reviewedOnly},()=>work({...session,languageMode,explanationLevel,localOnly,notes,notebookId,studySources,
+    history:env.chatRetention.mode==="none"?(input.history??[]).slice(-7):rows[0]!.history??[]}));
 }
 
 /**
@@ -169,6 +228,7 @@ async function groundingCheck(sessionId: string, answer: string, promptMessages:
 }
 
 async function insertMessage(params: {
+  answerSource?: AnswerSource;
   sessionId: string;
   role: "user" | "assistant";
   content: string;
@@ -184,8 +244,8 @@ async function insertMessage(params: {
 }): Promise<string> {
   const { rows } = await pool.query<{ id: string }>(
     `INSERT INTO chat_messages
-      (session_id, role, content, retrieval_confidence, model_profile, provider, latency_ms, prompt_tokens, completion_tokens, safety_flag, retrieved_ids)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+      (session_id, role, content, retrieval_confidence, model_profile, provider, latency_ms, prompt_tokens, completion_tokens, safety_flag, retrieved_ids, answer_source)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
      RETURNING id`,
     [
       params.sessionId,
@@ -200,6 +260,7 @@ async function insertMessage(params: {
       params.completionTokens ?? null,
       params.safetyFlag ?? null,
       params.retrievedIds ?? null,
+      params.answerSource ?? null,
     ],
   );
   const id = rows[0]?.id;
@@ -213,10 +274,13 @@ interface BlockedContext {
 }
 
 interface ProceedContext {
+  answerMode: AnswerMode;
+  contextPrivacy?: "personal-local-only";
   kind: "proceed";
   /** F-004: the best meaning-match among the cards found, and whether meaning search ran at all. */
   gapSignal: { meaningScore: number | null; nearestCard: string | null; judged: boolean };
   sessionId: string;
+  sessionToken?: string;
   languageMode: LanguageModeId;
   explanationLevel: ExplanationLevel;
   promptMessages: AfribitChatMessage[];
@@ -234,11 +298,9 @@ interface ProceedContext {
  * and prompt assembly (PRD §9.2 steps 1-6). Callers differ only in how they
  * invoke the gateway and persist the result.
  */
-async function prepareChat(gateway: AfribitAIGateway, input: SendMessageInput): Promise<BlockedContext | ProceedContext> {
+async function prepareChat(gateway: AfribitAIGateway, input: SendMessageInput, scope: ChatRequestScope): Promise<BlockedContext | ProceedContext> {
   const pack = getPack();
-  const languageMode = input.languageMode && isKnownMode(input.languageMode) ? input.languageMode : pack.defaultMode;
-  const explanationLevel = input.explanationLevel ?? DEFAULT_LEVEL;
-  const sessionId = await ensureSession(input.sessionId, input.userId, languageMode, explanationLevel, input.source ?? null);
+  const {sessionId,sessionToken,languageMode,explanationLevel}=scope;
 
   const secretCheck = pack.safety.secretDetection ? detectSecret(input.message) : ({ detected: false, kind: null, redacted: input.message } as ReturnType<typeof detectSecret>);
   if (secretCheck.detected) {
@@ -253,6 +315,8 @@ async function prepareChat(gateway: AfribitAIGateway, input: SendMessageInput): 
       kind: "blocked",
       response: {
         sessionId,
+        sessionToken,
+        processingPolicy:scope.localOnly?"local-only":"configured",
         messageId,
         content: pack.prompts.secretWarning,
         languageMode,
@@ -267,6 +331,17 @@ async function prepareChat(gateway: AfribitAIGateway, input: SendMessageInput): 
 
   await insertMessage({ sessionId, role: "user", content: input.message });
 
+  if(scope.notebookId){
+    return {
+      kind:'proceed',answerMode:input.answerMode??'generate',contextPrivacy:'personal-local-only',
+      sessionId,sessionToken,languageMode,explanationLevel,
+      promptMessages:await learningContext(withPersonalMemory(buildNotebookPrompt(pack,languageMode,explanationLevel,scope.history,input.message),[...scope.studySources,...scope.notes]),languageMode,input.message,false),
+      modelProfile:'node_chat',requestId:randomUUID(),topConfidence:null,
+      gapSignal:{meaningScore:null,nearestCard:null,judged:false},retrievedIds:[],
+      fallbackContent:'A local AI answer is unavailable. You can still read your sources. No source text was sent to an outside model.',notifyToken:null,
+    };
+  }
+
   // Language examples only matter for sheng/mixed_ke (buildPrompt only
   // renders them there too) -- skip the query entirely for other modes
   // rather than fetch-and-discard.
@@ -275,17 +350,15 @@ async function prepareChat(gateway: AfribitAIGateway, input: SendMessageInput): 
   // Used for SEARCH only -- the answer is still written for the customer's own words. Any
   // failure falls back to those words.
   // The restaurant pipeline needs the ticket too. It is ignored in node mode (no hosted chef there).
-  const restaurantOn = env.chatPipeline === "restaurant" && env.inferenceMode !== "node";
-  const ticket = env.waiterQueryRewrite || restaurantOn ? await makeTicket(gateway, input.message, languageMode) : null;
+  const restaurantOn = env.chatPipeline === "restaurant" && env.inferenceMode !== "node" && !scope.localOnly;
+  const ticket = !reviewedOnlyProcessing() && (env.waiterQueryRewrite || restaurantOn) ? await makeTicket(gateway, input.message, languageMode) : null;
   const searchQuery = ticket?.question_en ?? input.message;
 
   const [retrieval, languageExamples, history] = await Promise.all([
     retrieveKnowledge(searchQuery),
     isShengLike ? retrieveLanguageExamples(input.message) : Promise.resolve([]),
     // F-002: a server that keeps no chats has no history to load; the browser sends the recent turns.
-    env.chatRetention.mode === "none"
-      ? Promise.resolve([...(input.history ?? []).slice(-7), { role: "user" as const, content: input.message }])
-      : loadHistory(sessionId),
+    Promise.resolve(scope.history),
   ]);
   const build = env.promptMode === "compact" ? buildCompactPrompt : buildPrompt;
   let promptMessages = build({
@@ -293,13 +366,13 @@ async function prepareChat(gateway: AfribitAIGateway, input: SendMessageInput): 
     explanationLevel,
     retrieval,
     languageExamples,
-    conversationHistory: history.slice(0, -1), // exclude the message just inserted
+    conversationHistory: history,
     userMessage: input.message,
   });
 
   // Restaurant pipeline: the chef cooks from the neutral ticket (never the customer's words) and the
   // waiter serves it in the customer's language. Any failure leaves the single-call prompt above in place.
-  let modelProfile = selectModelProfile(languageMode, explanationLevel);
+  let modelProfile = scope.localOnly ? "node_chat" : selectModelProfile(languageMode, explanationLevel);
   if (restaurantOn && ticket) {
     const facts = await runChef(gateway, ticket, input.message, retrieval);
     if (facts) {
@@ -308,16 +381,21 @@ async function prepareChat(gateway: AfribitAIGateway, input: SendMessageInput): 
         explanationLevel,
         facts: JSON.stringify(facts),
         languageExamples,
-        conversationHistory: history.slice(0, -1),
+        conversationHistory: history,
         userMessage: input.message,
       });
       modelProfile = env.inferenceMode === "cloud" ? "serve_cloud" : "serve_local";
     }
   }
 
+  promptMessages = withPersonalMemory(promptMessages,scope.notes);
+  promptMessages = await learningContext(promptMessages,languageMode,input.message,true);
   return {
     kind: "proceed",
+    answerMode:reviewedOnlyProcessing()?"reviewed-only":input.answerMode??"generate",
+    contextPrivacy: scope.localOnly ? "personal-local-only" : undefined,
     sessionId,
+    sessionToken,
     languageMode,
     explanationLevel,
     promptMessages,
@@ -329,7 +407,7 @@ async function prepareChat(gateway: AfribitAIGateway, input: SendMessageInput): 
     fallbackContent:
       retrieval[0]?.authoritativeContent ??
       pack.prompts.serviceUnavailable,
-    notifyToken: input.notifyToken ?? null,
+    notifyToken: scope.localOnly ? null : input.notifyToken ?? null,
   };
 }
 
@@ -352,14 +430,33 @@ async function notifyIfRequested(notifyToken: string | null): Promise<void> {
  * assembly → gateway → non-AI fallback on provider failure → persistence.
  */
 export async function sendMessage(gateway: AfribitAIGateway, input: SendMessageInput): Promise<SendMessageOutput> {
-  const ctx = await prepareChat(gateway, input);
+  return withChatRequest(input,async(scope)=>({
+    ...await sendScopedMessage(gateway,input,scope),processingPolicy:scope.localOnly?"local-only":"configured",
+  }));
+}
+
+function fallbackSource(ctx: ProceedContext): AnswerSource { return ctx.retrievedIds.length ? "reviewed-fallback" : "unavailable"; }
+async function completeReviewed(ctx: ProceedContext): Promise<SendMessageOutput> {
+  const answerSource:AnswerSource=ctx.retrievedIds.length?"reviewed-card":"unavailable";
+  const content=ctx.retrievedIds.length?ctx.fallbackContent:"No matching approved card is available for this question. Try rephrasing it or ask your community to review new information.";
+  const messageId=await insertMessage({sessionId:ctx.sessionId,role:"assistant",content,
+    answerSource,provider:"reviewed",modelProfile:"reviewed_only",retrievalConfidence:ctx.topConfidence,
+    retrievedIds:ctx.retrievedIds.slice(0,1),promptTokens:0,completionTokens:0,latencyMs:0});
+  return {sessionId:ctx.sessionId,sessionToken:ctx.sessionToken,messageId,content,
+    languageMode:ctx.languageMode,explanationLevel:ctx.explanationLevel,retrievalConfidence:ctx.topConfidence,
+    usedFallback:false,safetyFlag:null,answeredBy:"local",answerSource};
+}
+async function sendScopedMessage(gateway: AfribitAIGateway,input:SendMessageInput,scope:ChatRequestScope):Promise<SendMessageOutput> {
+  const ctx = await prepareChat(gateway, input,scope);
   if (ctx.kind === "blocked") return ctx.response;
+  if (ctx.answerMode === "reviewed-only") return completeReviewed(ctx);
 
   const { sessionId, languageMode, explanationLevel, promptMessages, modelProfile, requestId, topConfidence, retrievedIds, fallbackContent, notifyToken } = ctx;
   const gapAfterAnswer = gapNoter(gateway, input.message, ctx);
 
   try {
     const response = await gateway.chat({
+      contextPrivacy: ctx.contextPrivacy,
       requestId,
       messages: promptMessages,
       languageMode,
@@ -396,6 +493,7 @@ export async function sendMessage(gateway: AfribitAIGateway, input: SendMessageI
       retrievedIds,
       modelProfile,
       provider: response.provider,
+      answerSource:"model",
       latencyMs: response.latencyMs,
       promptTokens: response.usage.promptTokens,
       completionTokens: response.usage.completionTokens,
@@ -410,13 +508,15 @@ export async function sendMessage(gateway: AfribitAIGateway, input: SendMessageI
     return {
       sessionId,
       messageId,
+      sessionToken: ctx.sessionToken,
       content: finalContent,
       languageMode,
       explanationLevel,
       retrievalConfidence: topConfidence,
       usedFallback: false,
       safetyFlag: safetyCheck.violated ? `output_safety_${safetyCheck.kind}` : withheldAsUngrounded ? "ungrounded_answer" : null,
-      answeredBy: answeredBy(response.provider),
+      answeredBy: answeredBy(response.provider,env.localLlmBaseUrl),
+      answerSource:"model",
     };
   } catch (err) {
     // PRD §17.3 — provider failure: fall back to a canonical knowledge-card
@@ -430,6 +530,7 @@ export async function sendMessage(gateway: AfribitAIGateway, input: SendMessageI
       sessionId,
       role: "assistant",
       content: fallbackContent,
+      answerSource:fallbackSource(ctx),
       retrievalConfidence: topConfidence,
       retrievedIds,
       safetyFlag: err instanceof GatewayError ? "provider_failure" : "unknown_error",
@@ -441,6 +542,7 @@ export async function sendMessage(gateway: AfribitAIGateway, input: SendMessageI
     return {
       sessionId,
       messageId,
+      sessionToken: ctx.sessionToken,
       content: fallbackContent,
       languageMode,
       explanationLevel,
@@ -448,14 +550,15 @@ export async function sendMessage(gateway: AfribitAIGateway, input: SendMessageI
       usedFallback: true,
       safetyFlag: null,
       answeredBy: "local",
+      answerSource:fallbackSource(ctx),
     };
   }
 }
 
 export type StreamEvent =
-  | { type: "meta"; sessionId: string; safetyFlag: string | null }
+  | { type: "meta"; sessionId: string; sessionToken?: string; safetyFlag: string | null; processingPolicy?: ProcessingPolicy }
   | { type: "delta"; text: string }
-  | { type: "done"; messageId: string; usedFallback: boolean; answeredBy?: "local" | "outside" }
+  | { type: "done"; messageId: string; usedFallback: boolean; answeredBy?: "local" | "outside"; answerSource?: AnswerSource }
   | { type: "error"; message: string };
 
 /**
@@ -469,10 +572,14 @@ export async function streamMessage(
   input: SendMessageInput,
   onEvent: (event: StreamEvent) => void,
 ): Promise<void> {
-  const ctx = await prepareChat(gateway, input);
+  return withChatRequest(input,(scope)=>streamScopedMessage(gateway,input,(event)=>onEvent(event.type==="meta"
+    ? {...event,processingPolicy:scope.localOnly?"local-only":"configured"}:event),scope));
+}
+async function streamScopedMessage(gateway:AfribitAIGateway,input:SendMessageInput,onEvent:(event:StreamEvent)=>void,scope:ChatRequestScope):Promise<void> {
+  const ctx = await prepareChat(gateway, input,scope);
 
   if (ctx.kind === "blocked") {
-    onEvent({ type: "meta", sessionId: ctx.response.sessionId, safetyFlag: ctx.response.safetyFlag });
+    onEvent({ type: "meta", sessionId: ctx.response.sessionId, sessionToken: ctx.response.sessionToken, safetyFlag: ctx.response.safetyFlag });
     onEvent({ type: "delta", text: ctx.response.content });
     onEvent({ type: "done", messageId: ctx.response.messageId, usedFallback: false, answeredBy: "local" });
     return;
@@ -480,7 +587,13 @@ export async function streamMessage(
 
   const { sessionId, languageMode, explanationLevel, promptMessages, modelProfile, requestId, topConfidence, retrievedIds, fallbackContent, notifyToken } = ctx;
   const gapAfterAnswer = gapNoter(gateway, input.message, ctx);
-  onEvent({ type: "meta", sessionId, safetyFlag: null });
+  onEvent({ type: "meta", sessionId, sessionToken: ctx.sessionToken, safetyFlag: null });
+  if (ctx.answerMode === "reviewed-only") {
+    const result=await completeReviewed(ctx);
+    onEvent({type:"delta",text:result.content});
+    onEvent({type:"done",messageId:result.messageId,usedFallback:false,answeredBy:"local",answerSource:result.answerSource});
+    return;
+  }
 
   let content = "";
   // Hard stop for the two most severe SAFETY_POLICY violations -- see
@@ -506,6 +619,8 @@ export async function streamMessage(
   }, applyPostprocess);
   try {
     const generator = gateway.chatStream({
+      signal:input.signal,
+      contextPrivacy: ctx.contextPrivacy,
       requestId,
       messages: promptMessages,
       languageMode,
@@ -553,6 +668,7 @@ export async function streamMessage(
       retrievedIds,
       modelProfile,
       provider: finalResponse.provider,
+      answerSource:"model",
       latencyMs: finalResponse.latencyMs,
       promptTokens: finalResponse.usage.promptTokens,
       completionTokens: finalResponse.usage.completionTokens,
@@ -567,7 +683,7 @@ export async function streamMessage(
     } else if (noteUngrounded) {
       onEvent({ type: "delta", text: ungroundedNote });
     }
-    onEvent({ type: "done", messageId, usedFallback: false, answeredBy: answeredBy(finalResponse.provider) });
+    onEvent({ type: "done", messageId, usedFallback: false, answeredBy: answeredBy(finalResponse.provider,env.localLlmBaseUrl),answerSource:"model" });
     gapAfterAnswer();
   } catch (err) {
     await pool.query(
@@ -585,6 +701,7 @@ export async function streamMessage(
         retrievalConfidence: topConfidence,
         retrievedIds,
         safetyFlag: "stream_interrupted",
+        answerSource:"model",
       });
       onEvent({ type: "error", message: "The response was interrupted. Please try again." });
       await notifyIfRequested(notifyToken);
@@ -597,13 +714,14 @@ export async function streamMessage(
       sessionId,
       role: "assistant",
       content: fallbackContent,
+      answerSource:fallbackSource(ctx),
       retrievalConfidence: topConfidence,
       retrievedIds,
       safetyFlag: err instanceof GatewayError ? "provider_failure" : "unknown_error",
     });
     onEvent({ type: "delta", text: fallbackContent });
     await notifyIfRequested(notifyToken);
-    onEvent({ type: "done", messageId, usedFallback: true, answeredBy: "local" });
+    onEvent({ type: "done", messageId, usedFallback: true, answeredBy: "local",answerSource:fallbackSource(ctx) });
     gapAfterAnswer();
   }
 }

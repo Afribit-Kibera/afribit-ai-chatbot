@@ -7,6 +7,8 @@ import { readStorage } from "./storage.js";
 export type Locale = "en" | "sw" | "sh";
 export type Theme = "system" | "dark" | "light";
 export interface Preferences {
+  /** Explicit onboarding choice for public Bitcoin questions; private notebooks stay local-only. */
+  remoteProcessingAllowed?: boolean;
   /** A mode id declared by the active pack. "" means "use the pack's default". */
   languageMode: LanguageModeId;
   explanationLevel: ExplanationLevel;
@@ -27,6 +29,7 @@ export function validatePreferences(value: unknown): Preferences {
     value && typeof value === "object" ? value : {}
   ) as Partial<Preferences>;
   return {
+    ...(typeof p.remoteProcessingAllowed === 'boolean' ? {remoteProcessingAllowed:p.remoteProcessingAllowed} : {}),
     // Any id is kept here; the pack decides which ids are valid (see resolveMode in pack.ts).
     languageMode:
       typeof p.languageMode === "string" &&

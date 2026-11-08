@@ -2,10 +2,11 @@ import fp from "fastify-plugin";
 import jwt from "@fastify/jwt";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { env } from "../config/env.js";
+import { pool } from "../db/pool.js";
 
 export interface AuthedUser {
   id: string;
-  role: "contributor" | "reviewer" | "admin";
+  role: "learner" | "contributor" | "reviewer" | "admin";
 }
 
 declare module "@fastify/jwt" {
@@ -69,6 +70,12 @@ export const authPlugin = fp(async (app: FastifyInstance) => {
       // reject here; that's the whole point of "optional".
     }
   });
+  app.decorate("requireContributor", async (request: FastifyRequest, reply: FastifyReply) => {
+    await app.requireAuth(request, reply);
+    if (reply.sent) return;
+    const { rows } = await pool.query(`SELECT 1 FROM users WHERE id=$1 AND role IN ('contributor','reviewer','admin')`, [request.user.id]);
+    if (!rows.length) return reply.status(403).send({ error: "Contributor access required" });
+  });
 });
 
 declare module "fastify" {
@@ -77,5 +84,6 @@ declare module "fastify" {
     requireAdmin: (request: FastifyRequest, reply: FastifyReply) => Promise<void>;
     requireReviewer: (request: FastifyRequest, reply: FastifyReply) => Promise<void>;
     optionalAuth: (request: FastifyRequest, reply: FastifyReply) => Promise<void>;
+    requireContributor: (request: FastifyRequest, reply: FastifyReply) => Promise<void>;
   }
 }

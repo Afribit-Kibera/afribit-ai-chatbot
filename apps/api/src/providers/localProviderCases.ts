@@ -1,5 +1,6 @@
 import http from "node:http";
 import type { AddressInfo } from "node:net";
+import type { InferenceProvider } from "@afribit/shared";
 
 /**
  * Regression suite for the community-node provider. No database, no model, no
@@ -168,6 +169,32 @@ while (!step.done) {
   step = await gen.next();
 }
 check("SSE stream yields deltas", deltas.join("|") === "Sa|wa" && step.value.content === "Sawa");
+
+console.log("\nPersonal-context routing and redirects:");
+const privateRequest = { ...request, contextPrivacy: "personal-local-only" as const };
+for (const api of ["ollama","openai"]) {
+  mutable.localLlmApi=api;
+  handler=(_req,_body,res)=>{res.statusCode=307;res.setHeader("location",`http://127.0.0.1:${port}/redirect-target`);res.end();};
+  let before=seen.length;
+  await provider.chat(privateRequest).then(()=>check(`${api} private chat rejects redirects`,false),()=>check(`${api} private chat rejects redirects`,seen.length===before+1));
+  before=seen.length;
+  await provider.chatStream(privateRequest).next().then(()=>check(`${api} private stream rejects redirects`,false),()=>check(`${api} private stream rejects redirects`,seen.length===before+1));
+}
+const { AfribitAIGateway } = await import("../gateway/gateway.js");
+const { OpenRouterProvider } = await import("./openRouterProvider.js");
+let remoteCalls=0;
+const outside={...provider,name:"openrouter",async chat(){remoteCalls++;throw new Error("Remote trap");},async *chatStream(){remoteCalls++;throw new Error("Remote trap");},health:()=>provider.health(),capabilities:()=>provider.capabilities()};
+const routed=new AfribitAIGateway(new Map<string,InferenceProvider>([["local",provider],["openrouter",outside]]));
+handler=(_req,_body,res)=>{res.statusCode=503;res.end("Synthetic local failure");};
+const fallbackRequest={...privateRequest,modelProfile:"node_chat_cloud_fallback"};
+await routed.chat(fallbackRequest).then(()=>check("private fallback must fail closed",false),()=>check("private fallback never reaches outside provider",remoteCalls===0));
+await routed.chatStream(fallbackRequest).next().then(()=>check("private stream fallback must fail closed",false),()=>check("private stream fallback never reaches outside provider",remoteCalls===0));
+await routed.chat({...privateRequest,modelProfile:"default_chat"}).then(()=>check("private primary remote must fail closed",false),()=>check("private primary remote never reaches provider",remoteCalls===0));
+const outsideProvider=new OpenRouterProvider();
+await outsideProvider.chat({...privateRequest,modelProfile:"default_chat"}).then(()=>check("outside direct call fails closed",false),(e:Error)=>check("outside direct call rejects privacy before credentials/network",e.message.includes("Local-only")));
+mutable.localLlmBaseUrl="https://remote.example.invalid";
+await provider.chat(privateRequest).then(()=>check("remote node rejects private notes",false),(e:Error)=>check("remote node rejects private notes before network",e.message.includes("Local-only")));
+mutable.localLlmBaseUrl=`http://127.0.0.1:${port}`;
 
 console.log("\nHealth:");
 handler = (_req, _body, res) => res.end("{}");

@@ -9,7 +9,8 @@ import { activeEmbeddingModel, embedDocuments } from "../providers/embeddings.js
  * vectors are dropped so a stale embedding can never describe new words.
  */
 export async function indexEntry(id: string): Promise<{ embedded: boolean }> {
-  const { rows } = await pool.query<{ title: string; canonical_answer: string }>(`SELECT title, canonical_answer FROM knowledge_entries WHERE id = $1`, [id]);
+  // Snapshot cards have their own immutable review/withdrawal workflow and currently stay lexical-only.
+  const { rows } = await pool.query<{ title: string; canonical_answer: string }>(`SELECT title, canonical_answer FROM knowledge_entries WHERE id = $1 AND community_pack_id IS NULL`, [id]);
   const entry = rows[0];
   if (!entry) throw new Error(`No knowledge entry ${id}`);
   const text = `${entry.title}\n${entry.canonical_answer}`;

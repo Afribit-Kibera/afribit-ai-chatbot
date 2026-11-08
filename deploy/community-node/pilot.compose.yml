@@ -1,0 +1,110 @@
+# Dedicated Proxmox staging project. Never overlay the pre-existing private-ai project.
+# Only the web origin is published. Keep its listen address private behind an HTTPS ingress.
+name: afribit-pilot
+services:
+ postgres:
+  image: pgvector/pgvector:pg16
+  restart: unless-stopped
+  environment:
+   POSTGRES_USER: afribit
+   POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?required}
+   POSTGRES_DB: afribit
+  volumes: [pgdata:/var/lib/postgresql/data]
+  networks: [app_private]
+  healthcheck:
+   test: [CMD-SHELL, 'pg_isready -U afribit -d afribit']
+   interval: 5s
+   timeout: 5s
+   retries: 20
+ api:
+  build:
+   context: ../..
+   dockerfile: apps/api/Dockerfile
+  restart: unless-stopped
+  depends_on:
+   postgres: {condition: service_healthy}
+  environment:
+   NODE_ENV: production
+   PORT: '3001'
+   DATABASE_URL: postgres://afribit:${POSTGRES_PASSWORD}@postgres:5432/afribit
+   JWT_SECRET: ${JWT_SECRET:?required}
+   REGISTRATION: invite
+   CORS_ORIGIN: https://ai.afribit.africa
+   COMMUNITY_PACK_DIR: /app/packs/kibera-bitcoin
+   INFERENCE_MODE: node
+   LOCAL_LLM_BASE_URL: http://model:11434
+   LOCAL_LLM_MODEL: qwen3:8b
+   LOCAL_LLM_NUM_CTX: '8192'
+   LOCAL_LLM_NUM_GPU: '0'
+   LOCAL_LLM_DISABLE_THINKING: 'true'
+   PROMPT_MODE: compact
+   OPEN_NOTEBOOK_API_URL: http://127.0.0.1:5055
+   OPEN_NOTEBOOK_PASSWORD: ${OPEN_NOTEBOOK_PASSWORD:?required}
+  volumes: [trials:/app/output/trials]
+  networks: [app_private, study_private]
+ model:
+  image: ollama/ollama@sha256:da6e0dc5651df159e45686fd663c4dbe1624a52c44d7280eeac1551d8f865532
+  restart: unless-stopped
+  environment:
+   OLLAMA_NUM_PARALLEL: '1'
+   OLLAMA_MAX_LOADED_MODELS: '1'
+   OLLAMA_KEEP_ALIVE: 5m
+  # Reuse existing reviewed candidate weights without changing the old model installation.
+  volumes:
+   - type: bind
+     source: ${EXISTING_MODEL_DIRECTORY:?required}
+     target: /root/.ollama/models
+     read_only: true
+  mem_limit: 7g
+  cpus: 3
+  networks: [app_private]
+ surrealdb:
+  image: surrealdb/surrealdb@sha256:e5d7387e3727bbe2f7cd6d869e48cd34777272258572ead37c9656b25f745723
+  command: [start, --log, error, --user, afribit, --pass, '${SURREAL_PASSWORD:?required}', 'rocksdb:/mydata/notebook.db']
+  restart: unless-stopped
+  user: root
+  volumes: [study_db:/mydata]
+  networks: [study_private]
+ open_notebook:
+  image: lfnovo/open_notebook@sha256:e4e18f12653df5bf48674b7b187c4252be52238b4d706330fd30d9b177b95812
+  restart: unless-stopped
+  depends_on: [surrealdb]
+  environment:
+   OPEN_NOTEBOOK_PASSWORD: ${OPEN_NOTEBOOK_PASSWORD}
+   OPEN_NOTEBOOK_ENCRYPTION_KEY: ${OPEN_NOTEBOOK_ENCRYPTION_KEY:?required}
+   SURREAL_URL: ws://surrealdb:8000/rpc
+   SURREAL_USER: afribit
+   SURREAL_PASSWORD: ${SURREAL_PASSWORD}
+   SURREAL_NAMESPACE: open_notebook
+   SURREAL_DATABASE: open_notebook
+   OPEN_NOTEBOOK_WORKER_MAX_TASKS: '1'
+  volumes: [study_data:/app/data]
+  networks: [study_private]
+ source_gateway:
+  image: alpine/socat@sha256:5f275aa1b6e9889c851f61097142ee050fc6ac4615b4ea64ac1f2b0e81ff8d7f
+  # Loopback in the API namespace satisfies the adapter's strict endpoint boundary.
+  network_mode: service:api
+  command: ['TCP-LISTEN:5055,bind=127.0.0.1,fork,reuseaddr', 'TCP:open_notebook:5055']
+  depends_on: [api, open_notebook]
+  restart: unless-stopped
+  read_only: true
+  cap_drop: [ALL]
+  security_opt: ['no-new-privileges:true']
+ web:
+  build:
+   context: ../..
+   dockerfile: deploy/community-node/web.Dockerfile
+  restart: unless-stopped
+  depends_on: [api]
+  ports: ['${PILOT_LISTEN_ADDRESS:-127.0.0.1}:4189:8080']
+  volumes: ['./pilot.Caddyfile:/etc/caddy/Caddyfile:ro']
+  networks: [app_private, ingress]
+networks:
+ ingress: {}
+ app_private: {internal: true}
+ study_private: {internal: true}
+volumes:
+ pgdata:
+ study_db:
+ study_data:
+ trials:

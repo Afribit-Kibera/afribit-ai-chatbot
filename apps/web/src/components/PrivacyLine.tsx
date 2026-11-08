@@ -7,15 +7,15 @@ import { fill, privacyCopy } from "../lib/privacy.js";
  * Where your question goes and how long it is kept, in one sentence that is true for this server
  * (docs/features/F-001-model-location-label.md). The server says it in GET /api/v1/pack → service.
  */
-export function PrivacyLine({ className = "privacy-line" }: { className?: string }) {
+export function PrivacyLine({ className = "privacy-line",localOnly=false }: { className?: string; localOnly?: boolean }) {
   const { t } = useI18n();
   const pack = usePack();
   const copy = privacyCopy(pack.service);
   return (
-    <p className={className} data-location={pack.service?.modelLocation ?? "unknown"}>
+    <p className={className} data-location={localOnly?"local-only":pack.service?.modelLocation ?? "unknown"}>
       <Lock size={14} aria-hidden="true" />
       <span>
-        {t(copy.location)}
+        {t(localOnly?"processing.staysLocal":copy.location)}
         {copy.retention ? ` ${fill(t(copy.retention), { days: copy.days })}` : ""}
       </span>
     </p>

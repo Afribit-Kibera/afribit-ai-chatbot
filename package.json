@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.1.0",
   "license": "Apache-2.0",
-  "description": "Afribit AI — community-first Bitcoin education assistant for Kibera and Nairobi, speaking Sheng, Kiswahili, and English the way people actually talk",
+  "description": "Afribit AI â€” community-first Bitcoin education assistant for Kibera and Nairobi, speaking Sheng, Kiswahili, and English the way people actually talk",
   "packageManager": "pnpm@11.25.0",
   "scripts": {
     "smoke": "node tools/smoke/smoke.mjs",
@@ -18,7 +18,7 @@
     "db:seed": "pnpm --filter @afribit/api db:seed",
     "db:seed:manuals": "pnpm --filter @afribit/api db:seed:manuals",
     "test:gate": "node --test deploy/gpu-server/gate/gate.test.mjs",
-    "test": "pnpm --filter @afribit/api test:prompt-golden && pnpm --filter @afribit/api test:secret-detector && pnpm --filter @afribit/api test:local-provider && pnpm --filter @afribit/api test:embeddings && pnpm --filter @afribit/api test:fusion && pnpm --filter @afribit/api test:compact-prompt && pnpm --filter @afribit/api test:waiter && pnpm --filter @afribit/api test:chef && pnpm --filter @afribit/api test:cors && pnpm --filter @afribit/api test:pack && pnpm --filter @afribit/api test:registry && pnpm --filter @afribit/api test:voice && pnpm --filter @afribit/api test:meter && pnpm --filter @afribit/api test:review && pnpm --filter @afribit/api test:pilot && pnpm --filter @afribit/api test:grounding && pnpm --filter @afribit/api test:privacy && pnpm --filter @afribit/api test:teach && pnpm --filter @afribit/api test:invitations && pnpm --filter @afribit/api test:gaps && pnpm --filter @afribit/api test:db && pnpm test:gate && pnpm --filter @afribit/web test"
+    "test": "pnpm --filter @afribit/api test:trial-persistence && pnpm --filter @afribit/api test:review-tool && pnpm --filter @afribit/api test:language-iteration && pnpm --filter @afribit/api test:member-lan && pnpm --filter @afribit/api test:prompt-golden && pnpm --filter @afribit/api test:secret-detector && pnpm --filter @afribit/api test:local-provider && pnpm --filter @afribit/api test:embeddings && pnpm --filter @afribit/api test:fusion && pnpm --filter @afribit/api test:compact-prompt && pnpm --filter @afribit/api test:waiter && pnpm --filter @afribit/api test:chef && pnpm --filter @afribit/api test:cors && pnpm --filter @afribit/api test:pack && pnpm --filter @afribit/api test:registry && pnpm --filter @afribit/api test:voice && pnpm --filter @afribit/api test:meter && pnpm --filter @afribit/api test:review && pnpm --filter @afribit/api test:pilot && pnpm --filter @afribit/api test:grounding && pnpm --filter @afribit/api test:notebooks && pnpm --filter @afribit/api test:learning && pnpm --filter @afribit/api test:privacy && pnpm --filter @afribit/api test:teach && pnpm --filter @afribit/api test:invitations && pnpm --filter @afribit/api test:gaps && pnpm --filter @afribit/api test:db && pnpm --filter @afribit/api test:showcase && pnpm --filter @afribit/api test:rental && pnpm --filter @afribit/api test:discovery && pnpm --filter @afribit/api test:artifacts && pnpm --filter @afribit/api test:community-harness && pnpm --filter @afribit/api test:community-rental && pnpm --filter @afribit/api test:gpu-telemetry && pnpm --filter @afribit/api test:runpod-https && pnpm --filter @afribit/api test:ollama-store && pnpm --filter @afribit/api test:rental-worker && pnpm test:gate && pnpm --filter @afribit/web test"
   },
   "devDependencies": {
     "typescript": "^5.6.3"

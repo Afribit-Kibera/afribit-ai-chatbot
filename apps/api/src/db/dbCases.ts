@@ -12,6 +12,11 @@ import { invitationStore } from "../auth/invitationStore.js";
 import { hashCode, normaliseCode } from "../auth/invitations.js";
 import { gapStore, GapError } from "../gaps/store.js";
 import { summarise } from "../gaps/rules.js";
+import { runAccessCases } from "../chat/accessCases.js";
+import { runCommunityCases } from "../community/communityCases.js";
+import { runMemoryCases } from "../memory/memoryCases.js";
+import { runProcessingCases } from "../privacy/processingCases.js";
+import { runComputeCases } from "../compute/computeCases.js";
 
 /**
  * pnpm --filter @afribit/api test:db -- the SQL of F-002 (privacy), F-003 ("say it your way") and F-012
@@ -35,10 +40,11 @@ for (const f of readdirSync(MIG).filter((n) => n.endsWith(".sql")).sort()) {
   await db.exec(sql);
 }
 
-// The repo's pg pool, pointed at PGlite (pg's rowCount is PGlite's affectedRows).
+// The repo's pg pool, pointed at PGlite, adapting pg's SELECT/DML rowCount semantics.
 const run = async (text: string, params: unknown[] = []) => {
   const r = await db.query(text, params);
-  return { rows: r.rows, rowCount: r.affectedRows ?? r.rows.length };
+  // PGlite reports affectedRows=0 for SELECT; pg reports the number of returned rows.
+  return { rows: r.rows, rowCount: r.affectedRows || r.rows.length };
 };
 Object.assign(pool, { query: run, connect: async () => ({ query: run, release() {} }) });
 
@@ -110,7 +116,8 @@ await ok("pilot queue: shows the text a learner shared with a report when the ch
 });
 await ok("deleteSessions: deletes the conversation, its messages and feedback; safety events keep their row", async () => {
   await db.query(`INSERT INTO safety_events (session_id, kind) VALUES ($1, 'seed_phrase_detected')`, [S_REPORTED]);
-  assert.equal(await privacyStore.deleteSessions([S_REPORTED, "10000000-0000-4000-8000-0000000000ff"]), 1);
+  await db.query(`UPDATE chat_sessions SET user_id = $2 WHERE id = $1`, [S_REPORTED, ADMIN]);
+  assert.equal(await privacyStore.deleteSessions([S_REPORTED, "10000000-0000-4000-8000-0000000000ff"], { userId: ADMIN }), 1);
   assert.equal((await one(`SELECT count(*)::int AS n FROM chat_messages WHERE session_id = $1`, [S_REPORTED])).n, 0);
   assert.equal((await one(`SELECT count(*)::int AS n FROM message_feedback WHERE message_id = $1`, [reportedAnswer])).n, 0);
   assert.equal((await one(`SELECT count(*)::int AS n FROM safety_events WHERE kind = 'seed_phrase_detected' AND session_id IS NULL`)).n, 1);
@@ -182,7 +189,8 @@ await ok("teach safety topic: first approval waits; the same reviewer cannot fin
   assert.equal((await one(`SELECT count(*)::int AS n FROM audit_logs WHERE action = 'decide_suggestion'`)).n, 3);
 });
 await ok("deleting the conversation clears the text shared with its suggestions; the suggestion stays", async () => {
-  await privacyStore.deleteSessions([S_T]);
+  await db.query(`UPDATE chat_sessions SET user_id = $2 WHERE id = $1`, [S_T, R1]);
+  await privacyStore.deleteSessions([S_T], { userId: R1 });
   const s = await one(`SELECT session_id, question_text, answer_text, status FROM teach_suggestions WHERE id = $1`, [plain]);
   assert.deepEqual(s, { session_id: null, question_text: null, answer_text: null, status: "approved" });
 });
@@ -266,6 +274,11 @@ await ok("gaps: a decision names a real card, is scoped to the community, and is
   assert.deepEqual(await gapStore.openTopics("kibera-bitcoin", 10), ["Football results"]); // decided topics are not offered to the labeller
   assert.equal((await one(`SELECT count(*)::int AS n FROM audit_logs WHERE action = 'decide_gap' AND entity_id = $1`, [id])).n, 1);
 });
+await runAccessCases(db, ok);
+await runCommunityCases(db, ok);
+await runMemoryCases(db, ok);
+await runProcessingCases(db, ok);
+await runComputeCases(db, ok);
 await db.close();
 console.log(`db: ${passed} checks passed against PostgreSQL (PGlite)`);
 process.exit(0);

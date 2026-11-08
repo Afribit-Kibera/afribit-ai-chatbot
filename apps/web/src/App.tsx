@@ -10,13 +10,16 @@ export function App({ path = window.location.pathname }: { path?: string }) {
         fallback={
           <main
             className="boot-state"
+            role="status"
+            aria-busy="true"
+            style={{background:'#fcfaf5',color:'#193f2b'}}
             aria-label={`${t("common.loading")} Afribit AI`}
           >
             <img
-              src="/brand/afribit-mark-icon.png"
-              width="48"
-              height="56"
-              alt="Afribit AI"
+              src="/brand/afribit-learning-motion.svg"
+              width="180"
+              height="130"
+              alt="Afribit AI learning space"
             />
             <p>{t("common.loading")}</p>
           </main>

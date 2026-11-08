@@ -29,7 +29,7 @@ interface UserRow {
   id: string;
   email: string;
   password_hash: string;
-  role: "contributor" | "reviewer" | "admin";
+  role: "learner" | "contributor" | "reviewer" | "admin";
   display_name: string | null;
 }
 

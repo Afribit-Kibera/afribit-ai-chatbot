@@ -4,3 +4,12 @@ node_modules
 .git
 .env
 .env.*
+output
+internal
+tmp
+.playwright-cli
+**/test-results
+**/playwright-report
+**/*.pem
+**/*.key
+**/TEST-ACCOUNTS.md

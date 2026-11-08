@@ -109,8 +109,8 @@ interface QueueRow {
 const QUEUE_SELECT = `
   SELECT f.id AS feedback_id, f.message_id, f.created_at, s.source, s.language_mode, f.reason, f.comment,
          -- F-002: text the learner shared with the report wins; with CHAT_RETENTION=none it is the only text.
-         coalesce(nullif(f.question_text, ''), nullif(${QUESTION}, '')) AS question,
-         coalesce(nullif(f.answer_text, ''), nullif(m.content, '')) AS answer, m.safety_flag, m.retrieval_confidence, m.retrieved_ids,
+         coalesce(nullif(f.question_text, ''), CASE WHEN s.user_id IS NULL THEN nullif(${QUESTION}, '') END) AS question,
+         coalesce(nullif(f.answer_text, ''), CASE WHEN s.user_id IS NULL THEN nullif(m.content, '') END, '') AS answer, m.safety_flag, m.retrieval_confidence, m.retrieved_ids,
          f.reviewed_at, coalesce(ru.display_name, ru.email) AS reviewed_by_name, f.resolution, f.reviewer_note
   FROM message_feedback f
   JOIN chat_messages m ON m.id = f.message_id
@@ -174,7 +174,10 @@ async function queue(opts: { state: "open" | "resolved"; limit: number; packId: 
        JOIN LATERAL (SELECT x.id FROM chat_messages x WHERE x.session_id = e.session_id AND x.role = 'assistant' AND x.created_at >= e.created_at ORDER BY x.created_at LIMIT 1) a ON true
        WHERE e.kind = 'ungrounded_answer' AND ${PACK}
      )
-     SELECT DISTINCT ON (h.message_id) h.message_id, h.kind, h.at, h.details, s.source, ${QUESTION} AS question, m.content AS answer, m.retrieved_ids
+     SELECT DISTINCT ON (h.message_id) h.message_id, h.kind, h.at,
+       CASE WHEN s.user_id IS NULL THEN h.details END AS details, s.source,
+       CASE WHEN s.user_id IS NULL THEN ${QUESTION} END AS question,
+       CASE WHEN s.user_id IS NULL THEN m.content ELSE '' END AS answer, m.retrieved_ids
      FROM hits h JOIN chat_messages m ON m.id = h.message_id JOIN chat_sessions s ON s.id = m.session_id
      ORDER BY h.message_id, (h.details IS NULL)`,
     p,

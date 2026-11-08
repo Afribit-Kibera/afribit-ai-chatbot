@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 230" role="img" aria-labelledby="title desc">
+<title id="title">A book becomes a conversation</title><desc id="desc">Gentle Afribit green animation connecting source pages with learning steps.</desc>
+<style>.page{transform-origin:160px 170px;animation:rise 3.5s ease-in-out infinite}.p2{animation-delay:.3s}.p3{animation-delay:.6s}.dot{animation:pulse 2.5s ease-in-out infinite}.d2{animation-delay:.3s}.d3{animation-delay:.6s}@keyframes rise{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}@keyframes pulse{0%,100%{opacity:.45}50%{opacity:1}}@media(prefers-reduced-motion:reduce){*{animation:none!important}}</style>
+<circle cx="160" cy="118" r="100" fill="#e6f4ec"/><path d="M74 176Q117 157 160 176Q203 157 246 176V201Q203 184 160 204Q117 184 74 201Z" fill="#fffdf8" stroke="#006b42" stroke-width="4"/>
+<g class="page"><rect x="88" y="89" width="53" height="74" rx="9" fill="#c4e5d2" stroke="#008751" stroke-width="3"/><path d="M99 111h30m-30 12h23m-23 12h28" stroke="#008751" stroke-width="3" stroke-linecap="round"/></g>
+<g class="page p2"><rect x="148" y="65" width="53" height="74" rx="9" fill="#fffdf8" stroke="#008751" stroke-width="3"/><path d="M159 87h30m-30 12h23m-23 12h28" stroke="#008751" stroke-width="3" stroke-linecap="round"/></g>
+<g class="page p3"><path d="M204 49h54a12 12 0 0 1 12 12v28a12 12 0 0 1-12 12h-27l-15 14v-14h-12a12 12 0 0 1-12-12V61a12 12 0 0 1 12-12Z" fill="#008751"/><path d="m214 75 10 9 24-22" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/></g>
+<path d="M105 53h48" stroke="#e0ad34" stroke-width="3" stroke-linecap="round"/><circle class="dot" cx="97" cy="53" r="5" fill="#e0ad34"/><circle class="dot d2" cx="125" cy="53" r="5" fill="#e0ad34"/><circle class="dot d3" cx="153" cy="53" r="5" fill="#e0ad34"/>
+</svg>

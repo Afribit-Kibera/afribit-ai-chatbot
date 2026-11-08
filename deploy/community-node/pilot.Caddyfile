@@ -1,0 +1,33 @@
+:8080 {
+ encode zstd gzip
+ header {
+  X-Content-Type-Options nosniff
+  Referrer-Policy no-referrer
+  Permissions-Policy "camera=(), geolocation=()"
+  -Server
+ }
+ @private path /api/* /app* /review* /pilot* /voice*
+ header @private Cache-Control "no-store"
+ handle /api/* {
+  reverse_proxy api:3001 {
+   flush_interval -1
+  }
+ }
+ handle /health* {
+  reverse_proxy api:3001
+ }
+ handle /review* {
+  reverse_proxy api:3001
+ }
+ handle /pilot* {
+  reverse_proxy api:3001
+ }
+ handle /voice* {
+  reverse_proxy api:3001
+ }
+ handle {
+  root * /srv
+  try_files {path} {path}/index.html /index.html
+  file_server
+ }
+}

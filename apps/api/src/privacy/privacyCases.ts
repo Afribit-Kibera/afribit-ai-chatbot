@@ -12,6 +12,7 @@ import { parseRetention, publicRetention, storedContent } from "./retention.js";
 import { MAX_HISTORY_TURNS, MAX_TURN_CHARS, parseClientHistory } from "./history.js";
 import { PrivacyError, type PrivacyStore } from "./store.js";
 import { startRetentionSweep } from "./sweep.js";
+import type { SessionAccess } from "../chat/access.js";
 
 /**
  * pnpm --filter @afribit/api test:privacy -- F-001 (where the AI runs) and F-002 (privacy settings), no
@@ -61,6 +62,10 @@ await ok("location setting: auto, community, afribit; anything else refuses to s
 await ok("answered by: a hosted provider is 'outside', everything else 'local'", () => {
   assert.equal(answeredBy("openrouter"), "outside");
   assert.equal(answeredBy("local"), "local");
+  assert.equal(answeredBy("local","http://127.0.0.1:11434"),"local");
+  assert.equal(answeredBy("local","https://synthetic-8080.proxy.runpod.net"),"outside");
+  assert.equal(answeredBy("local","http://100.80.0.1:11434"),"outside");
+  assert.equal(answeredBy("local","invalid endpoint"),"outside");
   assert.equal(answeredBy(null), "local");
 });
 
@@ -140,14 +145,17 @@ const chatService: ChatService = {
     onEvent({ type: "done", messageId: "22222222-2222-4222-8222-222222222222", usedFallback: false, answeredBy: "local" });
   },
   async sessionPackId() {
-    return undefined;
+    return null;
   },
 };
 
 const app = Fastify();
 await app.register(authPlugin);
 registerPackRoutes(app);
-registerChatRoutes(app, {} as AfribitAIGateway, chatService);
+// These legacy unit cases isolate retention/parsing; actual ownership SQL is tested in test:db.
+const accessRow = (id: string) => ({ id, user_id: null, pack_id: null, guest_access_hash: null, guest_access_expires_at: null });
+const access: SessionAccess = { async requireSession(id) { return accessRow(id); }, async requireMessage(id) { return accessRow(id); } };
+registerChatRoutes(app, {} as AfribitAIGateway, chatService, access);
 registerPrivacyRoutes(app, store);
 await app.ready();
 const USER = "00000000-0000-4000-8000-000000000001";
@@ -220,7 +228,7 @@ await ok("reading a conversation on a server that keeps no chats returns nothing
   try {
     const res = await app.inject({ method: "GET", url: `/api/v1/chat/${SESSION}` });
     assert.equal(res.statusCode, 200);
-    assert.deepEqual(res.json(), { sessionId: SESSION, messages: [] });
+    assert.deepEqual(res.json(), { sessionId: SESSION, processingPolicy:"configured", messages: [] });
   } finally {
     (env as { chatRetention: typeof saved }).chatRetention = saved;
   }

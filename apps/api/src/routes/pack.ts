@@ -3,6 +3,7 @@ import type { FastifyInstance, FastifyReply } from "fastify";
 import { getPack, getRegistry, runWithPack } from "../pack/active.js";
 import { selectPack } from "../pack/request.js";
 import type { CommunityPack } from "../pack/types.js";
+import type { communityStore } from "../community/store.js";
 
 declare module "fastify" {
   interface FastifyRequest {
@@ -46,7 +47,7 @@ function vary(reply: FastifyReply, token: string): void {
  * from this, so the same app works for any community's pack. It never includes prompts, the review
  * keys or the knowledge text itself.
  */
-export function registerPackRoutes(app: FastifyInstance): void {
+export function registerPackRoutes(app: FastifyInstance, access?: Pick<typeof communityStore, "state">): void {
   app.decorateRequest("packExplicit", false);
 
   app.addHook("onRequest", (request, reply, done) => {
@@ -92,24 +93,26 @@ export function registerPackRoutes(app: FastifyInstance): void {
 
   app.get("/api/v1/pack", async (_request, reply) => {
     const pack = getPack();
+    const membersOnly = access ? (await access.state(pack.id, null)).membersOnly : false;
     const live = pack.knowledge.entries.filter((c) => c.status === "approved" || c.status === "published").length;
-    reply.header("cache-control", "public, max-age=300");
+    reply.header("cache-control", "no-store");
     vary(reply, "x-pack");
     return reply.send({
       schema: pack.schema,
       id: pack.id,
+      membershipRequired: membersOnly,
       name: pack.name,
       version: pack.version,
-      description: pack.description,
+      description: membersOnly ? "" : pack.description,
       license: pack.license,
       community: pack.community,
       domain: { id: pack.domain.id, label: pack.domain.label },
       defaultMode: pack.defaultMode,
       modes: pack.modes.map((m) => ({ id: m.id, label: m.label, description: m.description })),
-      starterQuestions: pack.starterQuestions,
-      disclaimers: pack.disclaimers,
-      branding: publicBranding(pack),
-      knowledge: { topics: pack.knowledge.topics.length, publishedCards: live },
+      starterQuestions: membersOnly ? null : pack.starterQuestions,
+      disclaimers: membersOnly ? [] : pack.disclaimers,
+      branding: membersOnly ? { ...publicBranding(pack), welcomeTitle: null, welcomeText: null, composerPlaceholder: null, tagline: null } : publicBranding(pack),
+      knowledge: membersOnly ? { topics: 0, publishedCards: 0 } : { topics: pack.knowledge.topics.length, publishedCards: live },
       // F-001 / F-002: where the model runs and how long chats are kept, so the app's privacy sentence is true.
       service: serviceInfo(),
     });

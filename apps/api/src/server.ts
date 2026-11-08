@@ -23,6 +23,14 @@ import { privacyStore } from "./privacy/store.js";
 import { startRetentionSweep } from "./privacy/sweep.js";
 import { serviceInfo } from "./privacy/service.js";
 import { getPack, getRegistry } from "./pack/active.js";
+import { communityStore } from "./community/store.js";
+import { registerCommunityGuard } from "./community/guard.js";
+import { registerCommunityRoutes } from "./routes/community.js";
+import { registerMemoryRoutes } from "./routes/memory.js";
+import { registerComputeRoutes } from "./routes/compute.js";
+import { registerNotebookRoutes } from "./routes/notebooks.js";
+import { registerLearningRoutes } from "./routes/learning.js";
+import { enforceComputePolicies } from "./compute/admission.js";
 
 assertProductionEnv();
 
@@ -40,8 +48,10 @@ assertProductionEnv();
 // subnet) is known, tighten this to that specific address instead of `true`
 // so a client can't forge X-Forwarded-For if the proxy is ever misconfigured
 // to pass the port through directly.
-const app = Fastify({ logger: true, trustProxy: true });
+const app = Fastify({ logger: { redact: ["req.headers.authorization", 'req.headers["x-chat-token"]', "req.body.sessionTokens", "req.body.password", "req.body.invitationCode"] }, trustProxy: true });
 const gateway = createGateway();
+enforceComputePolicies();
+app.log.info("compute admission enforced: communities need an enabled policy for model/embedding calls; approved-card answers remain available");
 gateway.setMeter(recordUsage);
 gateway.setScope(() => getPack().id);
 
@@ -87,12 +97,18 @@ await app.register(rateLimit, {
 const packs = getRegistry();
 app.log.info(`Serving ${packs.packs.length} community pack(s): ${packs.packs.map((p) => p.id).join(", ")} (default: ${packs.default.id})`);
 // Before the routes it scopes: binds each request to its pack (x-pack header or ?pack=).
-registerPackRoutes(app);
+registerPackRoutes(app, communityStore);
+registerCommunityGuard(app);
 
 app.get("/health", async () => ({ ok: true }));
 app.get("/health/providers", async () => gateway.healthCheckAll());
 
 registerAuthRoutes(app);
+registerCommunityRoutes(app);
+registerMemoryRoutes(app);
+registerComputeRoutes(app);
+registerNotebookRoutes(app);
+registerLearningRoutes(app,gateway);
 registerChatRoutes(app, gateway);
 registerPreferenceRoutes(app);
 registerKnowledgeRoutes(app);
